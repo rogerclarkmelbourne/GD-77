@@ -23,4 +23,5 @@ firmware_find_shift BF-5R_V2.1.0_1BB37_078001 datafile search_startpattern >> re
 firmware_find_shift BF-5R_V2.1.6_BB8A_078001 datafile search_startpattern >> results_search_startpattern.txt
 firmware_find_shift MD-760_V2.6.5_7BFC_075801 datafile search_startpattern >> results_search_startpattern.txt
 firmware_find_shift DM-1801_V2.1.9_1FF08_078001 datafile search_startpattern >> results_search_startpattern.txt
+firmware_find_shift BF-860_V3.1.9_FDBC4_078001 datafile search_startpattern >> results_search_startpattern.txt
 pause

@@ -22,4 +22,5 @@ firmware_decrypt BF-5R_V2.1.0_1BB37_078001 datafile 0x2f2b encrypt
 firmware_decrypt BF-5R_V2.1.6_BB8A_078001 datafile 0x7d54 encrypt
 firmware_decrypt MD-760_V2.6.5_7BFC_075801 datafile 0x7b70 encrypt
 firmware_decrypt DM-1801_V2.1.9_1FF08_078001 datafile 0x2c7c encrypt
+firmware_decrypt BF-860_V3.1.9_FDBC4_078001 datafile 0x02ec encrypt
 pause
