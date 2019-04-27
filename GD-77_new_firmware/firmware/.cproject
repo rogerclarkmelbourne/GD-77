@@ -15,7 +15,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="axf" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe" cleanCommand="rm -rf" description="Debug build" errorParsers="org.eclipse.cdt.core.CWDLocator;org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="com.crt.advproject.config.exe.debug.1021312312" name="Debug" parent="com.crt.advproject.config.exe.debug" postannouncebuildStep="Performing post-build steps" postbuildStep="arm-none-eabi-size &quot;${BuildArtifactFileName}&quot;; # arm-none-eabi-objcopy -v -O binary &quot;${BuildArtifactFileName}&quot; &quot;${BuildArtifactFileBaseName}.bin&quot; ; # checksum -p ${TargetChip} -d &quot;${BuildArtifactFileBaseName}.bin&quot;;  ">
+				<configuration artifactExtension="axf" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe" cleanCommand="rm -rf" description="Debug build" errorParsers="org.eclipse.cdt.core.CWDLocator;org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="com.crt.advproject.config.exe.debug.1021312312" name="Debug" parent="com.crt.advproject.config.exe.debug" postannouncebuildStep="Performing post-build steps" postbuildStep="arm-none-eabi-size &quot;${BuildArtifactFileName}&quot; ; arm-none-eabi-objcopy -v -O binary &quot;${BuildArtifactFileName}&quot; &quot;${BuildArtifactFileBaseName}.bin&quot; ; # checksum -p ${TargetChip} -d &quot;${BuildArtifactFileBaseName}.bin&quot;">
 					<folderInfo id="com.crt.advproject.config.exe.debug.1021312312." name="/" resourcePath="">
 						<toolChain id="com.crt.advproject.toolchain.exe.debug.591166512" name="NXP MCU Tools" superClass="com.crt.advproject.toolchain.exe.debug">
 							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.GNU_ELF" id="com.crt.advproject.platform.exe.debug.1946786741" name="ARM-based MCU (Debug)" superClass="com.crt.advproject.platform.exe.debug"/>
@@ -80,7 +80,7 @@
 									<listOptionValue builtIn="false" value="__REDLIB__"/>
 								</option>
 								<option id="gnu.c.compiler.option.preprocessor.undef.symbol.1187618416" name="Undefined symbols (-U)" superClass="gnu.c.compiler.option.preprocessor.undef.symbol"/>
-								<option id="gnu.c.compiler.option.include.paths.1286635929" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
+								<option id="gnu.c.compiler.option.include.paths.1286635929" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../board"/>
 									<listOptionValue builtIn="false" value="../source"/>
 									<listOptionValue builtIn="false" value="../"/>
@@ -96,7 +96,6 @@
 									<listOptionValue builtIn="false" value="../usb/device/source/ehci"/>
 									<listOptionValue builtIn="false" value="../usb/device/source/khci"/>
 									<listOptionValue builtIn="false" value="../usb/device/source/lpcip3511"/>
-									<listOptionValue builtIn="false" value="../source/generated"/>
 									<listOptionValue builtIn="false" value="../usb/include"/>
 									<listOptionValue builtIn="false" value="../usb/phy"/>
 									<listOptionValue builtIn="false" value="../osa"/>
@@ -136,7 +135,7 @@
 								<option id="com.crt.advproject.gas.thumb.1604484081" name="Thumb mode" superClass="com.crt.advproject.gas.thumb" value="true" valueType="boolean"/>
 								<option id="com.crt.advproject.gas.arch.1720396899" name="Architecture" superClass="com.crt.advproject.gas.arch" value="com.crt.advproject.gas.target.cm4" valueType="enumerated"/>
 								<option id="gnu.both.asm.option.flags.crt.13601710" name="Assembler flags" superClass="gnu.both.asm.option.flags.crt" value="-c -x assembler-with-cpp -D__REDLIB__" valueType="string"/>
-								<option id="gnu.both.asm.option.include.paths.1810846110" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+								<option id="gnu.both.asm.option.include.paths.1810846110" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../board"/>
 									<listOptionValue builtIn="false" value="../source"/>
 									<listOptionValue builtIn="false" value="../"/>
@@ -152,7 +151,6 @@
 									<listOptionValue builtIn="false" value="../usb/device/source/ehci"/>
 									<listOptionValue builtIn="false" value="../usb/device/source/khci"/>
 									<listOptionValue builtIn="false" value="../usb/device/source/lpcip3511"/>
-									<listOptionValue builtIn="false" value="../source/generated"/>
 									<listOptionValue builtIn="false" value="../usb/include"/>
 									<listOptionValue builtIn="false" value="../usb/phy"/>
 									<listOptionValue builtIn="false" value="../osa"/>
@@ -305,7 +303,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactExtension="axf" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe" cleanCommand="rm -rf" description="Release build" errorParsers="org.eclipse.cdt.core.CWDLocator;org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="com.crt.advproject.config.exe.release.1754847732" name="Release" parent="com.crt.advproject.config.exe.release" postannouncebuildStep="Performing post-build steps" postbuildStep="arm-none-eabi-size &quot;${BuildArtifactFileName}&quot;; # arm-none-eabi-objcopy -v -O binary &quot;${BuildArtifactFileName}&quot; &quot;${BuildArtifactFileBaseName}.bin&quot; ; # checksum -p ${TargetChip} -d &quot;${BuildArtifactFileBaseName}.bin&quot;;  ">
+				<configuration artifactExtension="axf" artifactName="${ProjName}" buildArtefactType="org.eclipse.cdt.build.core.buildArtefactType.exe" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=org.eclipse.cdt.build.core.buildArtefactType.exe" cleanCommand="rm -rf" description="Release build" errorParsers="org.eclipse.cdt.core.CWDLocator;org.eclipse.cdt.core.GmakeErrorParser;org.eclipse.cdt.core.GCCErrorParser;org.eclipse.cdt.core.GLDErrorParser;org.eclipse.cdt.core.GASErrorParser" id="com.crt.advproject.config.exe.release.1754847732" name="Release" parent="com.crt.advproject.config.exe.release" postannouncebuildStep="Performing post-build steps" postbuildStep="arm-none-eabi-size &quot;${BuildArtifactFileName}&quot; ; arm-none-eabi-objcopy -v -O binary &quot;${BuildArtifactFileName}&quot; &quot;${BuildArtifactFileBaseName}.bin&quot; ; # checksum -p ${TargetChip} -d &quot;${BuildArtifactFileBaseName}.bin&quot;">
 					<folderInfo id="com.crt.advproject.config.exe.release.1754847732." name="/" resourcePath="">
 						<toolChain id="com.crt.advproject.toolchain.exe.release.1806827112" name="NXP MCU Tools" superClass="com.crt.advproject.toolchain.exe.release">
 							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.GNU_ELF" id="com.crt.advproject.platform.exe.release.730364288" name="ARM-based MCU (Release)" superClass="com.crt.advproject.platform.exe.release"/>
@@ -384,7 +382,6 @@
 									<listOptionValue builtIn="false" value="../usb/device/source/ehci"/>
 									<listOptionValue builtIn="false" value="../usb/device/source/khci"/>
 									<listOptionValue builtIn="false" value="../usb/device/source/lpcip3511"/>
-									<listOptionValue builtIn="false" value="../source/generated"/>
 									<listOptionValue builtIn="false" value="../usb/include"/>
 									<listOptionValue builtIn="false" value="../usb/phy"/>
 									<listOptionValue builtIn="false" value="../osa"/>
@@ -438,7 +435,6 @@
 									<listOptionValue builtIn="false" value="../usb/device/source/ehci"/>
 									<listOptionValue builtIn="false" value="../usb/device/source/khci"/>
 									<listOptionValue builtIn="false" value="../usb/device/source/lpcip3511"/>
-									<listOptionValue builtIn="false" value="../source/generated"/>
 									<listOptionValue builtIn="false" value="../usb/include"/>
 									<listOptionValue builtIn="false" value="../usb/phy"/>
 									<listOptionValue builtIn="false" value="../osa"/>
