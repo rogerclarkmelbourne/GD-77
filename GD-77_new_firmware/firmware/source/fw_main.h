@@ -30,6 +30,12 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "fw_common.h"
+#include "fw_buttons.h"
+#include "fw_LEDs.h"
+#include "fw_keyboard.h"
+#include "fw_display.h"
+
 void fw_init();
 void fw_main_task(void *handle);
 

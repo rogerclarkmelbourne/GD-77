@@ -27,4 +27,6 @@
 #ifndef _FW_BUTTONS_H_
 #define _FW_BUTTONS_H_
 
+void fw_init_buttons();
+
 #endif /* _FW_BUTTONS_H_ */

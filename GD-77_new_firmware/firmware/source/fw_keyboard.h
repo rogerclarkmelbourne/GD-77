@@ -27,4 +27,6 @@
 #ifndef _FW_KEYBOARD_H_
 #define _FW_KEYBOARD_H_
 
+void fw_init_keyboard();
+
 #endif /* _FW_KEYBOARD_H_ */

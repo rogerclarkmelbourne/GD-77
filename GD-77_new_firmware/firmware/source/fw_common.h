@@ -27,4 +27,6 @@
 #ifndef _FW_COMMON_H_
 #define _FW_COMMON_H_
 
+void fw_init_common();
+
 #endif /* _FW_COMMON_H_ */

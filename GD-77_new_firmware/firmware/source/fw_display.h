@@ -27,4 +27,6 @@
 #ifndef _FW_DISPLAY_H_
 #define _FW_DISPLAY_H_
 
+void fw_init_display();
+
 #endif /* _FW_DISPLAY_H_ */

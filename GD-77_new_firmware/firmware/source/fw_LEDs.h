@@ -27,4 +27,6 @@
 #ifndef _FW_LEDS_H_
 #define _FW_LEDS_H_
 
+void fw_init_LEDs();
+
 #endif /* _FW_LEDS_H_ */
