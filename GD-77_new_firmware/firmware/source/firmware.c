@@ -38,9 +38,8 @@
 #include "pin_mux.h"
 #include "clock_config.h"
 #include "MK22F51212.h"
-/* TODO: insert other include files here. */
 
-/* TODO: insert other definitions and declarations here. */
+#include "fw_main.h"
 
 /*
  * @brief   Application entry point.
@@ -51,13 +50,7 @@ int main(void) {
     BOARD_InitBootClocks();
     BOARD_InitBootPeripherals();
 
-    printf("Hello World\n");
+    fw_init();
 
-    /* Force the counter to be placed into memory. */
-    volatile static int i = 0 ;
-    /* Enter an infinite loop, just incrementing a counter. */
-    while(1) {
-        i++ ;
-    }
-    return 0 ;
+    return 0;
 }

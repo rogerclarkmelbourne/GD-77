@@ -27,4 +27,10 @@
 #ifndef _FW_MAIN_H_
 #define _FW_MAIN_H_
 
+#include "FreeRTOS.h"
+#include "task.h"
+
+void fw_init();
+void fw_main_task(void *handle);
+
 #endif /* _FW_MAIN_H_ */

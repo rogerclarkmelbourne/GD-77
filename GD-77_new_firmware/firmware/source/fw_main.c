@@ -23,3 +23,28 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
+#include "fw_main.h"
+
+TaskHandle_t fwMainTaskHandle;
+
+void fw_init()
+{
+	xTaskCreate(fw_main_task,                        /* pointer to the task */
+				"fw main task",                      /* task name for kernel awareness debugging */
+				5000L / sizeof(portSTACK_TYPE),      /* task stack size */
+				NULL,                      			 /* optional task startup argument */
+				5U,                                  /* initial priority */
+				fwMainTaskHandle					 /* optional task handle to create */
+				);
+
+    vTaskStartScheduler();
+}
+
+void fw_main_task(void *handle)
+{
+    while (1U)
+    {
+		vTaskDelay(portTICK_PERIOD_MS);
+    }
+}
