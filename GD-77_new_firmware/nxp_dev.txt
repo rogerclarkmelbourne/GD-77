@@ -1,0 +1,8 @@
+Install MCUXpresso + SDK (https://www.nxp.com/support/developer-resources/software-development-tools/mcuxpresso-software-and-tools:MCUXPRESSO):
+- MCUXpressoIDE_10.3.1_2233
+- SDK_2.5.0_MK22FN512xxx12
+
+Create project:
+- MK22FN512xxx12 without board
+  check MK22FN512VLL512 / check Amazon-FreeRTOS
+  add adc, dac, gpio, port, dspi, dspi_freertos, i2c, i2c_freertos, sai, sai_edma, USB device
