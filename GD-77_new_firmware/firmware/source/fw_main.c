@@ -26,6 +26,8 @@
 
 #include "fw_main.h"
 
+#include "UC1701.h"
+
 TaskHandle_t fwMainTaskHandle;
 
 void fw_init()
@@ -41,6 +43,45 @@ void fw_init()
     vTaskStartScheduler();
 }
 
+int Display_light_Timer = 0;
+bool Display_light_Touched = false;
+bool Show_SplashScreen = false;
+int SplashScreen_Timer = 0;
+bool Shutdown = false;
+int Shutdown_Timer = 0;
+
+void show_splashscreen()
+{
+	UC1701_clear();
+	UC1701_setCursor(5*6,1);
+	UC1701_print((unsigned char*)"Experimental");
+	UC1701_setCursor(7*6,2);
+	UC1701_print((unsigned char*)"firmware");
+	UC1701_setCursor(10*6,4);
+	UC1701_print((unsigned char*)"by");
+	UC1701_setCursor(8*6,6);
+	UC1701_print((unsigned char*)"DG4KLU");
+	Display_light_Touched = true;
+}
+
+void show_running()
+{
+	UC1701_clear();
+	UC1701_setCursor(7*6+3,4);
+	UC1701_print((unsigned char*)"RUNNING");
+	Display_light_Touched = true;
+}
+
+void show_poweroff()
+{
+	UC1701_clear();
+	UC1701_setCursor(4*6+3,2);
+	UC1701_print((unsigned char*)"Power off ...");
+	UC1701_setCursor(5*6,4);
+	UC1701_print((unsigned char*)"73 de DG4KLU");
+	Display_light_Touched = true;
+}
+
 void fw_main_task(void *handle)
 {
 	fw_init_common();
@@ -49,8 +90,72 @@ void fw_main_task(void *handle)
 	fw_init_keyboard();
 	fw_init_display();
 
+	Show_SplashScreen = true;
+
     while (1U)
     {
+    	if ((GPIO_PinRead(GPIO_Power_Switch, Pin_Power_Switch)!=0) && (!Shutdown))
+    	{
+    		Show_SplashScreen=false;
+    		SplashScreen_Timer=0;
+    		show_poweroff();
+    		Shutdown=true;
+			Shutdown_Timer = 2000;
+    	}
+    	else if ((GPIO_PinRead(GPIO_Power_Switch, Pin_Power_Switch)==0) && (Shutdown))
+    	{
+			show_running();
+			Shutdown=false;
+			Shutdown_Timer = 0;
+    	}
+
+    	if (Shutdown)
+    	{
+    		if (Shutdown_Timer>0)
+    		{
+    			Shutdown_Timer--;
+    			if (Shutdown_Timer==0)
+    			{
+    				GPIO_PinWrite(GPIO_Keep_Power_On, Pin_Keep_Power_On, 0);
+    			}
+    		}
+    	}
+
+		if (Show_SplashScreen)
+		{
+			show_splashscreen();
+			SplashScreen_Timer = 4000;
+			Show_SplashScreen = false;
+		}
+
+		if (SplashScreen_Timer>0)
+		{
+			SplashScreen_Timer--;
+			if (SplashScreen_Timer==0)
+			{
+				show_running();
+			}
+		}
+
+		if (Display_light_Touched)
+		{
+			if (Display_light_Timer==0)
+			{
+				GPIO_PinWrite(GPIO_Display_Light, Pin_Display_Light, 1);
+			}
+			Display_light_Timer = 4000;
+			Display_light_Touched = false;
+		}
+
+		if (Display_light_Timer>0)
+		{
+			Display_light_Timer--;
+			if (Display_light_Timer==0)
+			{
+				GPIO_PinWrite(GPIO_Display_Light, Pin_Display_Light, 0);
+			}
+		}
+
 		vTaskDelay(portTICK_PERIOD_MS);
     }
 }

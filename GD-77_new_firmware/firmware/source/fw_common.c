@@ -53,4 +53,7 @@ void fw_init_common()
     // Power On/Off logic
     GPIO_PinInit(GPIO_Keep_Power_On, Pin_Keep_Power_On, &pin_config_output);
     GPIO_PinInit(GPIO_Power_Switch, Pin_Power_Switch, &pin_config_input);
+
+    // Power On/Off logic
+	GPIO_PinWrite(GPIO_Keep_Power_On, Pin_Keep_Power_On, 1);
 }
