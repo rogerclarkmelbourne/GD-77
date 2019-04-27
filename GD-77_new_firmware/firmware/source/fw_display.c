@@ -24,7 +24,12 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 #include "fw_display.h"
+
+#include "UC1701.h"
 
 void fw_init_display()
 {
@@ -41,4 +46,19 @@ void fw_init_display()
     GPIO_PinInit(GPIO_Display_RS, Pin_Display_RS, &pin_config_output);
     GPIO_PinInit(GPIO_Display_SCK, Pin_Display_SCK, &pin_config_output);
     GPIO_PinInit(GPIO_Display_SDA, Pin_Display_SDA, &pin_config_output);
+
+    // Init pins
+	GPIO_PinWrite(GPIO_Display_Light, Pin_Display_Light, 0);
+	GPIO_PinWrite(GPIO_Display_CS, Pin_Display_CS, 1);
+	GPIO_PinWrite(GPIO_Display_RST, Pin_Display_RST, 1);
+	GPIO_PinWrite(GPIO_Display_RS, Pin_Display_RS, 1);
+	GPIO_PinWrite(GPIO_Display_SCK, Pin_Display_SCK, 1);
+	GPIO_PinWrite(GPIO_Display_SDA, Pin_Display_SDA, 1);
+
+	// Reset LCD
+	GPIO_PinWrite(GPIO_Display_RST, Pin_Display_RST, 0);
+    vTaskDelay(portTICK_PERIOD_MS * 100);
+	GPIO_PinWrite(GPIO_Display_RST, Pin_Display_RST, 1);
+
+    UC1701_begin();
 }
