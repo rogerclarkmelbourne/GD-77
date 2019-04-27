@@ -28,4 +28,29 @@
 
 void fw_init_keyboard()
 {
+    // column lines
+    PORT_SetPinMux(Port_Key_Col0, Pin_Key_Col0, kPORT_MuxAsGpio);
+    PORT_SetPinMux(Port_Key_Col1, Pin_Key_Col1, kPORT_MuxAsGpio);
+    PORT_SetPinMux(Port_Key_Col2, Pin_Key_Col2, kPORT_MuxAsGpio);
+    PORT_SetPinMux(Port_Key_Col3, Pin_Key_Col3, kPORT_MuxAsGpio);
+
+    // row lines
+    PORT_SetPinMux(Port_Key_Row0, Pin_Key_Row0, kPORT_MuxAsGpio);
+    PORT_SetPinMux(Port_Key_Row1, Pin_Key_Row1, kPORT_MuxAsGpio);
+    PORT_SetPinMux(Port_Key_Row2, Pin_Key_Row2, kPORT_MuxAsGpio);
+    PORT_SetPinMux(Port_Key_Row3, Pin_Key_Row3, kPORT_MuxAsGpio);
+    PORT_SetPinMux(Port_Key_Row4, Pin_Key_Row4, kPORT_MuxAsGpio);
+
+    // column lines
+    GPIO_PinInit(GPIO_Key_Col0, Pin_Key_Col0, &pin_config_input);
+    GPIO_PinInit(GPIO_Key_Col1, Pin_Key_Col1, &pin_config_input);
+    GPIO_PinInit(GPIO_Key_Col2, Pin_Key_Col2, &pin_config_input);
+    GPIO_PinInit(GPIO_Key_Col3, Pin_Key_Col3, &pin_config_input);
+
+    // row lines
+    GPIO_PinInit(GPIO_Key_Row0, Pin_Key_Row0, &pin_config_input);
+    GPIO_PinInit(GPIO_Key_Row1, Pin_Key_Row1, &pin_config_input);
+    GPIO_PinInit(GPIO_Key_Row2, Pin_Key_Row2, &pin_config_input);
+    GPIO_PinInit(GPIO_Key_Row3, Pin_Key_Row3, &pin_config_input);
+    GPIO_PinInit(GPIO_Key_Row4, Pin_Key_Row4, &pin_config_input);
 }

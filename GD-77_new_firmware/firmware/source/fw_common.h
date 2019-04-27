@@ -27,6 +27,20 @@
 #ifndef _FW_COMMON_H_
 #define _FW_COMMON_H_
 
+#include "fsl_gpio.h"
+#include "fsl_port.h"
+
+extern gpio_pin_config_t pin_config_input;
+extern gpio_pin_config_t pin_config_output;
+
+// Power On/Off logic
+#define Port_Keep_Power_On  PORTE
+#define GPIO_Keep_Power_On  GPIOE
+#define Pin_Keep_Power_On	26
+#define Port_Power_Switch   PORTA
+#define GPIO_Power_Switch 	GPIOA
+#define Pin_Power_Switch	13
+
 void fw_init_common();
 
 #endif /* _FW_COMMON_H_ */

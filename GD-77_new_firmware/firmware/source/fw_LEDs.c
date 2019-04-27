@@ -28,4 +28,9 @@
 
 void fw_init_LEDs()
 {
+    PORT_SetPinMux(Port_LEDgreen, Pin_LEDgreen, kPORT_MuxAsGpio);
+    PORT_SetPinMux(Port_LEDred, Pin_LEDred, kPORT_MuxAsGpio);
+
+    GPIO_PinInit(GPIO_LEDgreen, Pin_LEDgreen, &pin_config_output);
+    GPIO_PinInit(GPIO_LEDred, Pin_LEDred, &pin_config_output);
 }

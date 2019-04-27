@@ -27,6 +27,27 @@
 #ifndef _FW_DISPLAY_H_
 #define _FW_DISPLAY_H_
 
+#include "fw_common.h"
+
+#define Port_Display_Light	PORTC
+#define GPIO_Display_Light	GPIOC
+#define Pin_Display_Light	4
+#define Port_Display_CS		PORTC
+#define GPIO_Display_CS		GPIOC
+#define Pin_Display_CS		8
+#define Port_Display_RST	PORTC
+#define GPIO_Display_RST	GPIOC
+#define Pin_Display_RST		9
+#define Port_Display_RS		PORTC
+#define GPIO_Display_RS		GPIOC
+#define Pin_Display_RS		10
+#define Port_Display_SCK	PORTC
+#define GPIO_Display_SCK 	GPIOC
+#define Pin_Display_SCK		11
+#define Port_Display_SDA    PORTC
+#define GPIO_Display_SDA 	GPIOC
+#define Pin_Display_SDA		12
+
 void fw_init_display();
 
 #endif /* _FW_DISPLAY_H_ */

@@ -27,6 +27,15 @@
 #ifndef _FW_LEDS_H_
 #define _FW_LEDS_H_
 
+#include "fw_common.h"
+
+#define Port_LEDgreen	PORTB
+#define GPIO_LEDgreen	GPIOB
+#define Pin_LEDgreen	18
+#define Port_LEDred		PORTC
+#define GPIO_LEDred		GPIOC
+#define Pin_LEDred		14
+
 void fw_init_LEDs();
 
 #endif /* _FW_LEDS_H_ */

@@ -27,6 +27,21 @@
 #ifndef _FW_BUTTONS_H_
 #define _FW_BUTTONS_H_
 
+#include "fw_common.h"
+
+#define Port_PTT		PORTA
+#define GPIO_PTT		GPIOA
+#define Pin_PTT			1
+#define Port_SK1		PORTB
+#define GPIO_SK1		GPIOB
+#define Pin_SK1			1
+#define Port_SK2		PORTB
+#define GPIO_SK2		GPIOB
+#define Pin_SK2			9
+#define Port_Orange		PORTA
+#define GPIO_Orange		GPIOA
+#define Pin_Orange		2
+
 void fw_init_buttons();
 
 #endif /* _FW_BUTTONS_H_ */

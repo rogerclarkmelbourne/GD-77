@@ -28,4 +28,17 @@
 
 void fw_init_display()
 {
+    PORT_SetPinMux(Port_Display_Light, Pin_Display_Light, kPORT_MuxAsGpio);
+    PORT_SetPinMux(Port_Display_CS, Pin_Display_CS, kPORT_MuxAsGpio);
+    PORT_SetPinMux(Port_Display_RST, Pin_Display_RST, kPORT_MuxAsGpio);
+    PORT_SetPinMux(Port_Display_RS, Pin_Display_RS, kPORT_MuxAsGpio);
+    PORT_SetPinMux(Port_Display_SCK, Pin_Display_SCK, kPORT_MuxAsGpio);
+    PORT_SetPinMux(Port_Display_SDA, Pin_Display_SDA, kPORT_MuxAsGpio);
+
+    GPIO_PinInit(GPIO_Display_Light, Pin_Display_Light, &pin_config_output);
+    GPIO_PinInit(GPIO_Display_CS, Pin_Display_CS, &pin_config_output);
+    GPIO_PinInit(GPIO_Display_RST, Pin_Display_RST, &pin_config_output);
+    GPIO_PinInit(GPIO_Display_RS, Pin_Display_RS, &pin_config_output);
+    GPIO_PinInit(GPIO_Display_SCK, Pin_Display_SCK, &pin_config_output);
+    GPIO_PinInit(GPIO_Display_SDA, Pin_Display_SDA, &pin_config_output);
 }
