@@ -30,12 +30,6 @@ TaskHandle_t fwMainTaskHandle;
 
 void fw_init()
 {
-	fw_init_common();
-	fw_init_buttons();
-	fw_init_LEDs();
-	fw_init_keyboard();
-	fw_init_display();
-
 	xTaskCreate(fw_main_task,                        /* pointer to the task */
 				"fw main task",                      /* task name for kernel awareness debugging */
 				5000L / sizeof(portSTACK_TYPE),      /* task stack size */
@@ -49,6 +43,12 @@ void fw_init()
 
 void fw_main_task(void *handle)
 {
+	fw_init_common();
+	fw_init_buttons();
+	fw_init_LEDs();
+	fw_init_keyboard();
+	fw_init_display();
+
     while (1U)
     {
 		vTaskDelay(portTICK_PERIOD_MS);
