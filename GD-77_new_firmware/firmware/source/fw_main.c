@@ -72,7 +72,65 @@ void show_poweroff()
 	UC1701_clear();
 	UC1701_printCentered(2, "Power off ...");
 	UC1701_printCentered(4, "73 de DG4KLU");
+	Display_light_Touched = true;
+}
 
+typedef struct menu_item menu_item_t;
+struct menu_item
+{
+	char* menu_item_text;
+	menu_item_t* sub_menu;
+};
+
+menu_item_t subsub_menu1[] = {
+		{ "SubSub 1/1", NULL },
+		{ "SubSub 1/2", NULL },
+		{ NULL, NULL }
+};
+
+menu_item_t subsub_menu2[] = {
+		{ "SubSub 2/1", NULL },
+		{ "SubSub 2/2", NULL },
+		{ NULL, NULL }
+};
+
+menu_item_t sub_menu1[] = {
+		{ "Sub 1/1", NULL },
+		{ "Sub 1/2", NULL },
+		{ "To SubSub 1", subsub_menu1 },
+		{ "To SubSub 2", subsub_menu2 },
+		{ NULL, NULL }
+};
+
+menu_item_t sub_menu2[] = {
+		{ "Sub 2/1", NULL },
+		{ "Sub 2/2", NULL },
+		{ NULL, NULL }
+};
+
+menu_item_t top_menu[] = {
+		{ "Top 1", NULL },
+		{ "Top 2", NULL },
+		{ "To Sub 1", sub_menu1 },
+		{ "To Sub 2", sub_menu2 },
+		{ NULL, NULL }
+};
+
+typedef struct menu_level menu_level_t;
+struct menu_level
+{
+	menu_item_t* current_menu;
+	int current_menu_item;
+};
+
+#define MAX_MENU_LEVELS 4
+menu_level_t menu_levels[MAX_MENU_LEVELS];
+int current_menu_level;
+
+void update_menu()
+{
+	UC1701_clear();
+	UC1701_printCentered(4, menu_levels[current_menu_level].current_menu[menu_levels[current_menu_level].current_menu_item].menu_item_text);
 	Display_light_Touched = true;
 }
 
@@ -86,12 +144,95 @@ void fw_main_task(void *handle)
 
 	Show_SplashScreen = true;
 
+	current_menu_level = -1;
+	menu_levels[current_menu_level].current_menu = NULL;
+	menu_levels[current_menu_level].current_menu_item = 0;
+
     while (1U)
     {
+    	// Read button state and event
+    	uint32_t buttons;
+		int button_event;
+    	fw_check_button_event(&buttons, &button_event);
+
+    	// Read keyboard state and event
+    	uint32_t keys;
+    	int key_event;
+    	fw_check_key_event(&keys, &key_event);
+
+    	if (!Shutdown)
+    	{
+        	if ((current_menu_level==-1) && ((buttons & BUTTON_SK2)!=0) && (button_event==EVENT_BUTTON_CHANGE)) // Enter Menu
+        	{
+        		Show_SplashScreen=false;
+        		SplashScreen_Timer=0;
+    			current_menu_level = 0;
+        		menu_levels[current_menu_level].current_menu = top_menu;
+        		menu_levels[current_menu_level].current_menu_item = 0;
+        		update_menu();
+        	}
+        	else if ((current_menu_level>=0) && ((buttons & BUTTON_SK2)!=0) && (button_event==EVENT_BUTTON_CHANGE)) // Exit Menu
+        	{
+        		current_menu_level = -1;
+        		show_running();
+        	}
+        	else if (current_menu_level>=0)
+        	{
+            	if (((keys & KEY_RIGHT)!=0) && (key_event==EVENT_KEY_CHANGE)) // Menu item right
+            	{
+            		menu_levels[current_menu_level].current_menu_item++;
+            		if ( menu_levels[current_menu_level].current_menu[menu_levels[current_menu_level].current_menu_item].menu_item_text == NULL)
+            		{
+            			menu_levels[current_menu_level].current_menu_item = 0;
+            		}
+            		update_menu();
+            	}
+            	else if (((keys & KEY_LEFT)!=0) && (key_event==EVENT_KEY_CHANGE)) // Menu item left
+            	{
+            		menu_levels[current_menu_level].current_menu_item--;
+            		if ( menu_levels[current_menu_level].current_menu_item < 0)
+            		{
+            			int tmp_current_menu_item = 0;
+            			while (menu_levels[current_menu_level].current_menu[tmp_current_menu_item].menu_item_text != NULL)
+            			{
+            				tmp_current_menu_item++;
+            			}
+            			menu_levels[current_menu_level].current_menu_item = tmp_current_menu_item - 1;
+            		}
+            		update_menu();
+            	}
+            	else if (((keys & KEY_DOWN)!=0) && (key_event==EVENT_KEY_CHANGE)) // Menu level down
+            	{
+            		if (current_menu_level<MAX_MENU_LEVELS)
+					{
+                		menu_item_t* tmp_sub_menu = menu_levels[current_menu_level].current_menu[menu_levels[current_menu_level].current_menu_item].sub_menu;
+                		if (tmp_sub_menu!=NULL)
+                		{
+                			current_menu_level++;
+                    		menu_levels[current_menu_level].current_menu = tmp_sub_menu;
+                    		menu_levels[current_menu_level].current_menu_item = 0;
+                    		update_menu();
+                		}
+					}
+            	}
+            	else if (((keys & KEY_UP)!=0) && (key_event==EVENT_KEY_CHANGE)) // Menu level up
+            	{
+            		if (current_menu_level>0)
+            		{
+                		current_menu_level--;
+                		update_menu();
+            		}
+            	}
+        	}
+    	}
+
     	if ((GPIO_PinRead(GPIO_Power_Switch, Pin_Power_Switch)!=0) && (!Shutdown))
     	{
     		Show_SplashScreen=false;
     		SplashScreen_Timer=0;
+    		current_menu_level = -1;
+    		menu_levels[current_menu_level].current_menu = NULL;
+    		menu_levels[current_menu_level].current_menu_item = 0;
     		show_poweroff();
     		Shutdown=true;
 			Shutdown_Timer = 2000;
