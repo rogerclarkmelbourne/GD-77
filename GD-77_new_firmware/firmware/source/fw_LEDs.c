@@ -33,4 +33,7 @@ void fw_init_LEDs()
 
     GPIO_PinInit(GPIO_LEDgreen, Pin_LEDgreen, &pin_config_output);
     GPIO_PinInit(GPIO_LEDred, Pin_LEDred, &pin_config_output);
+
+    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
+    GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 0);
 }

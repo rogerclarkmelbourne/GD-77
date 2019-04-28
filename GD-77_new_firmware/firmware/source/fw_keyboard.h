@@ -76,8 +76,8 @@
 #define KEY_7     0x00000400
 #define KEY_8     0x00000800
 #define KEY_9     0x00001000
-#define KEY_star  0x00008000
-#define KEY_hash  0x00020000
+#define KEY_STAR  0x00008000
+#define KEY_HASH  0x00020000
 
 #define EVENT_KEY_NONE   0
 #define EVENT_KEY_CHANGE 1
