@@ -135,6 +135,18 @@ void update_menu()
 	Display_light_Touched = true;
 }
 
+void show_testmode()
+{
+	UC1701_clear();
+	UC1701_printCentered(2, "TEST MODE");
+	UC1701_printCentered(5, "Hold PTT: disp fill");
+	UC1701_printCentered(6, "Hold SK1: exit     ");
+	Display_light_Touched = true;
+}
+
+int testmode;
+int testmode_ptt_timer;
+
 void fw_main_task(void *handle)
 {
 	fw_init_common();
@@ -148,6 +160,9 @@ void fw_main_task(void *handle)
 	current_menu_level = -1;
 	menu_levels[current_menu_level].current_menu = NULL;
 	menu_levels[current_menu_level].current_menu_item = 0;
+
+	testmode=0;
+	testmode_ptt_timer=0;
 
     while (1U)
     {
@@ -163,66 +178,241 @@ void fw_main_task(void *handle)
 
     	if (!Shutdown)
     	{
-        	if ((current_menu_level==-1) && ((buttons & BUTTON_SK2)!=0) && (button_event==EVENT_BUTTON_CHANGE)) // Enter Menu
+        	if (testmode>0)
         	{
-        		Show_SplashScreen=false;
-        		SplashScreen_Timer=0;
-    			current_menu_level = 0;
-        		menu_levels[current_menu_level].current_menu = top_menu;
-        		menu_levels[current_menu_level].current_menu_item = 0;
-        		update_menu();
-        	}
-        	else if ((current_menu_level>=0) && ((buttons & BUTTON_SK2)!=0) && (button_event==EVENT_BUTTON_CHANGE)) // Exit Menu
-        	{
-        		current_menu_level = -1;
-        		show_running();
-        	}
-        	else if (current_menu_level>=0)
-        	{
-            	if (((keys & KEY_RIGHT)!=0) && (key_event==EVENT_KEY_CHANGE)) // Menu item right
+            	if ((buttons & BUTTON_PTT)!=0)
             	{
-            		menu_levels[current_menu_level].current_menu_item++;
-            		if ( menu_levels[current_menu_level].current_menu[menu_levels[current_menu_level].current_menu_item].menu_item_text == NULL)
+            		if (testmode_ptt_timer<2000)
             		{
-            			menu_levels[current_menu_level].current_menu_item = 0;
-            		}
-            		update_menu();
-            	}
-            	else if (((keys & KEY_LEFT)!=0) && (key_event==EVENT_KEY_CHANGE)) // Menu item left
-            	{
-            		menu_levels[current_menu_level].current_menu_item--;
-            		if ( menu_levels[current_menu_level].current_menu_item < 0)
-            		{
-            			int tmp_current_menu_item = 0;
-            			while (menu_levels[current_menu_level].current_menu[tmp_current_menu_item].menu_item_text != NULL)
+            			testmode_ptt_timer++;
+            			if (testmode_ptt_timer==2000)
             			{
-            				tmp_current_menu_item++;
+            			    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
+            			    GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 0);
+            				UC1701_clear();
+            				for (int i=0; i<8; i++)
+            				{
+                				UC1701_printAt(1, i, "XXXXXXXXXXXXXXXXXXXXX");
+            				}
             			}
-            			menu_levels[current_menu_level].current_menu_item = tmp_current_menu_item - 1;
             		}
+        			Display_light_Touched = true;
+            	}
+            	else
+            	{
+        			if (testmode_ptt_timer==2000)
+        			{
+                		show_testmode();
+        			}
+        			testmode_ptt_timer = 0;
+            	}
+
+        		if (testmode_ptt_timer<2000)
+        		{
+            		if (button_event)
+            		{
+        				UC1701_printCentered(3, "                    ");
+            			if ((buttons & BUTTON_PTT)!=0)
+            			{
+            				UC1701_printCentered(3, "Button: PTT");
+            			}
+            			else if ((buttons & BUTTON_SK1)!=0)
+            			{
+            				UC1701_printCentered(3, "Button: SK1");
+            			}
+            			else if ((buttons & BUTTON_SK2)!=0)
+            			{
+            				UC1701_printCentered(3, "Button: SK2");
+            			}
+            			else if ((buttons & BUTTON_ORANGE)!=0)
+            			{
+            				UC1701_printCentered(3, "Button: ORANGE");
+            			}
+            			Display_light_Touched = true;
+            		}
+
+            		if (key_event)
+            		{
+            			if ((keys & KEY_GREEN)!=0)
+            			{
+            			    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
+            			}
+            			else
+            			{
+            			    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
+            			}
+            			if ((keys & KEY_RED)!=0)
+            			{
+            			    GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 1);
+            			}
+            			else
+            			{
+            			    GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 0);
+            			}
+        				UC1701_printCentered(4, "                    ");
+            			if ((keys & KEY_UP)!=0)
+            			{
+            				UC1701_printCentered(4, "Key: up");
+            			}
+            			else if ((keys & KEY_DOWN)!=0)
+            			{
+            				UC1701_printCentered(4, "Key: down");
+            			}
+            			else if ((keys & KEY_RIGHT)!=0)
+            			{
+            				UC1701_printCentered(4, "Key: right");
+            			}
+            			else if ((keys & KEY_LEFT)!=0)
+            			{
+            				UC1701_printCentered(4, "Key: left");
+            			}
+            			else if ((keys & KEY_GREEN)!=0)
+            			{
+            				UC1701_printCentered(4, "Key: green");
+            			}
+            			else if ((keys & KEY_RED)!=0)
+            			{
+            				UC1701_printCentered(4, "Key: red");
+            			}
+            			else if ((keys & KEY_STAR)!=0)
+            			{
+            				UC1701_printCentered(4, "Key: star");
+            			}
+            			else if ((keys & KEY_HASH)!=0)
+            			{
+            				UC1701_printCentered(4, "Key: hash");
+            			}
+            			else if ((keys & KEY_0)!=0)
+            			{
+            				UC1701_printCentered(4, "Key: 0");
+            			}
+            			else if ((keys & KEY_1)!=0)
+            			{
+            				UC1701_printCentered(4, "Key: 1");
+            			}
+            			else if ((keys & KEY_2)!=0)
+            			{
+            				UC1701_printCentered(4, "Key: 2");
+            			}
+            			else if ((keys & KEY_3)!=0)
+            			{
+            				UC1701_printCentered(4, "Key: 3");
+            			}
+            			else if ((keys & KEY_4)!=0)
+            			{
+            				UC1701_printCentered(4, "Key: 4");
+            			}
+            			else if ((keys & KEY_5)!=0)
+            			{
+            				UC1701_printCentered(4, "Key: 5");
+            			}
+            			else if ((keys & KEY_6)!=0)
+            			{
+            				UC1701_printCentered(4, "Key: 6");
+            			}
+            			else if ((keys & KEY_7)!=0)
+            			{
+            				UC1701_printCentered(4, "Key: 7");
+            			}
+            			else if ((keys & KEY_8)!=0)
+            			{
+            				UC1701_printCentered(4, "Key: 8");
+            			}
+            			else if ((keys & KEY_9)!=0)
+            			{
+            				UC1701_printCentered(4, "Key: 9");
+            			}
+            			Display_light_Touched = true;
+            		}
+        		}
+
+            	if ((buttons & BUTTON_SK1)!=0) // Exit Testmode after 2 seconds
+            	{
+            		testmode--;
+            		if (testmode==0)
+            		{
+        			    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
+        			    GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 0);
+                		show_running();
+            		}
+            	}
+            	else
+            	{
+            		testmode = 2000;
+            	}
+        	}
+
+        	if (testmode == 0)
+        	{
+            	if ((current_menu_level==-1) && ((buttons & BUTTON_SK1)!=0) && (button_event==EVENT_BUTTON_CHANGE)) // Enter Testmode
+            	{
+            		Show_SplashScreen=false;
+            		SplashScreen_Timer=0;
+            		testmode = 2000;
+            		testmode_ptt_timer = 0;
+            		show_testmode();
+            	}
+            	else if ((current_menu_level==-1) && ((buttons & BUTTON_SK2)!=0) && (button_event==EVENT_BUTTON_CHANGE)) // Enter Menu
+            	{
+            		Show_SplashScreen=false;
+            		SplashScreen_Timer=0;
+        			current_menu_level = 0;
+            		menu_levels[current_menu_level].current_menu = top_menu;
+            		menu_levels[current_menu_level].current_menu_item = 0;
             		update_menu();
             	}
-            	else if (((keys & KEY_DOWN)!=0) && (key_event==EVENT_KEY_CHANGE)) // Menu level down
+            	else if ((current_menu_level>=0) && ((buttons & BUTTON_SK2)!=0) && (button_event==EVENT_BUTTON_CHANGE)) // Exit Menu
             	{
-            		if (current_menu_level<MAX_MENU_LEVELS)
-					{
-                		menu_item_t* tmp_sub_menu = menu_levels[current_menu_level].current_menu[menu_levels[current_menu_level].current_menu_item].sub_menu;
-                		if (tmp_sub_menu!=NULL)
+            		current_menu_level = -1;
+            		show_running();
+            	}
+            	else if (current_menu_level>=0)
+            	{
+                	if (((keys & KEY_RIGHT)!=0) && (key_event==EVENT_KEY_CHANGE)) // Menu item right
+                	{
+                		menu_levels[current_menu_level].current_menu_item++;
+                		if ( menu_levels[current_menu_level].current_menu[menu_levels[current_menu_level].current_menu_item].menu_item_text == NULL)
                 		{
-                			current_menu_level++;
-                    		menu_levels[current_menu_level].current_menu = tmp_sub_menu;
-                    		menu_levels[current_menu_level].current_menu_item = 0;
+                			menu_levels[current_menu_level].current_menu_item = 0;
+                		}
+                		update_menu();
+                	}
+                	else if (((keys & KEY_LEFT)!=0) && (key_event==EVENT_KEY_CHANGE)) // Menu item left
+                	{
+                		menu_levels[current_menu_level].current_menu_item--;
+                		if ( menu_levels[current_menu_level].current_menu_item < 0)
+                		{
+                			int tmp_current_menu_item = 0;
+                			while (menu_levels[current_menu_level].current_menu[tmp_current_menu_item].menu_item_text != NULL)
+                			{
+                				tmp_current_menu_item++;
+                			}
+                			menu_levels[current_menu_level].current_menu_item = tmp_current_menu_item - 1;
+                		}
+                		update_menu();
+                	}
+                	else if (((keys & KEY_DOWN)!=0) && (key_event==EVENT_KEY_CHANGE)) // Menu level down
+                	{
+                		if (current_menu_level<MAX_MENU_LEVELS)
+    					{
+                    		menu_item_t* tmp_sub_menu = menu_levels[current_menu_level].current_menu[menu_levels[current_menu_level].current_menu_item].sub_menu;
+                    		if (tmp_sub_menu!=NULL)
+                    		{
+                    			current_menu_level++;
+                        		menu_levels[current_menu_level].current_menu = tmp_sub_menu;
+                        		menu_levels[current_menu_level].current_menu_item = 0;
+                        		update_menu();
+                    		}
+    					}
+                	}
+                	else if (((keys & KEY_UP)!=0) && (key_event==EVENT_KEY_CHANGE)) // Menu level up
+                	{
+                		if (current_menu_level>0)
+                		{
+                    		current_menu_level--;
                     		update_menu();
                 		}
-					}
-            	}
-            	else if (((keys & KEY_UP)!=0) && (key_event==EVENT_KEY_CHANGE)) // Menu level up
-            	{
-            		if (current_menu_level>0)
-            		{
-                		current_menu_level--;
-                		update_menu();
-            		}
+                	}
             	}
         	}
     	}
@@ -234,6 +424,10 @@ void fw_main_task(void *handle)
     		current_menu_level = -1;
     		menu_levels[current_menu_level].current_menu = NULL;
     		menu_levels[current_menu_level].current_menu_item = 0;
+    		testmode=0;
+    		testmode_ptt_timer=0;
+		    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
+		    GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 0);
     		show_poweroff();
     		Shutdown=true;
 			Shutdown_Timer = 2000;
