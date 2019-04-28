@@ -26,6 +26,8 @@
 
 #include "fw_keyboard.h"
 
+uint32_t old_keyboard_state;
+
 void fw_init_keyboard()
 {
     // column lines
@@ -53,4 +55,76 @@ void fw_init_keyboard()
     GPIO_PinInit(GPIO_Key_Row2, Pin_Key_Row2, &pin_config_input);
     GPIO_PinInit(GPIO_Key_Row3, Pin_Key_Row3, &pin_config_input);
     GPIO_PinInit(GPIO_Key_Row4, Pin_Key_Row4, &pin_config_input);
+
+    old_keyboard_state = 0;
+}
+
+uint8_t fw_read_keyboard_col()
+{
+	uint8_t result=0;
+	if (GPIO_PinRead(GPIO_Key_Row0, Pin_Key_Row0)==0)
+	{
+		result|=0x01;
+	}
+	if (GPIO_PinRead(GPIO_Key_Row1, Pin_Key_Row1)==0)
+	{
+		result|=0x02;
+	}
+	if (GPIO_PinRead(GPIO_Key_Row2, Pin_Key_Row2)==0)
+	{
+		result|=0x04;
+	}
+	if (GPIO_PinRead(GPIO_Key_Row3, Pin_Key_Row3)==0)
+	{
+		result|=0x08;
+	}
+	if (GPIO_PinRead(GPIO_Key_Row4, Pin_Key_Row4)==0)
+	{
+		result|=0x10;
+	}
+	return result;
+}
+
+uint32_t fw_read_keyboard()
+{
+    GPIO_PinInit(GPIO_Key_Col3, Pin_Key_Col3, &pin_config_output);
+	GPIO_PinWrite(GPIO_Key_Col3, Pin_Key_Col3, 0);
+	uint32_t result=fw_read_keyboard_col();
+	GPIO_PinWrite(GPIO_Key_Col3, Pin_Key_Col3, 1);
+    GPIO_PinInit(GPIO_Key_Col3, Pin_Key_Col3, &pin_config_input);
+
+    GPIO_PinInit(GPIO_Key_Col2, Pin_Key_Col2, &pin_config_output);
+	GPIO_PinWrite(GPIO_Key_Col2, Pin_Key_Col2, 0);
+	result=(result<<5)|fw_read_keyboard_col();
+	GPIO_PinWrite(GPIO_Key_Col2, Pin_Key_Col2, 1);
+    GPIO_PinInit(GPIO_Key_Col2, Pin_Key_Col2, &pin_config_input);
+
+    GPIO_PinInit(GPIO_Key_Col1, Pin_Key_Col1, &pin_config_output);
+	GPIO_PinWrite(GPIO_Key_Col1, Pin_Key_Col1, 0);
+	result=(result<<5)|fw_read_keyboard_col();
+	GPIO_PinWrite(GPIO_Key_Col1, Pin_Key_Col1, 1);
+    GPIO_PinInit(GPIO_Key_Col1, Pin_Key_Col1, &pin_config_input);
+
+    GPIO_PinInit(GPIO_Key_Col0, Pin_Key_Col0, &pin_config_output);
+	GPIO_PinWrite(GPIO_Key_Col0, Pin_Key_Col0, 0);
+	result=(result<<5)|fw_read_keyboard_col();
+	GPIO_PinWrite(GPIO_Key_Col0, Pin_Key_Col0, 1);
+    GPIO_PinInit(GPIO_Key_Col0, Pin_Key_Col0, &pin_config_input);
+
+    return result;
+}
+
+void fw_check_key_event(uint32_t *keys, int *event)
+{
+	*keys = fw_read_keyboard();
+
+	if (old_keyboard_state!=*keys)
+	{
+		old_keyboard_state=*keys;
+		*event = EVENT_KEY_CHANGE;
+	}
+	else
+	{
+		*event = EVENT_KEY_NONE;
+	}
 }

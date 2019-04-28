@@ -26,6 +26,8 @@
 
 #include "fw_buttons.h"
 
+uint32_t old_button_state;
+
 void fw_init_buttons()
 {
     PORT_SetPinMux(Port_PTT, Pin_PTT, kPORT_MuxAsGpio);
@@ -37,4 +39,44 @@ void fw_init_buttons()
     GPIO_PinInit(GPIO_SK1, Pin_SK1, &pin_config_input);
     GPIO_PinInit(GPIO_SK2, Pin_SK2, &pin_config_input);
     GPIO_PinInit(GPIO_Orange, Pin_Orange, &pin_config_input);
+
+    old_button_state = 0;
+}
+
+uint32_t fw_read_buttons()
+{
+	uint32_t result = 0;
+	if (GPIO_PinRead(GPIO_PTT, Pin_PTT)==0)
+	{
+		result |= BUTTON_PTT;
+	}
+	if (GPIO_PinRead(GPIO_SK1, Pin_SK1)==0)
+	{
+		result |= BUTTON_SK1;
+	}
+	if (GPIO_PinRead(GPIO_SK2, Pin_SK2)==0)
+	{
+		result |= BUTTON_SK2;
+	}
+	if (GPIO_PinRead(GPIO_Orange, Pin_Orange)==0)
+	{
+		result |= BUTTON_ORANGE;
+	}
+
+	return result;
+}
+
+void fw_check_button_event(uint32_t *buttons, int *event)
+{
+	*buttons = fw_read_buttons();
+
+	if (old_button_state!=*buttons)
+	{
+		old_button_state=*buttons;
+		*event = EVENT_BUTTON_CHANGE;
+	}
+	else
+	{
+		*event = EVENT_BUTTON_NONE;
+	}
 }
