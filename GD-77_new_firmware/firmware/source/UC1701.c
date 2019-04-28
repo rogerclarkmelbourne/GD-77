@@ -112,6 +112,12 @@ void UC1701_setCursor(uint8_t column, uint8_t line)
        UC1701_Transfer_command(j);
 }
 
+void UC1701_printCentered(uint8_t y, char *text)
+{
+	UC1701_setCursor(66-3*strlen(text),y);
+	UC1701_print(text);
+}
+
 void UC1701_printAt(uint8_t x, uint8_t y, char *text)
 {
 	UC1701_setCursor(x,y);

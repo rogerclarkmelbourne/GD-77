@@ -67,6 +67,9 @@ void UC1701_setCursor(uint8_t column, uint8_t line);
 // Assign a user-defined glyph (5x8) to an ASCII character (0-31)...
 void UC1701_createChar(uint8_t chr, const uint8_t *glyph);
 
+// Print an ASCII string centered at line y (7-bit)...
+void UC1701_printCentered(uint8_t y, char *text);
+
 // Print an ASCII string at cursor position x,y (7-bit)...
 void UC1701_printAt(uint8_t x, uint8_t y, char *text);
 

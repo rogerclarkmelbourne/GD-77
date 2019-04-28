@@ -53,25 +53,26 @@ int Shutdown_Timer = 0;
 void show_splashscreen()
 {
 	UC1701_clear();
-	UC1701_printAt(5*6,  1, "Experimental");
-	UC1701_printAt(7*6,  2, "firmware");
-	UC1701_printAt(10*6, 4, "by");
-	UC1701_printAt(8*6,  6, "DG4KLU");
+	UC1701_printCentered(1, "Experimental");
+	UC1701_printCentered(2, "firmware");
+	UC1701_printCentered(4, "by");
+	UC1701_printCentered(6, "DG4KLU");
 	Display_light_Touched = true;
 }
 
 void show_running()
 {
 	UC1701_clear();
-	UC1701_printAt(7*6+3, 4, "RUNNING");
+	UC1701_printCentered(4, "RUNNING");
 	Display_light_Touched = true;
 }
 
 void show_poweroff()
 {
 	UC1701_clear();
-	UC1701_printAt(4*6+3, 2, "Power off ...");
-	UC1701_printAt(5*6,   4, "73 de DG4KLU");
+	UC1701_printCentered(2, "Power off ...");
+	UC1701_printCentered(4, "73 de DG4KLU");
+
 	Display_light_Touched = true;
 }
 
