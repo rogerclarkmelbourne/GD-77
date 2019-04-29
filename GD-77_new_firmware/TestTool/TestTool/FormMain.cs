@@ -27,6 +27,7 @@
 using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.IO.Ports;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -47,6 +48,8 @@ namespace TestTool
         private void FormMain_Load(object sender, EventArgs e)
         {
             this.Location = new Point((Screen.PrimaryScreen.WorkingArea.Width - this.Width) / 2, (Screen.PrimaryScreen.WorkingArea.Height - this.Height) / 2);
+
+            loadCOMPortlist();
         }
 
         private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
@@ -56,6 +59,21 @@ namespace TestTool
                 stop_worker = true;
                 form_close = true;
                 e.Cancel = true;
+            }
+        }
+
+        void loadCOMPortlist()
+        {
+            string old_item = comboBoxCOMPorts.Text;
+            comboBoxCOMPorts.Items.Clear();
+            string[] ports = SerialPort.GetPortNames();
+            foreach (string port in ports)
+            {
+                comboBoxCOMPorts.Items.Add(port);
+            }
+            if (comboBoxCOMPorts.Items.Contains(old_item))
+            {
+                comboBoxCOMPorts.Text = old_item;
             }
         }
 
@@ -109,6 +127,11 @@ namespace TestTool
             {
                 stop_worker = true;
             }
+        }
+
+        private void buttonRefreshCOMPortlist_Click(object sender, EventArgs e)
+        {
+            loadCOMPortlist();
         }
     }
 }

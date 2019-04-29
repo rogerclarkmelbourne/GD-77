@@ -31,6 +31,8 @@
             this.buttonStartStop = new System.Windows.Forms.Button();
             this.labelStatus = new System.Windows.Forms.Label();
             this.labelStatusText = new System.Windows.Forms.Label();
+            this.comboBoxCOMPorts = new System.Windows.Forms.ComboBox();
+            this.buttonRefreshCOMPortlist = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // buttonStartStop
@@ -61,11 +63,32 @@
             this.labelStatusText.TabIndex = 3;
             this.labelStatusText.Text = "OK";
             // 
+            // comboBoxCOMPorts
+            // 
+            this.comboBoxCOMPorts.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBoxCOMPorts.FormattingEnabled = true;
+            this.comboBoxCOMPorts.Location = new System.Drawing.Point(586, 14);
+            this.comboBoxCOMPorts.Name = "comboBoxCOMPorts";
+            this.comboBoxCOMPorts.Size = new System.Drawing.Size(121, 21);
+            this.comboBoxCOMPorts.TabIndex = 4;
+            // 
+            // buttonRefreshCOMPortlist
+            // 
+            this.buttonRefreshCOMPortlist.Location = new System.Drawing.Point(713, 14);
+            this.buttonRefreshCOMPortlist.Name = "buttonRefreshCOMPortlist";
+            this.buttonRefreshCOMPortlist.Size = new System.Drawing.Size(75, 23);
+            this.buttonRefreshCOMPortlist.TabIndex = 5;
+            this.buttonRefreshCOMPortlist.Text = "Refresh";
+            this.buttonRefreshCOMPortlist.UseVisualStyleBackColor = true;
+            this.buttonRefreshCOMPortlist.Click += new System.EventHandler(this.buttonRefreshCOMPortlist_Click);
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.buttonRefreshCOMPortlist);
+            this.Controls.Add(this.comboBoxCOMPorts);
             this.Controls.Add(this.labelStatusText);
             this.Controls.Add(this.labelStatus);
             this.Controls.Add(this.buttonStartStop);
@@ -85,6 +108,8 @@
         private System.Windows.Forms.Button buttonStartStop;
         private System.Windows.Forms.Label labelStatus;
         private System.Windows.Forms.Label labelStatusText;
+        private System.Windows.Forms.ComboBox comboBoxCOMPorts;
+        private System.Windows.Forms.Button buttonRefreshCOMPortlist;
     }
 }
 
