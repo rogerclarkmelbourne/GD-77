@@ -399,7 +399,7 @@ void USB_DeviceApplicationInit(void)
 {
     USB_DeviceClockInit();
 
-    s_cdcVcom.speed = USB_SPEED_FULL;
+    s_cdcVcom.speed = USB_SPEED_HIGH;
     s_cdcVcom.attach = 0;
     s_cdcVcom.cdcAcmHandle = (class_handle_t)NULL;
     s_cdcVcom.deviceHandle = NULL;
