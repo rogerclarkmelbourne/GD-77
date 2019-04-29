@@ -24,6 +24,8 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "virtual_com.h"
+
 #include "fw_main.h"
 
 #include "UC1701.h"
@@ -149,6 +151,8 @@ int testmode_ptt_timer;
 
 void fw_main_task(void *handle)
 {
+    USB_DeviceApplicationInit();
+
 	fw_init_common();
 	fw_init_buttons();
 	fw_init_LEDs();
