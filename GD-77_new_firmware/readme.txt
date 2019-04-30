@@ -20,6 +20,9 @@ basic_firmware_with_testmode:
 basic_firmware_without_testmode
   Baseline without testmode.
 
+firmware_binaries:
+  Firmware SGL binaries ready for flashing.
+
 TestTool:
   Tool to communicate with the firmware using an USB COM port.
 
