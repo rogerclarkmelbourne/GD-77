@@ -45,6 +45,8 @@
  * @brief   Application entry point.
  */
 int main(void) {
+	SCB->VTOR = 0x4000;
+
   	/* Init board hardware. */
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
