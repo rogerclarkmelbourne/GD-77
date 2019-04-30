@@ -22,11 +22,6 @@
 #include "semphr.h"
 #include "event_groups.h"
 
-extern uint32_t receive_data1;
-extern uint32_t receive_data2;
-extern uint32_t send_data1;
-extern uint32_t send_data2;
-
 void USB_DeviceApplicationInit(void);
 
 /*******************************************************************************
