@@ -5,16 +5,16 @@
 MEMORY
 {
   /* Define each memory region */
-  PROGRAM_FLASH (rx) : ORIGIN = 0x0, LENGTH = 0x80000 /* 512K bytes (alias Flash) */  
+  PROGRAM_FLASH (rx) : ORIGIN = 0x4000, LENGTH = 0x7B800 /* 0x00004000-0x007f7ff (alias Flash) */  
   SRAM_UPPER (rwx) : ORIGIN = 0x20000000, LENGTH = 0x10000 /* 64K bytes (alias RAM) */  
   SRAM_LOWER (rwx) : ORIGIN = 0x1fff0000, LENGTH = 0x10000 /* 64K bytes (alias RAM2) */  
 }
 
   /* Define a symbol for the top of each memory region */
-  __base_PROGRAM_FLASH = 0x0  ; /* PROGRAM_FLASH */  
-  __base_Flash = 0x0 ; /* Flash */  
-  __top_PROGRAM_FLASH = 0x0 + 0x80000 ; /* 512K bytes */  
-  __top_Flash = 0x0 + 0x80000 ; /* 512K bytes */  
+  __base_PROGRAM_FLASH = 0x4000 ; /* PROGRAM_FLASH */  
+  __base_Flash = 0x4000 ; /* Flash */  
+  __top_PROGRAM_FLASH = 0x4000 + 0x7B800 ; /* leave out bootloader and CPU-UUID area*/  
+  __top_Flash = 0x4000 + 0x7B800 ; /* leave out bootloader and CPU-UUID area*/  
   __base_SRAM_UPPER = 0x20000000  ; /* SRAM_UPPER */  
   __base_RAM = 0x20000000 ; /* RAM */  
   __top_SRAM_UPPER = 0x20000000 + 0x10000 ; /* 64K bytes */  
