@@ -77,6 +77,12 @@ void show_poweroff()
 	Display_light_Touched = true;
 }
 
+void reset_splashscreen()
+{
+	Show_SplashScreen=false;
+	SplashScreen_Timer=0;
+}
+
 typedef struct menu_item menu_item_t;
 struct menu_item
 {
@@ -137,13 +143,11 @@ void update_menu()
 	Display_light_Touched = true;
 }
 
-void show_testmode()
+void reset_menu()
 {
-	UC1701_clear();
-	UC1701_printCentered(2, "TEST MODE");
-	UC1701_printCentered(5, "Hold PTT: disp fill");
-	UC1701_printCentered(6, "Hold SK1: exit     ");
-	Display_light_Touched = true;
+	current_menu_level = -1;
+	menu_levels[current_menu_level].current_menu = NULL;
+	menu_levels[current_menu_level].current_menu_item = 0;
 }
 
 int testmode;
@@ -154,6 +158,29 @@ uint32_t receive_data2;
 uint32_t send_data1;
 uint32_t send_data2;
 uint32_t remotetest_timer;
+
+void show_testmode()
+{
+	UC1701_clear();
+	UC1701_printCentered(2, "TEST MODE");
+	UC1701_printCentered(5, "Hold PTT: disp fill");
+	UC1701_printCentered(6, "Hold SK1: exit     ");
+	Display_light_Touched = true;
+}
+
+void reset_testmode()
+{
+	testmode=0;
+	testmode_ptt_timer=0;
+	GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
+	GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 0);
+
+	receive_data1 = 0;
+	receive_data2 = 0;
+	send_data1 = 0;
+	send_data2 = 0;
+	remotetest_timer = 0;
+}
 
 void fw_main_task(void *handle)
 {
@@ -167,18 +194,8 @@ void fw_main_task(void *handle)
 
 	Show_SplashScreen = true;
 
-	current_menu_level = -1;
-	menu_levels[current_menu_level].current_menu = NULL;
-	menu_levels[current_menu_level].current_menu_item = 0;
-
-	testmode=0;
-	testmode_ptt_timer=0;
-
-	receive_data1 = 0;
-	receive_data2 = 0;
-	send_data1 = 0;
-	send_data2 = 0;
-	remotetest_timer = 0;
+	reset_menu();
+	reset_testmode();
 
     while (1U)
     {
@@ -406,8 +423,7 @@ void fw_main_task(void *handle)
             		testmode--;
             		if (testmode==0)
             		{
-        			    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
-        			    GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 0);
+            			reset_testmode();
                 		show_running();
             		}
             	}
@@ -421,21 +437,13 @@ void fw_main_task(void *handle)
         	{
             	if ((current_menu_level==-1) && ((buttons & BUTTON_SK1)!=0) && (button_event==EVENT_BUTTON_CHANGE)) // Enter Testmode
             	{
-            		Show_SplashScreen=false;
-            		SplashScreen_Timer=0;
+            		reset_splashscreen();
             		testmode = 2000;
-            		testmode_ptt_timer = 0;
-            		receive_data1 = 0;
-            		receive_data2 = 0;
-            		send_data1 = 0;
-            		send_data2 = 0;
-            		remotetest_timer = 0;
             		show_testmode();
             	}
             	else if ((current_menu_level==-1) && ((buttons & BUTTON_SK2)!=0) && (button_event==EVENT_BUTTON_CHANGE)) // Enter Menu
             	{
-            		Show_SplashScreen=false;
-            		SplashScreen_Timer=0;
+            		reset_splashscreen();
         			current_menu_level = 0;
             		menu_levels[current_menu_level].current_menu = top_menu;
             		menu_levels[current_menu_level].current_menu_item = 0;
@@ -443,7 +451,7 @@ void fw_main_task(void *handle)
             	}
             	else if ((current_menu_level>=0) && ((buttons & BUTTON_SK2)!=0) && (button_event==EVENT_BUTTON_CHANGE)) // Exit Menu
             	{
-            		current_menu_level = -1;
+            		reset_menu();
             		show_running();
             	}
             	else if (current_menu_level>=0)
@@ -499,20 +507,9 @@ void fw_main_task(void *handle)
 
     	if ((GPIO_PinRead(GPIO_Power_Switch, Pin_Power_Switch)!=0) && (!Shutdown))
     	{
-    		Show_SplashScreen=false;
-    		SplashScreen_Timer=0;
-    		current_menu_level = -1;
-    		menu_levels[current_menu_level].current_menu = NULL;
-    		menu_levels[current_menu_level].current_menu_item = 0;
-    		testmode=0;
-    		testmode_ptt_timer=0;
-		    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
-		    GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 0);
-    		receive_data1 = 0;
-    		receive_data2 = 0;
-    		send_data1 = 0;
-    		send_data2 = 0;
-    		remotetest_timer = 0;
+    		reset_splashscreen();
+    		reset_menu();
+    		reset_testmode();
     		show_poweroff();
     		Shutdown=true;
 			Shutdown_Timer = 2000;
