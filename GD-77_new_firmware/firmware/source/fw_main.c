@@ -149,6 +149,12 @@ void show_testmode()
 int testmode;
 int testmode_ptt_timer;
 
+uint32_t receive_data1;
+uint32_t receive_data2;
+uint32_t send_data1;
+uint32_t send_data2;
+uint32_t remotetest_timer;
+
 void fw_main_task(void *handle)
 {
     USB_DeviceApplicationInit();
@@ -168,6 +174,12 @@ void fw_main_task(void *handle)
 	testmode=0;
 	testmode_ptt_timer=0;
 
+	receive_data1 = 0;
+	receive_data2 = 0;
+	send_data1 = 0;
+	send_data2 = 0;
+	remotetest_timer = 0;
+
     while (1U)
     {
     	// Read button state and event
@@ -184,6 +196,65 @@ void fw_main_task(void *handle)
     	{
         	if (testmode>0)
         	{
+        		if ((receive_data1 & 0x80000000) != 0)
+        		{
+        			if ((receive_data1 & 0x00000001) != 0)
+        			{
+        			    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
+        			}
+        			else
+        			{
+        			    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
+        			}
+        			if ((receive_data1 & 0x00000002) != 0)
+        			{
+        			    GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 1);
+        			}
+        			else
+        			{
+        			    GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 0);
+        			}
+        			receive_data1 = 0;
+        			remotetest_timer = 2000;
+        		}
+        		if ((receive_data2 & 0x80000000) != 0)
+        		{
+        			if ((receive_data2 & 0x00000001) != 0)
+        			{
+        				UC1701_printCentered(1,"DISPTEST DISPTEST");
+        			}
+        			else
+        			{
+        				UC1701_printCentered(1,"                 ");
+        			}
+        			if ((receive_data2 & 0x00000002) != 0)
+        			{
+        				GPIO_PinWrite(GPIO_Display_Light, Pin_Display_Light, 1);
+        			}
+        			else
+        			{
+        				GPIO_PinWrite(GPIO_Display_Light, Pin_Display_Light, 0);
+        			}
+        			Display_light_Timer = 0;
+        			Display_light_Touched = false;
+        			receive_data2 = 0;
+        			remotetest_timer = 2000;
+        		}
+        		send_data1 = buttons;
+        		send_data2 = keys;
+
+        		if (remotetest_timer>0)
+        		{
+        			remotetest_timer--;
+        			if (remotetest_timer==0)
+        			{
+        			    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
+        			    GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 0);
+        				UC1701_printCentered(1,"                 ");
+        				GPIO_PinWrite(GPIO_Display_Light, Pin_Display_Light, 0);
+        			}
+        		}
+
             	if ((buttons & BUTTON_PTT)!=0)
             	{
             		if (testmode_ptt_timer<2000)
@@ -354,6 +425,11 @@ void fw_main_task(void *handle)
             		SplashScreen_Timer=0;
             		testmode = 2000;
             		testmode_ptt_timer = 0;
+            		receive_data1 = 0;
+            		receive_data2 = 0;
+            		send_data1 = 0;
+            		send_data2 = 0;
+            		remotetest_timer = 0;
             		show_testmode();
             	}
             	else if ((current_menu_level==-1) && ((buttons & BUTTON_SK2)!=0) && (button_event==EVENT_BUTTON_CHANGE)) // Enter Menu
@@ -432,6 +508,11 @@ void fw_main_task(void *handle)
     		testmode_ptt_timer=0;
 		    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
 		    GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 0);
+    		receive_data1 = 0;
+    		receive_data2 = 0;
+    		send_data1 = 0;
+    		send_data2 = 0;
+    		remotetest_timer = 0;
     		show_poweroff();
     		Shutdown=true;
 			Shutdown_Timer = 2000;

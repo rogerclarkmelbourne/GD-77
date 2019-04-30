@@ -154,13 +154,21 @@ usb_status_t USB_DeviceCdcVcomCallback(class_handle_t handle, uint32_t event, vo
             {
                 if ((0 != epCbParam->length) && (0xFFFFFFFF != epCbParam->length))
                 {
-                    /* Copy Buffer to Send Buff */
-                    for (int32_t i = 0; i < epCbParam->length; i++)
-                    {
-                        s_currSendBuf[i] = s_currRecvBuf[i];
-                    }
-                    /* Send data */
-                    error = USB_DeviceCdcAcmSend(s_cdcVcom.cdcAcmHandle, USB_CDC_VCOM_BULK_IN_ENDPOINT, s_currSendBuf, epCbParam->length);
+                	if (s_currRecvBuf[0]=='A')
+                	{
+                        receive_data1 = (s_currRecvBuf[1] << 24) | (s_currRecvBuf[2] << 16) | (s_currRecvBuf[3] << 8) | (s_currRecvBuf[4] << 0);
+                        receive_data2 = (s_currRecvBuf[5] << 24) | (s_currRecvBuf[6] << 16) | (s_currRecvBuf[7] << 8) | (s_currRecvBuf[8] << 0);
+                        s_currSendBuf[0] = 'A';
+                        s_currSendBuf[1] = (send_data1 & 0xFF000000) >> 24;
+                        s_currSendBuf[2] = (send_data1 & 0x00FF0000) >> 16;
+                        s_currSendBuf[3] = (send_data1 & 0x0000FF00) >> 8;
+                        s_currSendBuf[4] = (send_data1 & 0x000000FF) >> 0;
+                        s_currSendBuf[5] = (send_data2 & 0xFF000000) >> 24;
+                        s_currSendBuf[6] = (send_data2 & 0x00FF0000) >> 16;
+                        s_currSendBuf[7] = (send_data2 & 0x0000FF00) >> 8;
+                        s_currSendBuf[8] = (send_data2 & 0x000000FF) >> 0;
+                        error = USB_DeviceCdcAcmSend(s_cdcVcom.cdcAcmHandle, USB_CDC_VCOM_BULK_IN_ENDPOINT, s_currSendBuf, epCbParam->length);
+                	}
                 }
             }
         }
