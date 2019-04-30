@@ -53,33 +53,8 @@ SECTIONS
        *(.rodata .rodata.* .constdata .constdata.*)
        . = ALIGN(4);
     } > PROGRAM_FLASH
-    /*
-     * for exception handling/unwind - some Newlib functions (in common
-     * with C++ and STDC++) use this. 
-     */
-    .ARM.extab : ALIGN(4) 
-    {
-        *(.ARM.extab* .gnu.linkonce.armextab.*)
-    } > PROGRAM_FLASH
-
-    __exidx_start = .;
-
-    .ARM.exidx : ALIGN(4)
-    {
-        *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-    } > PROGRAM_FLASH
-    __exidx_end = .;
- 
-    _etext = .;
-        
- 
-    /* USB_RAM */
-    .m_usb_data (NOLOAD) :
-    {
-        *(m_usb_bdt)
-    } > SRAM_UPPER
+    
     /* DATA section for SRAM_LOWER */
-
     .data_RAM2 : ALIGN(4)
     {
         FILL(0xff)
@@ -91,6 +66,7 @@ SECTIONS
         . = ALIGN(4) ;
         PROVIDE(__end_data_RAM2 = .) ;
      } > SRAM_LOWER AT>PROGRAM_FLASH
+     
     /* MAIN DATA SECTION */
     .uninit_RESERVED : ALIGN(4)
     {
