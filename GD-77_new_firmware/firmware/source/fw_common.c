@@ -71,6 +71,9 @@ void fw_init_common()
     GPIO_PinWrite(GPIO_SOFT_SPI_DI_FLASH,Pin_SOFT_SPI_DI_FLASH, 1);
 
     // Speaker mute and RX/TX mux init
+    PORT_SetPinMux(Port_speaker_mute, Pin_speaker_mute, kPORT_MuxAsGpio);
+    PORT_SetPinMux(Port_RX_audio_mux, Pin_RX_audio_mux, kPORT_MuxAsGpio);
+    PORT_SetPinMux(Port_TX_audio_mux, Pin_TX_audio_mux, kPORT_MuxAsGpio);
     GPIO_PinInit(GPIO_speaker_mute, Pin_speaker_mute, &pin_config_output);
     GPIO_PinInit(GPIO_RX_audio_mux, Pin_RX_audio_mux, &pin_config_output);
     GPIO_PinInit(GPIO_TX_audio_mux, Pin_TX_audio_mux, &pin_config_output);
@@ -79,6 +82,11 @@ void fw_init_common()
     GPIO_PinWrite(GPIO_TX_audio_mux, Pin_TX_audio_mux, 0);
 
     // Antenna switch and UHF/VHF RX/TX amp init
+    PORT_SetPinMux(Port_RF_ant_switch, Pin_RF_ant_switch, kPORT_MuxAsGpio);
+    PORT_SetPinMux(Port_VHF_RX_amp_power, Pin_VHF_RX_amp_power, kPORT_MuxAsGpio);
+    PORT_SetPinMux(Port_UHF_RX_amp_power, Pin_UHF_RX_amp_power, kPORT_MuxAsGpio);
+    PORT_SetPinMux(Port_UHF_TX_amp_power, Pin_UHF_TX_amp_power, kPORT_MuxAsGpio);
+    PORT_SetPinMux(Port_VHF_TX_amp_power, Pin_VHF_TX_amp_power, kPORT_MuxAsGpio);
     GPIO_PinInit(GPIO_RF_ant_switch, Pin_RF_ant_switch, &pin_config_output);
     GPIO_PinInit(GPIO_VHF_RX_amp_power, Pin_VHF_RX_amp_power, &pin_config_output);
     GPIO_PinInit(GPIO_UHF_RX_amp_power, Pin_UHF_RX_amp_power, &pin_config_output);
