@@ -29,6 +29,7 @@
 #include "fw_main.h"
 #include "fw_i2c.h"
 #include "fw_spi.h"
+#include "fw_i2s.h"
 
 #include "UC1701.h"
 
@@ -170,6 +171,10 @@ void fw_main_task(void *handle)
     init_SPI();
     setup_SPI0();
     setup_SPI1();
+
+    // Init I2S
+    init_I2S();
+    setup_I2S();
 
 	Show_SplashScreen = true;
 
