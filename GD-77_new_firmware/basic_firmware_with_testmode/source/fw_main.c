@@ -66,6 +66,7 @@ void show_running()
 {
 	UC1701_clear();
 	UC1701_printCentered(4, "RUNNING");
+	UC1701_printCentered(6, "(with testmode)");
 	Display_light_Touched = true;
 }
 
