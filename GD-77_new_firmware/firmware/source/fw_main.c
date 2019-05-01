@@ -28,6 +28,7 @@
 
 #include "fw_main.h"
 #include "fw_i2c.h"
+#include "fw_spi.h"
 
 #include "UC1701.h"
 
@@ -164,6 +165,11 @@ void fw_main_task(void *handle)
     // Init I2C
     init_I2C0a();
     setup_I2C0();
+
+    // Init SPI
+    init_SPI();
+    setup_SPI0();
+    setup_SPI1();
 
 	Show_SplashScreen = true;
 
