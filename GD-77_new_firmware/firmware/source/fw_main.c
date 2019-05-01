@@ -155,7 +155,7 @@ void reset_menu()
 	menu_levels[current_menu_level].current_menu_item = 0;
 }
 
-void fw_main_task(void *handle)
+void fw_main_task()
 {
     USB_DeviceApplicationInit();
 
