@@ -30,6 +30,7 @@
 #include "fw_i2c.h"
 #include "fw_spi.h"
 #include "fw_i2s.h"
+#include "fw_AT1846S.h"
 
 #include "UC1701.h"
 
@@ -175,6 +176,9 @@ void fw_main_task(void *handle)
     // Init I2S
     init_I2S();
     setup_I2S();
+
+    // Init AT1846S
+    I2C_AT1846S_init();
 
 	Show_SplashScreen = true;
 
