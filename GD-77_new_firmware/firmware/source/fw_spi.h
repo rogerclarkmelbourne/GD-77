@@ -31,6 +31,17 @@
 #include "fsl_dspi.h"
 #include "fsl_dspi_freertos.h"
 
+#define SPI_BAUDRATE (500000U) /*! Transfer baudrate - 500k */
+
+#define SPI_DATA_LENGTH (256)         /*! Transfer size */
+extern uint8_t spi_masterReceiveBuffer_SPI0[SPI_DATA_LENGTH];
+extern uint8_t SPI_masterSendBuffer_SPI0[SPI_DATA_LENGTH];
+extern uint8_t spi_masterReceiveBuffer_SPI1[SPI_DATA_LENGTH];
+extern uint8_t SPI_masterSendBuffer_SPI1[SPI_DATA_LENGTH];
+
+extern dspi_rtos_handle_t spi_master_rtos_handle_SPI0;
+extern dspi_rtos_handle_t spi_master_rtos_handle_SPI1;
+
 // SPI1 to C6000 (V_SPI)
 // OUT/ON  B10 - SPI /V_CS to C6000
 // OUT/OFF B11 - SPI V_CLK to C6000
@@ -70,5 +81,19 @@
 void init_SPI();
 int setup_SPI0();
 int setup_SPI1();
+
+void clear_SPI_buffer_SPI0();
+int write_SPI_page_reg_byte_SPI0(uint8_t page, uint8_t reg, uint8_t val);
+int read_SPI_page_reg_byte_SPI0(uint8_t page, uint8_t reg, uint8_t* val);
+int set_clear_SPI_page_reg_byte_with_mask_SPI0(uint8_t page, uint8_t reg, uint8_t mask, uint8_t val);
+int write_SPI_page_reg_bytearray_SPI0(uint8_t page, uint8_t reg, uint8_t* values, uint8_t length);
+int read_SPI_page_reg_bytearray_SPI0(uint8_t page, uint8_t reg, uint8_t* values, uint8_t length);
+
+void clear_SPI_buffer_SPI1();
+int write_SPI_page_reg_byte_SPI1(uint8_t page, uint8_t reg, uint8_t val);
+int read_SPI_page_reg_byte_SPI1(uint8_t page, uint8_t reg, uint8_t* val);
+int set_clear_SPI_page_reg_byte_with_mask_SPI1(uint8_t page, uint8_t reg, uint8_t mask, uint8_t val);
+int write_SPI_page_reg_bytearray_SPI1(uint8_t page, uint8_t reg, uint8_t* values, uint8_t length);
+int read_SPI_page_reg_bytearray_SPI1(uint8_t page, uint8_t reg, uint8_t* values, uint8_t length);
 
 #endif /* _FW_SPI_H_ */
