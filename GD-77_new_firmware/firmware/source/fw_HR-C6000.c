@@ -1,0 +1,164 @@
+/*
+ * Copyright (C)2019 Kai Ludwig, DG4KLU
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ *   1. Redistributions of source code must retain the above copyright notice,
+ *      this list of conditions and the following disclaimer.
+ *   2. Redistributions in binary form must reproduce the above copyright
+ *      notice, this list of conditions and the following disclaimer in the
+ *      documentation and/or other materials provided with the distribution.
+ *   3. The name of the author may not be used to endorse or promote products
+ *      derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
+ * EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS;
+ * OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+ * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+#include "fw_HR-C6000.h"
+
+void SPI_HR_C6000_init()
+{
+    // C6000 interrupts
+    PORT_SetPinMux(Port_INT_C6000_RF_RX, Pin_INT_C6000_RF_RX, kPORT_MuxAsGpio);
+    PORT_SetPinMux(Port_INT_C6000_RF_TX, Pin_INT_C6000_RF_TX, kPORT_MuxAsGpio);
+    PORT_SetPinMux(Port_INT_C6000_SYS, Pin_INT_C6000_SYS, kPORT_MuxAsGpio);
+    PORT_SetPinMux(Port_INT_C6000_TS, Pin_INT_C6000_TS, kPORT_MuxAsGpio);
+    GPIO_PinInit(GPIO_INT_C6000_RF_RX, Pin_INT_C6000_RF_RX, &pin_config_input);
+    GPIO_PinInit(GPIO_INT_C6000_RF_TX, Pin_INT_C6000_RF_TX, &pin_config_input);
+    GPIO_PinInit(GPIO_INT_C6000_SYS, Pin_INT_C6000_SYS, &pin_config_input);
+    GPIO_PinInit(GPIO_INT_C6000_TS, Pin_INT_C6000_TS, &pin_config_input);
+
+    // Connections with C6000
+    PORT_SetPinMux(Port_INT_C6000_RESET, Pin_INT_C6000_RESET, kPORT_MuxAsGpio);
+    PORT_SetPinMux(Port_INT_C6000_PWD, Pin_INT_C6000_PWD, kPORT_MuxAsGpio);
+    GPIO_PinInit(GPIO_INT_C6000_RESET, Pin_INT_C6000_RESET, &pin_config_output);
+    GPIO_PinInit(GPIO_INT_C6000_PWD, Pin_INT_C6000_PWD, &pin_config_output);
+    GPIO_PinWrite(GPIO_INT_C6000_RESET, Pin_INT_C6000_RESET, 1);
+    GPIO_PinWrite(GPIO_INT_C6000_PWD, Pin_INT_C6000_PWD, 1);
+
+    // Wake up C6000
+	vTaskDelay(portTICK_PERIOD_MS * 10);
+    GPIO_PinWrite(GPIO_INT_C6000_PWD, Pin_INT_C6000_PWD, 0);
+	vTaskDelay(portTICK_PERIOD_MS * 10);
+
+	// GD-77 FW V3.1.1 data from 0x76010 / length 0x06
+	uint8_t spi_init_values_1[] = { 0xd5, 0xd7, 0xf7, 0x7f, 0xd7, 0x57 };
+	// GD-77 FW V3.1.1 data from 0x75F70 / length 0x20
+	uint8_t spi_init_values_2[] = { 0x69, 0x69, 0x96, 0x96, 0x96, 0x99, 0x99, 0x99, 0xa5, 0xa5, 0xaa, 0xaa, 0xcc, 0xcc, 0x00, 0xf0, 0x01, 0xff, 0x01, 0x0f, 0x00, 0x00, 0x00, 0x00, 0x10, 0x70, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+	// GD-77 FW V3.1.1 data from 0x75F90 / length 0x10
+	uint8_t spi_init_values_3[] = { 0x00, 0x00, 0x14, 0x1e, 0x1a, 0xff, 0x3d, 0x50, 0x07, 0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+	// GD-77 FW V3.1.1 data from 0x75FA0 / length 0x07
+	uint8_t spi_init_values_4[] = { 0x00, 0x03, 0x01, 0x02, 0x05, 0x1e, 0xf0 };
+	// GD-77 FW V3.1.1 data from 0x75FA8 / length 0x05
+	uint8_t spi_init_values_5[] = { 0x00, 0x00, 0xeb, 0x78, 0x67 };
+	// GD-77 FW V3.1.1 data from 0x75FB0 / length 0x60
+	uint8_t spi_init_values_6[] = { 0x32, 0xef, 0x00, 0x31, 0xef, 0x00, 0x12, 0xef, 0x00, 0x13, 0xef, 0x00, 0x14, 0xef, 0x00, 0x15, 0xef, 0x00, 0x16, 0xef, 0x00, 0x17, 0xef, 0x00, 0x18, 0xef, 0x00, 0x19, 0xef, 0x00, 0x1a, 0xef, 0x00, 0x1b, 0xef, 0x00, 0x1c, 0xef, 0x00, 0x1d, 0xef, 0x00, 0x1e, 0xef, 0x00, 0x1f, 0xef, 0x00, 0x20, 0xef, 0x00, 0x21, 0xef, 0x00, 0x22, 0xef, 0x00, 0x23, 0xef, 0x00, 0x24, 0xef, 0x00, 0x25, 0xef, 0x00, 0x26, 0xef, 0x00, 0x27, 0xef, 0x00, 0x28, 0xef, 0x00, 0x29, 0xef, 0x00, 0x2a, 0xef, 0x00, 0x2b, 0xef, 0x00, 0x2c, 0xef, 0x00, 0x2d, 0xef, 0x00, 0x2e, 0xef, 0x00, 0x2f, 0xef, 0x00 };
+
+	// --- start spi_init_daten_senden()
+	write_SPI_page_reg_byte_SPI0(0x04, 0x0b, 0x40);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x0c, 0x32);
+	write_SPI_page_reg_byte_SPI0(0x04, 0xb9, 0x05);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x0a, 0x01);
+
+	write_SPI_page_reg_bytearray_SPI0(0x01, 0x04, spi_init_values_1, 0x06);
+	write_SPI_page_reg_bytearray_SPI0(0x01, 0x10, spi_init_values_2, 0x20);
+	write_SPI_page_reg_bytearray_SPI0(0x01, 0x30, spi_init_values_3, 0x10);
+	write_SPI_page_reg_bytearray_SPI0(0x01, 0x40, spi_init_values_4, 0x07);
+	write_SPI_page_reg_bytearray_SPI0(0x01, 0x51, spi_init_values_5, 0x05);
+	write_SPI_page_reg_bytearray_SPI0(0x01, 0x60, spi_init_values_6, 0x60);
+
+	write_SPI_page_reg_byte_SPI0(0x04, 0x00, 0x00);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x10, 0x6E); // (oder 0x02 oder 0x6A)
+	write_SPI_page_reg_byte_SPI0(0x04, 0x11, 0x80);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x13, 0x00);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x1F, 0x10); // (dynamisch 16 * byte from mem)
+	write_SPI_page_reg_byte_SPI0(0x04, 0x20, 0x00);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x21, 0xA0);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x22, 0x26);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x22, 0x86);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x25, 0x0E);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x26, 0x7D);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x27, 0x40);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x28, 0x7D);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x29, 0x40);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x2A, 0x0B);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x2B, 0x0B);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x2C, 0x17);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x2D, 0x05);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x2E, 0x04);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x2F, 0x0B);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x32, 0x02);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x33, 0xFF);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x34, 0xF0);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x35, 0x28);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x3E, 0x28);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x3F, 0x10);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x36, 0x00);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x37, 0x00);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x4B, 0x1B);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x4C, 0x00);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x56, 0x00); // / (dynamisch)
+	write_SPI_page_reg_byte_SPI0(0x04, 0x5F, 0xC0); // | (dynamisch)
+	write_SPI_page_reg_byte_SPI0(0x04, 0x81, 0xFF); // \ (dynamisch)
+	write_SPI_page_reg_byte_SPI0(0x04, 0xD1, 0xC4);
+
+	// --- start subroutine spi_init_daten_senden_sub()
+	write_SPI_page_reg_byte_SPI0(0x04, 0x01, 0x70); // (dynamisch)
+	write_SPI_page_reg_byte_SPI0(0x04, 0x03, 0x00);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x05, 0x00);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x12, 0x15); // (dynamisch)
+	write_SPI_page_reg_byte_SPI0(0x04, 0xA1, 0x80); // (dynamisch)
+	write_SPI_page_reg_byte_SPI0(0x04, 0xC0, 0x0A);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x06, 0x21);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x07, 0x0B);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x08, 0xB8);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x09, 0x00);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x0D, 0x10);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x0E, 0x8E);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x0F, 0xB8);
+	write_SPI_page_reg_byte_SPI0(0x04, 0xC2, 0x00);
+	write_SPI_page_reg_byte_SPI0(0x04, 0xE0, 0x8B);
+	write_SPI_page_reg_byte_SPI0(0x04, 0xE1, 0x0F);
+	write_SPI_page_reg_byte_SPI0(0x04, 0xE2, 0x06);
+	write_SPI_page_reg_byte_SPI0(0x04, 0xE3, 0x52);
+	write_SPI_page_reg_byte_SPI0(0x04, 0xE4, 0x4A);
+	write_SPI_page_reg_byte_SPI0(0x04, 0xE5, 0x1A);
+	// --- end subroutine spi_init_daten_senden_sub()
+
+	write_SPI_page_reg_byte_SPI0(0x04, 0x40, 0xC3); // / (dynamisch)
+	write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x40); // \ (dynamisch)
+	// --- end spi_init_daten_senden()
+
+	// ------ start spi_more_init
+	// --- start sub_1B5A4
+	set_clear_SPI_page_reg_byte_with_mask_SPI0(0x04, 0x06, 0xFD, 0x02); // SET
+	// --- end sub_1B5A4
+
+	// --- start sub_1B5DC
+	// hard coded 128 * 0xAA
+	uint8_t spi_values[128];
+	for (int i=0; i<128;i++)
+	{
+		spi_values[i]=0xaa;
+	}
+	write_SPI_page_reg_bytearray_SPI0(0x03, 0x00, spi_values, 0x80);
+	// --- end sub_1B5DC
+
+	// --- start sub_1B5A4
+	set_clear_SPI_page_reg_byte_with_mask_SPI0(0x04, 0x06, 0xFD, 0x00); // CLEAR
+	// --- end sub_1B5A4
+
+	write_SPI_page_reg_byte_SPI0(0x04, 0x37, 0x9E); // (dynamisch)
+	set_clear_SPI_page_reg_byte_with_mask_SPI0(0x04, 0xE4, 0x3F, 0x00); // CLEAR
+	// ------ end spi_more_init
+}

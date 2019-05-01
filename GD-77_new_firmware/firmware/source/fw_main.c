@@ -31,6 +31,7 @@
 #include "fw_spi.h"
 #include "fw_i2s.h"
 #include "fw_AT1846S.h"
+#include "fw_HR-C6000.h"
 
 #include "UC1701.h"
 
@@ -179,6 +180,9 @@ void fw_main_task(void *handle)
 
     // Init AT1846S
     I2C_AT1846S_init();
+
+    // Init HR-C6000
+    SPI_HR_C6000_init();
 
 	Show_SplashScreen = true;
 
