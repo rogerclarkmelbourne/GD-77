@@ -31,6 +31,14 @@
 #include "fsl_i2c.h"
 #include "fsl_i2c_freertos.h"
 
+#define I2C_BAUDRATE (100000) /* 100K */
+#define I2C_MASTER_SLAVE_ADDR_7BIT (0x71U)
+
+#define I2C_DATA_LENGTH (32)  /* MAX is 256 */
+extern uint8_t i2c_master_buff[I2C_DATA_LENGTH];
+
+extern i2c_rtos_handle_t i2c_master_rtos_handle;
+
 // I2C0a to AT24C512 EEPROM & AT1846S
 // OUT/ON E24 - I2C SCL to AT24C512 EEPROM & AT1846S
 // OUT/ON E25 - I2C SDA to AT24C512 EEPROM & AT1846S
@@ -54,5 +62,10 @@
 void init_I2C0a();
 void init_I2C0b();
 int setup_I2C0();
+
+void clear_I2C_buffer();
+int write_I2C_reg_2byte(uint8_t addr, uint8_t reg, uint8_t val1, uint8_t val2);
+int read_I2C_reg_2byte(uint8_t addr, uint8_t reg, uint8_t* val1, uint8_t* val2);
+int set_clear_I2C_reg_2byte_with_mask(uint8_t reg, uint8_t mask1, uint8_t mask2, uint8_t val1, uint8_t val2);
 
 #endif /* _FW_I2C_H_ */
