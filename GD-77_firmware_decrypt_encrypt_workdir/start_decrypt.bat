@@ -17,6 +17,7 @@ firmware_decrypt GD-77_V3.1.5_frequency_offset_problem_fix_5EFE_077001 datafile 
 firmware_decrypt GD-77_V3.1.6_5CE3_077001 datafile 0x52BF decrypt
 firmware_decrypt GD-77_V3.1.8_0CD1_077001 datafile 0x0807 decrypt
 firmware_decrypt GD-77_V3.2.1_1823_077801 datafile 0x55E6 decrypt
+firmware_decrypt GD-77_V3.2.2_0A0B_077801 datafile 0x4D02 decrypt
 firmware_decrypt GD-77S_V1.2.0_1A0C2_050001 datafile 0x2a8e decrypt
 firmware_decrypt BF-5R_V2.0.9_1AE1B_078001 datafile 0x4fff decrypt
 firmware_decrypt BF-5R_V2.1.0_1BB37_078001 datafile 0x2f2b decrypt

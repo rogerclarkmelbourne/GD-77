@@ -17,6 +17,7 @@ firmware_find_shift GD-77_V3.1.5_frequency_offset_problem_fix_5EFE_077001 datafi
 firmware_find_shift GD-77_V3.1.6_5CE3_077001 datafile search_endpattern >> results_search_endpattern.txt
 firmware_find_shift GD-77_V3.1.8_0CD1_077001 datafile search_endpattern >> results_search_endpattern.txt
 firmware_find_shift GD-77_V3.2.1_1823_077801 datafile search_endpattern >> results_search_endpattern.txt
+firmware_find_shift GD-77_V3.2.2_0A0B_077801 datafile search_endpattern >> results_search_endpattern.txt
 firmware_find_shift GD-77S_V1.2.0_1A0C2_050001 datafile search_endpattern >> results_search_endpattern.txt
 firmware_find_shift BF-5R_V2.0.9_1AE1B_078001 datafile search_endpattern >> results_search_endpattern.txt
 firmware_find_shift BF-5R_V2.1.0_1BB37_078001 datafile search_endpattern >> results_search_endpattern.txt
