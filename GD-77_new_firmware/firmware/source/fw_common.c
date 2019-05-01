@@ -78,7 +78,7 @@ void fw_init_common()
     GPIO_PinInit(GPIO_RX_audio_mux, Pin_RX_audio_mux, &pin_config_output);
     GPIO_PinInit(GPIO_TX_audio_mux, Pin_TX_audio_mux, &pin_config_output);
     GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 0);
-    GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 1);
+    GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 0);
     GPIO_PinWrite(GPIO_TX_audio_mux, Pin_TX_audio_mux, 0);
 
     // Antenna switch and UHF/VHF RX/TX amp init
