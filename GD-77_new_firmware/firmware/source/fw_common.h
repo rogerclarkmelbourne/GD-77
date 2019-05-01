@@ -41,6 +41,58 @@ extern gpio_pin_config_t pin_config_output;
 #define GPIO_Power_Switch 	GPIOA
 #define Pin_Power_Switch	13
 
+// SOFT_SPI to W25Q80BV 1M flash
+// OUT/ON  A19 - SOFT_SPI /CS to W25Q80BV 1M flash
+// OUT/OFF E5  - SOFT_SPI CLK to W25Q80BV 1M flash
+// OUT/ON  E4  - SOFT_SPI DI to W25Q80BV 1M flash
+// IN      E6  - SOFT_SPI DO to W25Q80BV 1M flash
+#define Port_SOFT_SPI_CS_FLASH  PORTA
+#define GPIO_SOFT_SPI_CS_FLASH  GPIOA
+#define Pin_SOFT_SPI_CS_FLASH   19
+#define Port_SOFT_SPI_CLK_FLASH PORTE
+#define GPIO_SOFT_SPI_CLK_FLASH GPIOE
+#define Pin_SOFT_SPI_CLK_FLASH  5
+#define Port_SOFT_SPI_DI_FLASH  PORTE
+#define GPIO_SOFT_SPI_DI_FLASH  GPIOE
+#define Pin_SOFT_SPI_DI_FLASH   4
+#define Port_SOFT_SPI_DO_FLASH  PORTE
+#define GPIO_SOFT_SPI_DO_FLASH  GPIOE
+#define Pin_SOFT_SPI_DO_FLASH   6
+
+// Other connections
+// OUT/OFF A17 - RF_ant_switch
+// OUT/OFF B0  - speaker_mute
+// OUT/ON  C5  - RX_audio_mux
+// OUT/OFF C6  - TX_audio_mux
+// OUT/OFF C13 - VHF_RX_amp_power
+// OUT/OFF C15 - UHF_RX_amp_power
+// OUT/OFF E2  - UHF_TX_amp_power
+// OUT/OFF E3  - VHF_TX_amp_power
+#define Port_RF_ant_switch    PORTA
+#define GPIO_RF_ant_switch    GPIOA
+#define Pin_RF_ant_switch     17
+#define Port_speaker_mute     PORTB
+#define GPIO_speaker_mute     GPIOB
+#define Pin_speaker_mute      0
+#define Port_RX_audio_mux     PORTC
+#define GPIO_RX_audio_mux     GPIOC
+#define Pin_RX_audio_mux      5
+#define Port_TX_audio_mux     PORTC
+#define GPIO_TX_audio_mux     GPIOC
+#define Pin_TX_audio_mux      6
+#define Port_VHF_RX_amp_power PORTC
+#define GPIO_VHF_RX_amp_power GPIOC
+#define Pin_VHF_RX_amp_power  13
+#define Port_UHF_RX_amp_power PORTC
+#define GPIO_UHF_RX_amp_power GPIOC
+#define Pin_UHF_RX_amp_power  15
+#define Port_UHF_TX_amp_power PORTE
+#define GPIO_UHF_TX_amp_power GPIOE
+#define Pin_UHF_TX_amp_power  2
+#define Port_VHF_TX_amp_power PORTE
+#define GPIO_VHF_TX_amp_power GPIOE
+#define Pin_VHF_TX_amp_power  3
+
 void fw_init_common();
 
 #endif /* _FW_COMMON_H_ */

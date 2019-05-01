@@ -56,4 +56,37 @@ void fw_init_common()
 
     // Power On/Off logic
 	GPIO_PinWrite(GPIO_Keep_Power_On, Pin_Keep_Power_On, 1);
+
+    // SOFT_SPI to W25Q80BV 1M flash
+    PORT_SetPinMux(Port_SOFT_SPI_CS_FLASH, Pin_SOFT_SPI_CS_FLASH, kPORT_MuxAsGpio);
+    PORT_SetPinMux(Port_SOFT_SPI_CLK_FLASH, Pin_SOFT_SPI_CLK_FLASH, kPORT_MuxAsGpio);
+    PORT_SetPinMux(Port_SOFT_SPI_DI_FLASH, Pin_SOFT_SPI_DI_FLASH, kPORT_MuxAsGpio);
+    PORT_SetPinMux(Port_SOFT_SPI_DO_FLASH, Pin_SOFT_SPI_DO_FLASH, kPORT_MuxAsGpio);
+    GPIO_PinInit(GPIO_SOFT_SPI_CS_FLASH, Pin_SOFT_SPI_CS_FLASH, &pin_config_output);
+    GPIO_PinInit(GPIO_SOFT_SPI_CLK_FLASH, Pin_SOFT_SPI_CLK_FLASH, &pin_config_output);
+    GPIO_PinInit(GPIO_SOFT_SPI_DI_FLASH,Pin_SOFT_SPI_DI_FLASH, &pin_config_output);
+    GPIO_PinInit(GPIO_SOFT_SPI_DO_FLASH, Pin_SOFT_SPI_DO_FLASH, &pin_config_input);
+    GPIO_PinWrite(GPIO_SOFT_SPI_CS_FLASH, Pin_SOFT_SPI_CS_FLASH, 1);
+    GPIO_PinWrite(GPIO_SOFT_SPI_CLK_FLASH, Pin_SOFT_SPI_CLK_FLASH, 0);
+    GPIO_PinWrite(GPIO_SOFT_SPI_DI_FLASH,Pin_SOFT_SPI_DI_FLASH, 1);
+
+    // Speaker mute and RX/TX mux init
+    GPIO_PinInit(GPIO_speaker_mute, Pin_speaker_mute, &pin_config_output);
+    GPIO_PinInit(GPIO_RX_audio_mux, Pin_RX_audio_mux, &pin_config_output);
+    GPIO_PinInit(GPIO_TX_audio_mux, Pin_TX_audio_mux, &pin_config_output);
+    GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 0);
+    GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 1);
+    GPIO_PinWrite(GPIO_TX_audio_mux, Pin_TX_audio_mux, 0);
+
+    // Antenna switch and UHF/VHF RX/TX amp init
+    GPIO_PinInit(GPIO_RF_ant_switch, Pin_RF_ant_switch, &pin_config_output);
+    GPIO_PinInit(GPIO_VHF_RX_amp_power, Pin_VHF_RX_amp_power, &pin_config_output);
+    GPIO_PinInit(GPIO_UHF_RX_amp_power, Pin_UHF_RX_amp_power, &pin_config_output);
+    GPIO_PinInit(GPIO_UHF_TX_amp_power, Pin_UHF_TX_amp_power, &pin_config_output);
+    GPIO_PinInit(GPIO_VHF_TX_amp_power, Pin_VHF_TX_amp_power, &pin_config_output);
+    GPIO_PinWrite(GPIO_RF_ant_switch, Pin_RF_ant_switch, 0);
+    GPIO_PinWrite(GPIO_VHF_RX_amp_power, Pin_VHF_RX_amp_power, 0);
+    GPIO_PinWrite(GPIO_UHF_RX_amp_power, Pin_UHF_RX_amp_power, 0);
+    GPIO_PinWrite(GPIO_UHF_TX_amp_power, Pin_UHF_TX_amp_power, 0);
+    GPIO_PinWrite(GPIO_VHF_TX_amp_power, Pin_VHF_TX_amp_power, 0);
 }
