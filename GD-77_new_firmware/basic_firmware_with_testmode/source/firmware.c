@@ -49,7 +49,7 @@ int main(void) {
 
   	/* Init board hardware. */
     BOARD_InitBootPins();
-    BOARD_InitBootClocks();
+    BOARD_BootClockHSRUN();
     BOARD_InitBootPeripherals();
 
     fw_init();
