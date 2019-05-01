@@ -27,9 +27,10 @@
 #ifndef _FW_I2C_H_
 #define _FW_I2C_H_
 
-#include "fsl_port.h"
 #include "fsl_i2c.h"
 #include "fsl_i2c_freertos.h"
+
+#include "fw_common.h"
 
 #define I2C_BAUDRATE (100000) /* 100K */
 #define I2C_MASTER_SLAVE_ADDR_7BIT (0x71U)

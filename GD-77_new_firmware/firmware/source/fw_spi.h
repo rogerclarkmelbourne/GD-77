@@ -27,9 +27,10 @@
 #ifndef _FW_SPI_H_
 #define _FW_SPI_H_
 
-#include "fsl_port.h"
 #include "fsl_dspi.h"
 #include "fsl_dspi_freertos.h"
+
+#include "fw_common.h"
 
 #define SPI_BAUDRATE (500000U) /*! Transfer baudrate - 500k */
 
