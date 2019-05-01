@@ -37,6 +37,6 @@
 #include "fw_display.h"
 
 void fw_init();
-void fw_main_task(void *handle);
+void fw_main_task();
 
 #endif /* _FW_MAIN_H_ */
