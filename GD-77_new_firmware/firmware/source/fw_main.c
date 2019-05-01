@@ -27,6 +27,7 @@
 #include "virtual_com.h"
 
 #include "fw_main.h"
+#include "fw_i2c.h"
 
 #include "UC1701.h"
 
@@ -159,6 +160,10 @@ void fw_main_task(void *handle)
 	fw_init_LEDs();
 	fw_init_keyboard();
 	fw_init_display();
+
+    // Init I2C
+    init_I2C0a();
+    setup_I2C0();
 
 	Show_SplashScreen = true;
 
