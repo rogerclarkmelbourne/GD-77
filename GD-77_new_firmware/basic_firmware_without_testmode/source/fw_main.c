@@ -56,7 +56,7 @@ void show_splashscreen()
 {
 	UC1701_clear();
 	UC1701_printCentered(1, "Experimental");
-	UC1701_printCentered(2, "firmware");
+	UC1701_printCentered(2, "firmware V0.0.0");
 	UC1701_printCentered(4, "by");
 	UC1701_printCentered(6, "DG4KLU");
 	Display_light_Touched = true;
@@ -150,7 +150,7 @@ void reset_menu()
 	menu_levels[current_menu_level].current_menu_item = 0;
 }
 
-void fw_main_task(void *handle)
+void fw_main_task()
 {
     USB_DeviceApplicationInit();
 
