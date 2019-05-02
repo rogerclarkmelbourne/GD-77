@@ -62,7 +62,7 @@ const uint8_t sine_beep[] = { 0x00, 0x00, 0x19, 0x00, 0x32, 0x00, 0x4B, 0x00, 0x
 int sine_beep_freq;
 int sine_beep_duration;
 
-int melody_poweron[] = { 440, 466, 494, -1 };
+int melody_poweron[] = { 440, 500, 466, 500, 494, 500, -1, -1 };
 int *melody_play = NULL;
 int melody_idx = 0;
 
@@ -370,8 +370,8 @@ void fw_main_task()
 					    GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 1);
 					}
 					sine_beep_freq=melody_play[melody_idx];
-					sine_beep_duration=500;
-					melody_idx++;
+					sine_beep_duration=melody_play[melody_idx+1];
+					melody_idx=melody_idx+2;
 				}
 			}
 		}
