@@ -63,6 +63,10 @@ int sine_beep_freq;
 int sine_beep_duration;
 
 int melody_poweron[] = { 440, 500, 466, 500, 494, 500, -1, -1 };
+int melody_key_beep[] = { 880, 100, -1, -1 };
+int melody_sk1_beep[] = { 466, 100, 0, 100, 466, 100, -1, -1 };
+int melody_sk2_beep[] = { 494, 100, 0, 100, 494, 100, -1, -1 };
+int melody_orange_beep[] = { 440, 100, 494, 100, 440, 100, 494, 100, -1, -1 };
 int *melody_play = NULL;
 int melody_idx = 0;
 
@@ -224,6 +228,30 @@ void fw_main_task()
     	uint32_t keys;
     	int key_event;
     	fw_check_key_event(&keys, &key_event);
+
+    	if (key_event==EVENT_KEY_CHANGE)
+    	{
+    		if (keys!=0)
+    		{
+        	    set_melody(melody_key_beep);
+    		}
+    	}
+
+    	if (button_event==EVENT_BUTTON_CHANGE)
+    	{
+    		if ((buttons & BUTTON_SK1)!=0)
+    		{
+        	    set_melody(melody_sk1_beep);
+    		}
+    		else if ((buttons & BUTTON_SK2)!=0)
+    		{
+        	    set_melody(melody_sk2_beep);
+    		}
+    		else if ((buttons & BUTTON_ORANGE)!=0)
+    		{
+        	    set_melody(melody_orange_beep);
+    		}
+    	}
 
     	if (!Shutdown)
     	{
