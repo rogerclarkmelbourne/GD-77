@@ -147,8 +147,6 @@ void update_menu()
 void reset_menu()
 {
 	current_menu_level = -1;
-	menu_levels[current_menu_level].current_menu = NULL;
-	menu_levels[current_menu_level].current_menu_item = 0;
 }
 
 void fw_main_task()
@@ -219,7 +217,7 @@ void fw_main_task()
 				}
 				else if (((keys & KEY_DOWN)!=0) && (key_event==EVENT_KEY_CHANGE)) // Menu level down
 				{
-					if (current_menu_level<MAX_MENU_LEVELS)
+					if (current_menu_level<MAX_MENU_LEVELS-1)
 					{
 						menu_item_t* tmp_sub_menu = menu_levels[current_menu_level].current_menu[menu_levels[current_menu_level].current_menu_item].sub_menu;
 						if (tmp_sub_menu!=NULL)
