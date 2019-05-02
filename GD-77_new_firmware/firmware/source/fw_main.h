@@ -38,5 +38,6 @@
 
 void fw_init();
 void fw_main_task();
+void fw_beep_task();
 
 #endif /* _FW_MAIN_H_ */
