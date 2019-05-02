@@ -159,6 +159,9 @@ void fw_main_task()
 	fw_init_keyboard();
 	fw_init_display();
 
+    // Small startup delay after initialization to stabilize system
+    vTaskDelay(portTICK_PERIOD_MS * 100);
+
 	Show_SplashScreen = true;
 
 	reset_menu();
