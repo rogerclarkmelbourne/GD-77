@@ -203,6 +203,9 @@ void fw_main_task()
     // Init HR-C6000
     SPI_HR_C6000_init();
 
+    // Small startup delay after initialization to stabilize system
+    vTaskDelay(portTICK_PERIOD_MS * 100);
+
 	xTaskCreate(fw_beep_task,                        /* pointer to the task */
 				"fw beep task",                      /* task name for kernel awareness debugging */
 				1000L / sizeof(portSTACK_TYPE),      /* task stack size */
