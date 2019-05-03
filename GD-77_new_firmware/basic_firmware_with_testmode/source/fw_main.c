@@ -56,7 +56,7 @@ void show_splashscreen()
 {
 	UC1701_clear();
 	UC1701_printCentered(1, "Experimental");
-	UC1701_printCentered(2, "firmware V0.0.0");
+	UC1701_printCentered(2, "firmware V0.0.0a");
 	UC1701_printCentered(4, "by");
 	UC1701_printCentered(6, "DG4KLU");
 	Display_light_Touched = true;
@@ -192,7 +192,7 @@ void fw_main_task()
 	fw_init_display();
 
     // Small startup delay after initialization to stabilize system
-    vTaskDelay(portTICK_PERIOD_MS * 100);
+    vTaskDelay(portTICK_PERIOD_MS * 500);
 
 	Show_SplashScreen = true;
 
