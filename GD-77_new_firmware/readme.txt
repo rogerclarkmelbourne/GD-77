@@ -9,6 +9,9 @@ scratch and beeing 100% open source using 100% free tools.
 firmware:
   Most current development version.
 
+firmware_binaries:
+  Firmware SGL binaries ready for flashing.
+
 ------------
 
 baseline/basic_firmware_with_testmode:

@@ -1,0 +1,21 @@
+Changelog
+=========
+
+initial version:
+- MCUXpresso start project for new firmware containing hopefully all necessary dependencies.
+- Support for buttons, LEDs, keyboard and display.
+- Timed splash screen at power on.
+- Timed shutdown screen at power off.
+- Power off gets interrupted by just turning power on again.
+- Display light stays on for 4 seconds when something happens on the display.
+- Multilevel menu system with example structure. Enter/Exit Menu with SK2, navigate menu with up/down/left/right.
+- COM port (compatible to existing Windows 10 driver) gets detected when programming cable is attached to PC.
+
+V0.0.1:
+- Support for I2C, SPI and I2S (with DMA).
+- Support for AT1846.
+- Support for HR-C6000.
+- Pin definitions and initialization for I2C, SPI, I2S, AT1846, HR-C6000 and some common pins.
+- Added beep task for sounds.
+- Added key and buttons sounds.
+- Added melody system + startup melody.
