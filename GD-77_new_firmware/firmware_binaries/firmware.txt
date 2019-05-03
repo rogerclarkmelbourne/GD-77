@@ -19,3 +19,15 @@ V0.0.1:
 - Added beep task for sounds.
 - Added key and buttons sounds.
 - Added melody system + startup melody.
+- Added data structure for mode (anlog/DMR), band (VHF/UHF) and frequency
+- Made mode, band and frequency editable
+    - frequency is checked to stay in band range (VHF: 144 MHz - 146 MHz / UHF: 430 MHz - 440 MHz)
+    - use digit keys to enter frequency
+    - left key is backspace
+    - green key is ok (partially entered frequency will get padded with zeros)
+    - red key is cancel
+    - up/down keys step frequency by +/- 12.5 KHz
+    - star key toogles mode analog/DMR
+    - hash key toogles band VHF/UHF
+    - keys have special sounds for ok, cancel and wrong frequency
+- Display shows mode, band and frequency

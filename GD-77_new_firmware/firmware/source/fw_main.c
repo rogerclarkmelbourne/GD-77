@@ -68,6 +68,9 @@ int melody_key_beep[] = { 880, 100, -1, -1 };
 int melody_sk1_beep[] = { 466, 100, 0, 100, 466, 100, -1, -1 };
 int melody_sk2_beep[] = { 494, 100, 0, 100, 494, 100, -1, -1 };
 int melody_orange_beep[] = { 440, 100, 494, 100, 440, 100, 494, 100, -1, -1 };
+int melody_ACK_beep[] = { 466, 200, 494, 200, -1, -1 };
+int melody_NACK_beep[] = { 494, 200, 466, 200, -1, -1 };
+int melody_ERROR_beep[] = { 440, 50, 0, 50, 440, 50, 0, 50, 440, 50, -1, -1 };
 int *melody_play = NULL;
 int melody_idx = 0;
 
@@ -196,13 +199,6 @@ void show_splashscreen()
 	Display_light_Touched = true;
 }
 
-void show_running()
-{
-	UC1701_clear();
-	UC1701_printCentered(4, "RUNNING");
-	Display_light_Touched = true;
-}
-
 void show_poweroff()
 {
 	UC1701_clear();
@@ -282,6 +278,96 @@ void reset_menu()
 	current_menu_level = -1;
 }
 
+#define MODE_ANALOG 1
+#define MODE_DIGITAL 2
+
+#define BAND_VHF 1
+#define BAND_UHF 2
+
+#define VHF_MIN 1440000
+#define VHF_MAX 1459999
+#define UHF_MIN 4300000
+#define UHF_MAX 4399999
+
+#define FREQ_STEP 125
+
+int current_mode = 0;
+int current_band = 0;
+int current_VHF_frequency = 0;
+int current_UHF_frequency = 0;
+int current_frequency = 0;
+
+char freq_enter_digits[7] = { '-', '-', '-', '-', '-', '-', '-' };
+int freq_enter_idx = 0;
+
+void reset_freq_enter_digits()
+{
+	for (int i=0;i<7;i++)
+	{
+		freq_enter_digits[i]='-';
+	}
+	freq_enter_idx = 0;
+}
+
+int read_freq_enter_digits()
+{
+	int result=0;
+	for (int i=0;i<7;i++)
+	{
+		result=result*10;
+		if ((freq_enter_digits[i]>='0') && (freq_enter_digits[i]<='9'))
+		{
+			result=result+freq_enter_digits[i]-'0';
+		}
+	}
+	return result;
+}
+
+bool check_frequency(int tmp_band, int tmp_frequency)
+{
+	return ((tmp_band == BAND_VHF) && (tmp_frequency>=VHF_MIN) && (tmp_frequency<=VHF_MAX)) || ((tmp_band == BAND_UHF) && (tmp_frequency>=UHF_MIN) && (tmp_frequency<=UHF_MAX));
+}
+
+void update_band_and_frequency(int tmp_band, int tmp_frequency)
+{
+	current_band=tmp_band;
+	current_frequency=tmp_frequency;
+	if (current_band == BAND_VHF)
+	{
+		current_VHF_frequency=current_frequency;
+	}
+	else if (current_band == BAND_UHF)
+	{
+		current_UHF_frequency=current_frequency;
+	}
+}
+
+void update_screen()
+{
+	UC1701_clear();
+	if (current_mode==MODE_ANALOG)
+	{
+		UC1701_printCentered(2, "FM analog");
+	}
+	else if (current_mode==MODE_DIGITAL)
+	{
+		UC1701_printCentered(2, "DMR");
+	}
+	char buffer[32];
+	if (freq_enter_idx==0)
+	{
+		int val_before_dp = current_frequency/10000;
+		int val_after_dp = current_frequency - val_before_dp*10000;
+		sprintf(buffer,"%d.%04d MHz", val_before_dp, val_after_dp);
+	}
+	else
+	{
+		sprintf(buffer,"%c%c%c.%c%c%c%c MHz", freq_enter_digits[0], freq_enter_digits[1], freq_enter_digits[2], freq_enter_digits[3], freq_enter_digits[4], freq_enter_digits[5], freq_enter_digits[6] );
+	}
+	UC1701_printCentered(5, buffer);
+	Display_light_Touched = true;
+}
+
 void fw_main_task()
 {
     USB_DeviceApplicationInit();
@@ -328,6 +414,14 @@ void fw_main_task()
 
 	reset_menu();
 
+	current_mode = MODE_ANALOG;
+	current_band = BAND_VHF;
+	current_VHF_frequency = VHF_MIN;
+	current_UHF_frequency = UHF_MIN;
+	current_frequency = VHF_MIN;
+
+	reset_freq_enter_digits();
+
     while (1U)
     {
     	// Read button state and event
@@ -345,6 +439,146 @@ void fw_main_task()
     		if (keys!=0)
     		{
         	    set_melody(melody_key_beep);
+
+        	    if (current_menu_level==-1)
+        	    {
+        	    	if (freq_enter_idx==0)
+        	    	{
+        				if ((keys & KEY_HASH)!=0)
+        				{
+        					if (current_band == BAND_VHF)
+        					{
+        						update_band_and_frequency(BAND_UHF, current_UHF_frequency);
+        					}
+        					else if (current_band == BAND_UHF)
+        					{
+        						update_band_and_frequency(BAND_VHF, current_VHF_frequency);
+        					}
+        				}
+        				else if ((keys & KEY_STAR)!=0)
+        				{
+        					if (current_mode == MODE_ANALOG)
+        					{
+        						current_mode = MODE_DIGITAL;
+        					}
+        					else if (current_mode == MODE_DIGITAL)
+        					{
+        						current_mode = MODE_ANALOG;
+        					}
+        				}
+        				else if ((keys & KEY_DOWN)!=0)
+        				{
+        					int tmp_frequency=current_frequency-FREQ_STEP;
+        					if (check_frequency(current_band, tmp_frequency))
+        					{
+        						update_band_and_frequency(current_band, tmp_frequency);
+        					}
+        					else
+        					{
+            	        	    set_melody(melody_ERROR_beep);
+        					}
+        				}
+        				else if ((keys & KEY_UP)!=0)
+        				{
+        					int tmp_frequency=current_frequency+FREQ_STEP;
+        					if (check_frequency(current_band, tmp_frequency))
+        					{
+        						update_band_and_frequency(current_band, tmp_frequency);
+        					}
+        					else
+        					{
+            	        	    set_melody(melody_ERROR_beep);
+        					}
+        				}
+        	    	}
+        	    	else
+        	    	{
+        				if ((keys & KEY_LEFT)!=0)
+        				{
+        	    			freq_enter_idx--;
+        	    			freq_enter_digits[freq_enter_idx]='-';
+        				}
+        				else if ((keys & KEY_GREEN)!=0)
+        				{
+        					int tmp_frequency=read_freq_enter_digits();
+        					int tmp_band=0;
+        					if ((tmp_frequency>=VHF_MIN) && (tmp_frequency<=VHF_MAX))
+        					{
+        						tmp_band=BAND_VHF;
+        					}
+        					else if ((tmp_frequency>=UHF_MIN) && (tmp_frequency<=UHF_MAX))
+        					{
+        						tmp_band=BAND_UHF;
+        					}
+        					if (check_frequency(tmp_band, tmp_frequency))
+        					{
+        						update_band_and_frequency(tmp_band, tmp_frequency);
+            					reset_freq_enter_digits();
+            	        	    set_melody(melody_ACK_beep);
+        					}
+        					else
+        					{
+            	        	    set_melody(melody_ERROR_beep);
+        					}
+        				}
+        				else if ((keys & KEY_RED)!=0)
+        				{
+        					reset_freq_enter_digits();
+        	        	    set_melody(melody_NACK_beep);
+        				}
+        	    	}
+        	    	if (freq_enter_idx<7)
+        	    	{
+        	    		char c='\0';
+        				if ((keys & KEY_0)!=0)
+        				{
+        	    			c='0';
+        				}
+        				else if ((keys & KEY_1)!=0)
+        				{
+        	    			c='1';
+        				}
+        				else if ((keys & KEY_2)!=0)
+        				{
+        	    			c='2';
+        				}
+        				else if ((keys & KEY_3)!=0)
+        				{
+        	    			c='3';
+        				}
+        				else if ((keys & KEY_4)!=0)
+        				{
+        	    			c='4';
+        				}
+        				else if ((keys & KEY_5)!=0)
+        				{
+        	    			c='5';
+        				}
+        				else if ((keys & KEY_6)!=0)
+        				{
+        	    			c='6';
+        				}
+        				else if ((keys & KEY_7)!=0)
+        				{
+        	    			c='7';
+        				}
+        				else if ((keys & KEY_8)!=0)
+        				{
+        	    			c='8';
+        				}
+        				else if ((keys & KEY_9)!=0)
+        				{
+        	    			c='9';
+        				}
+        	    		if (c!='\0')
+        	    		{
+        	    			freq_enter_digits[freq_enter_idx]=c;
+        	    			freq_enter_idx++;
+        	    		}
+        	    	}
+        	    }
+
+        	    update_screen();
     		}
     	}
 
@@ -377,7 +611,7 @@ void fw_main_task()
 			else if ((current_menu_level>=0) && ((buttons & BUTTON_SK2)!=0) && (button_event==EVENT_BUTTON_CHANGE)) // Exit Menu
 			{
 				reset_menu();
-				show_running();
+				update_screen();
 			}
 			else if (current_menu_level>=0)
 			{
@@ -441,7 +675,7 @@ void fw_main_task()
     	}
     	else if ((GPIO_PinRead(GPIO_Power_Switch, Pin_Power_Switch)==0) && (Shutdown))
     	{
-			show_running();
+			update_screen();
 			Shutdown=false;
 			Shutdown_Timer = 0;
     	}
@@ -480,9 +714,9 @@ void fw_main_task()
 				}
 				set_melody(melody_generic);
 				key_event=EVENT_KEY_NONE;
-				show_running();
+				update_screen();
 			}
-			else
+			else if (key_event!=EVENT_KEY_CHANGE)
 			{
 				show_splashscreen();
 				SplashScreen_Timer = 4000;
@@ -495,7 +729,7 @@ void fw_main_task()
 			SplashScreen_Timer--;
 			if (SplashScreen_Timer==0)
 			{
-				show_running();
+				update_screen();
 			}
 		}
 
