@@ -62,6 +62,7 @@ const uint8_t sine_beep[] = { 0x00, 0x00, 0x19, 0x00, 0x32, 0x00, 0x4B, 0x00, 0x
 int sine_beep_freq;
 int sine_beep_duration;
 
+int melody_generic[512];
 int melody_poweron[] = { 440, 500, 466, 500, 494, 500, -1, -1 };
 int melody_key_beep[] = { 880, 100, -1, -1 };
 int melody_sk1_beep[] = { 466, 100, 0, 100, 466, 100, -1, -1 };
@@ -70,12 +71,119 @@ int melody_orange_beep[] = { 440, 100, 494, 100, 440, 100, 494, 100, -1, -1 };
 int *melody_play = NULL;
 int melody_idx = 0;
 
+const uint8_t melody1[] = { 21, 4, 21, 2, 26, 10, 26, 2, 26, 4, 26, 2, 26, 6, 21, 6, 18, 4, 19, 2, 21, 10, 18, 2, 16, 4, 19, 2, 18, 6, 0, 6, 18, 4, 18, 2, 26, 10, 26, 2, 26, 4, 25, 2, 25, 6, 23, 6, 25, 4, 26, 2, 28, 10, 25, 2, 25, 4, 23, 2, 21, 6, 0, 6, 21, 4, 21, 2, 26, 10, 26, 2, 26, 4, 26, 2, 26, 6, 23, 6, 23, 4, 23, 2, 28, 10, 28, 2, 28, 4, 23, 2, 25, 6, 0, 6, 21, 4, 21, 2, 30, 10, 30, 2, 30, 4, 30, 2, 30, 6, 28, 6, 26, 4, 23, 2, 21, 10, 22, 2, 23, 4, 19, 2, 18, 6, 0, 6, 21, 4, 21, 2, 30, 10, 30, 2, 30, 4, 30, 2, 33, 6, 31, 6, 23, 4, 22, 2, 21, 10, 26, 2, 28, 4, 26, 2, 26, 12, 0, 0 };
+const uint8_t melody2[] = { 21, 4, 26, 6, 18, 2, 21, 4, 26, 4, 28, 4, 30, 4, 26, 4, 26, 4, 25, 6, 23, 2, 21, 4, 20, 4, 23, 4, 21, 3, 0, 5, 21, 4, 26, 6, 18, 2, 21, 4, 26, 4, 28, 4, 30, 4, 26, 4, 26, 4, 25, 6, 23, 2, 21, 4, 20, 4, 23, 4, 21, 3, 0, 5, 21, 4, 28, 6, 25, 2, 26, 4, 23, 4, 21, 6, 19, 2, 18, 4, 21, 4, 28, 6, 25, 2, 26, 4, 23, 4, 21, 6, 19, 2, 18, 4, 21, 2, 26, 2, 30, 6, 26, 2, 21, 4, 18, 4, 16, 4, 16, 4, 23, 4, 23, 4, 21, 6, 26, 2, 30, 6, 28, 2, 28, 8, 26, 4, 25, 3, 23, 1, 21, 4, 28, 3, 30, 1, 26, 4, 25, 3, 23, 1, 21, 4, 28, 3, 30, 1, 26, 4, 23, 4, 21, 4, 26, 4, 30, 6, 28, 2, 28, 8, 26, 3, 0, 0 };
+const uint8_t melody3[] = { 21, 4, 30, 4, 26, 4, 23, 3, 25, 1, 26, 3, 23, 1, 21, 3, 18, 1, 21, 4, 0, 2, 21, 2, 23, 2, 25, 2, 26, 6, 26, 2, 30, 6, 28, 2, 28, 8, 0, 4, 28, 4, 31, 6, 28, 2, 25, 2, 25, 2, 23, 2, 25, 2, 28, 4, 26, 4, 0, 2, 26, 2, 25, 2, 23, 2, 28, 6, 25, 2, 25, 4, 23, 4, 21, 8, 0, 4, 21, 4, 28, 4, 25, 4, 21, 2, 21, 2, 26, 2, 28, 2, 30, 4, 26, 4, 0, 2, 26, 2, 28, 2, 30, 2, 31, 6, 28, 2, 30, 6, 26, 2, 30, 4, 28, 4, 0, 4, 21, 4, 30, 6, 28, 2, 26, 2, 25, 2, 28, 3, 26, 1, 25, 4, 23, 4, 0, 2, 31, 2, 30, 2, 28, 2, 26, 6, 26, 2, 28, 6, 28, 2, 30, 12, 21, 4, 30, 6, 28, 2, 26, 2, 25, 2, 28, 3, 26, 1, 25, 4, 23, 4, 0, 2, 31, 2, 30, 2, 28, 2, 33, 6, 26, 2, 30, 4, 28, 4, 26, 12, 0, 0 };
+const uint8_t melody4[] = { 18, 2, 22, 2, 25, 4, 25, 4, 25, 2, 27, 2, 23, 2, 20, 2, 18, 4, 22, 4, 22, 4, 0, 2, 22, 2, 20, 6, 22, 2, 23, 4, 25, 4, 23, 4, 22, 4, 0, 4, 25, 4, 25, 6, 22, 2, 30, 6, 29, 2, 29, 6, 27, 2, 27, 4, 27, 4, 25, 6, 27, 2, 25, 2, 22, 2, 23, 2, 20, 2, 20, 4, 18, 4, 0, 2, 22, 4, 20, 4, 25, 4, 25, 4, 29, 4, 29, 2, 27, 2, 30, 2, 29, 2, 27, 4, 20, 4, 20, 4, 27, 4, 27, 4, 30, 4, 30, 2, 29, 2, 32, 2, 30, 2, 29, 2, 27, 2, 25, 2, 23, 2, 25, 6, 22, 2, 30, 6, 29, 2, 29, 2, 27, 2, 27, 4, 0, 4, 27, 4, 25, 6, 27, 2, 25, 2, 22, 2, 23, 2, 20, 2, 20, 4, 18, 4, 0, 4, 23, 2, 25, 6, 22, 2, 30, 6, 29, 2, 29, 2, 27, 2, 27, 4, 0, 2, 27, 4, 25, 6, 27, 2, 25, 2, 22, 2, 23, 2, 20, 2, 20, 4, 18, 4, 0, 0 };
+
 void set_melody(int *melody)
 {
 	sine_beep_freq=0;
 	sine_beep_duration=0;
 	melody_play=melody;
 	melody_idx=0;
+}
+
+int get_freq(int tone)
+{
+    int freq = 0;
+    switch (tone)
+    {
+        case 11:
+            freq = 196;
+            break;
+        case 12:
+            freq = 208;
+            break;
+        case 13:
+            freq = 220;
+            break;
+        case 14:
+            freq = 233;
+            break;
+        case 15:
+            freq = 247;
+            break;
+        case 16:
+            freq = 262;
+            break;
+        case 17:
+            freq = 277;
+            break;
+        case 18:
+            freq = 294;
+            break;
+        case 19:
+            freq = 311;
+            break;
+        case 20:
+            freq = 330;
+            break;
+        case 21:
+            freq = 349;
+            break;
+        case 22:
+            freq = 370;
+            break;
+        case 23:
+            freq = 392;
+            break;
+        case 24:
+            freq = 415;
+            break;
+        case 25:
+            freq = 440;
+            break;
+        case 26:
+            freq = 466;
+            break;
+        case 27:
+            freq = 494;
+            break;
+        case 28:
+            freq = 523;
+            break;
+        case 29:
+            freq = 554;
+            break;
+        case 30:
+            freq = 587;
+            break;
+        case 31:
+            freq = 622;
+            break;
+        case 32:
+            freq = 659;
+            break;
+        case 33:
+            freq = 698;
+            break;
+    }
+
+    return freq;
+}
+
+void create_song(const uint8_t *melody)
+{
+	int song_idx = 0;
+	for (int i=0;i<256;i++)
+	{
+		if (melody[2*i+1]!=0)
+		{
+			melody_generic[song_idx]=get_freq(melody[2*i]);
+			melody_generic[song_idx+1]=melody[2*i+1]*180;
+			melody_generic[song_idx+2]=0;
+			melody_generic[song_idx+3]=melody[2*i+1]*20;
+			song_idx=song_idx+4;
+		}
+		else
+		{
+			melody_generic[song_idx]=-1;
+			melody_generic[song_idx+1]=-1;
+			song_idx=song_idx+2;
+			break;
+		}
+	}
 }
 
 void show_splashscreen()
@@ -352,8 +460,33 @@ void fw_main_task()
 
 		if (Show_SplashScreen)
 		{
-			show_splashscreen();
-			SplashScreen_Timer = 4000;
+			if ((keys==KEY_1) || (keys==KEY_2) || (keys==KEY_3) || (keys==KEY_STAR))
+			{
+				if (keys==KEY_1)
+				{
+					create_song(melody1);
+				}
+				else if (keys==KEY_2)
+				{
+					create_song(melody2);
+				}
+				else if (keys==KEY_3)
+				{
+					create_song(melody3);
+				}
+				else if (keys==KEY_STAR)
+				{
+					create_song(melody4);
+				}
+				set_melody(melody_generic);
+				key_event=EVENT_KEY_NONE;
+				show_running();
+			}
+			else
+			{
+				show_splashscreen();
+				SplashScreen_Timer = 4000;
+			}
 			Show_SplashScreen = false;
 		}
 
