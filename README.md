@@ -34,5 +34,7 @@ GD-77, GD-77S, RD-5R, MD-760, DM-1801 and DM-860 reverse engineering
 
 "GD-77_MCUXpresso" contains the MCUXpresso projects.
 
+"GD-77_bin2sgl" contains a command line version of the firmware reencrypt tool. It has been modified by Roger VK3KYY and converts bin to SGL file by prepending the header.
+
 # Experimental only
 "GD-77_new_firmware" contains the MCUXpresso project and the tools that will lead to a new GD-77 firmware written from scratch.
