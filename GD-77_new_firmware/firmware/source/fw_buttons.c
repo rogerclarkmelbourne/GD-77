@@ -26,6 +26,9 @@
 
 #include "fw_buttons.h"
 
+uint32_t buttons;
+int button_event;
+
 uint32_t old_button_state;
 
 void fw_init_buttons()

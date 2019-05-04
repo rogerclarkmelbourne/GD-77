@@ -433,13 +433,9 @@ void fw_main_task()
     while (1U)
     {
     	// Read button state and event
-    	uint32_t buttons;
-		int button_event;
     	fw_check_button_event(&buttons, &button_event);
 
     	// Read keyboard state and event
-    	uint32_t keys;
-    	int key_event;
     	fw_check_key_event(&keys, &key_event);
 
     	if (key_event==EVENT_KEY_CHANGE)
