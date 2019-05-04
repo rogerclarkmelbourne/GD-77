@@ -579,9 +579,9 @@ void fw_main_task()
         	    			freq_enter_idx++;
         	    		}
         	    	}
-        	    }
 
-        	    update_screen();
+            	    update_screen();
+        	    }
     		}
     	}
 
