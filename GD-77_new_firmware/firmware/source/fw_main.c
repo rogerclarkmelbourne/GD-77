@@ -400,6 +400,9 @@ void fw_main_task()
     // Small startup delay after initialization to stabilize system
     vTaskDelay(portTICK_PERIOD_MS * 500);
 
+	sine_beep_freq = 0;
+	sine_beep_duration = 0;
+
 	xTaskCreate(fw_beep_task,                        /* pointer to the task */
 				"fw beep task",                      /* task name for kernel awareness debugging */
 				1000L / sizeof(portSTACK_TYPE),      /* task stack size */
@@ -784,9 +787,6 @@ void fw_beep_task()
 	uint8_t tmp_val;
 	int beep_idx = 0;
 	bool beep = false;
-
-	sine_beep_freq = 0;
-	sine_beep_duration = 0;
 
     while (1U)
     {
