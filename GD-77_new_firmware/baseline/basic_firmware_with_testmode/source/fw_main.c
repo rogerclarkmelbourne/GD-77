@@ -458,51 +458,52 @@ void fw_main_task()
             	}
             	else if (current_menu_level>=0)
             	{
-                	if (((keys & KEY_RIGHT)!=0) && (key_event==EVENT_KEY_CHANGE)) // Menu item right
-                	{
-                		menu_levels[current_menu_level].current_menu_item++;
-                		if ( menu_levels[current_menu_level].current_menu[menu_levels[current_menu_level].current_menu_item].menu_item_text == NULL)
-                		{
-                			menu_levels[current_menu_level].current_menu_item = 0;
-                		}
-                		update_menu();
-                	}
-                	else if (((keys & KEY_LEFT)!=0) && (key_event==EVENT_KEY_CHANGE)) // Menu item left
-                	{
-                		menu_levels[current_menu_level].current_menu_item--;
-                		if ( menu_levels[current_menu_level].current_menu_item < 0)
-                		{
-                			int tmp_current_menu_item = 0;
-                			while (menu_levels[current_menu_level].current_menu[tmp_current_menu_item].menu_item_text != NULL)
-                			{
-                				tmp_current_menu_item++;
-                			}
-                			menu_levels[current_menu_level].current_menu_item = tmp_current_menu_item - 1;
-                		}
-                		update_menu();
-                	}
-                	else if (((keys & KEY_DOWN)!=0) && (key_event==EVENT_KEY_CHANGE)) // Menu level down
-                	{
-                		if (current_menu_level<MAX_MENU_LEVELS-1)
-    					{
-                    		menu_item_t* tmp_sub_menu = menu_levels[current_menu_level].current_menu[menu_levels[current_menu_level].current_menu_item].sub_menu;
-                    		if (tmp_sub_menu!=NULL)
-                    		{
-                    			current_menu_level++;
-                        		menu_levels[current_menu_level].current_menu = tmp_sub_menu;
-                        		menu_levels[current_menu_level].current_menu_item = 0;
-                        		update_menu();
-                    		}
-    					}
-                	}
-                	else if (((keys & KEY_UP)!=0) && (key_event==EVENT_KEY_CHANGE)) // Menu level up
-                	{
-                		if (current_menu_level>0)
-                		{
-                    		current_menu_level--;
-                    		update_menu();
-                		}
-                	}
+					if  (key_event==EVENT_KEY_CHANGE)
+					{
+						if ((keys & KEY_RIGHT)!=0) // Menu item right
+						{
+							menu_levels[current_menu_level].current_menu_item++;
+							if ( menu_levels[current_menu_level].current_menu[menu_levels[current_menu_level].current_menu_item].menu_item_text == NULL)
+							{
+								menu_levels[current_menu_level].current_menu_item = 0;
+							}
+						}
+						else if ((keys & KEY_LEFT)!=0) // Menu item left
+						{
+							menu_levels[current_menu_level].current_menu_item--;
+							if ( menu_levels[current_menu_level].current_menu_item < 0)
+							{
+								int tmp_current_menu_item = 0;
+								while (menu_levels[current_menu_level].current_menu[tmp_current_menu_item].menu_item_text != NULL)
+								{
+									tmp_current_menu_item++;
+								}
+								menu_levels[current_menu_level].current_menu_item = tmp_current_menu_item - 1;
+							}
+						}
+						else if ((keys & KEY_DOWN)!=0) // Menu level down
+						{
+							if (current_menu_level<MAX_MENU_LEVELS-1)
+							{
+								menu_item_t* tmp_sub_menu = menu_levels[current_menu_level].current_menu[menu_levels[current_menu_level].current_menu_item].sub_menu;
+								if (tmp_sub_menu!=NULL)
+								{
+									current_menu_level++;
+									menu_levels[current_menu_level].current_menu = tmp_sub_menu;
+									menu_levels[current_menu_level].current_menu_item = 0;
+								}
+							}
+						}
+						else if ((keys & KEY_UP)!=0) // Menu level up
+						{
+							if (current_menu_level>0)
+							{
+								current_menu_level--;
+							}
+						}
+
+						update_menu();
+					}
             	}
         	}
     	}
