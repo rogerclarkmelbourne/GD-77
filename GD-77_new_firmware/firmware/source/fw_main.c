@@ -278,6 +278,7 @@ void reset_menu()
 	current_menu_level = -1;
 }
 
+#define MODE_SILENT 0
 #define MODE_ANALOG 1
 #define MODE_DIGITAL 2
 
@@ -345,7 +346,11 @@ void update_band_and_frequency(int tmp_band, int tmp_frequency)
 void update_screen()
 {
 	UC1701_clear();
-	if (current_mode==MODE_ANALOG)
+	if (current_mode==MODE_SILENT)
+	{
+		UC1701_printCentered(2, "Silent");
+	}
+	else if (current_mode==MODE_ANALOG)
 	{
 		UC1701_printCentered(2, "FM analog");
 	}
@@ -417,7 +422,7 @@ void fw_main_task()
 
 	reset_menu();
 
-	current_mode = MODE_ANALOG;
+	current_mode = MODE_SILENT;
 	current_band = BAND_VHF;
 	current_VHF_frequency = VHF_MIN;
 	current_UHF_frequency = UHF_MIN;
@@ -460,13 +465,17 @@ void fw_main_task()
         				}
         				else if ((keys & KEY_STAR)!=0)
         				{
-        					if (current_mode == MODE_ANALOG)
+        					if (current_mode == MODE_SILENT)
+        					{
+        						current_mode = MODE_ANALOG;
+        					}
+        					else if (current_mode == MODE_ANALOG)
         					{
         						current_mode = MODE_DIGITAL;
         					}
         					else if (current_mode == MODE_DIGITAL)
         					{
-        						current_mode = MODE_ANALOG;
+        						current_mode = MODE_SILENT;
         					}
         				}
         				else if ((keys & KEY_DOWN)!=0)
