@@ -36,6 +36,17 @@
 #include "fw_keyboard.h"
 #include "fw_display.h"
 
+extern int Display_light_Timer;
+extern bool Display_light_Touched;
+extern bool Show_SplashScreen;
+extern int SplashScreen_Timer;
+extern bool Shutdown;
+extern int Shutdown_Timer;
+
+void show_splashscreen();
+void show_poweroff();
+void reset_splashscreen();
+
 void fw_init();
 void fw_main_task();
 
