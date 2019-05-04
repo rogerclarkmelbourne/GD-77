@@ -27,6 +27,9 @@
 #ifndef _FW_MAIN_H_
 #define _FW_MAIN_H_
 
+#include <stdint.h>
+#include <stdio.h>
+
 #include "FreeRTOS.h"
 #include "task.h"
 
