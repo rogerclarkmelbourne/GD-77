@@ -18,7 +18,7 @@ V0.0.1:
 - Pin definitions and initialization for I2C, SPI, I2S, AT1846, HR-C6000 and some common pins.
 - Added beep task for sounds.
 - Added key and buttons sounds.
-- Added melody system + startup melody.
+- Added melody system + startup melody + hidden melodies.
 - Added data structure for mode (anlog/DMR), band (VHF/UHF) and frequency
 - Made mode, band and frequency editable
     - frequency is checked to stay in band range (VHF: 144 MHz - 146 MHz / UHF: 430 MHz - 440 MHz)
@@ -27,7 +27,7 @@ V0.0.1:
     - green key is ok (partially entered frequency will get padded with zeros)
     - red key is cancel
     - up/down keys step frequency by +/- 12.5 KHz
-    - star key toogles mode analog/DMR
-    - hash key toogles band VHF/UHF
+    - star key toggles mode analog/DMR
+    - hash key toggles band VHF/UHF
     - keys have special sounds for ok, cancel and wrong frequency
 - Display shows mode, band and frequency
