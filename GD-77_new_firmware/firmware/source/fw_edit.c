@@ -34,9 +34,9 @@
 #define BAND_UHF 2
 
 #define VHF_MIN 1440000
-#define VHF_MAX 1459999
+#define VHF_MAX 1479999
 #define UHF_MIN 4300000
-#define UHF_MAX 4399999
+#define UHF_MAX 4499999
 
 #define FREQ_STEP 125
 
