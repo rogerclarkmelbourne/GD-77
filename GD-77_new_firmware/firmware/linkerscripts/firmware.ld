@@ -36,15 +36,6 @@ SECTIONS
         /* End of Global Section Table */
 
         *(.after_vectors*)
-
-        /* Kinetis Flash Configuration data */
-        . = 0x400 ;
-        PROVIDE(__FLASH_CONFIG_START__ = .) ;
-        KEEP(*(.FlashConfig))
-        PROVIDE(__FLASH_CONFIG_END__ = .) ;
-        ASSERT(!(__FLASH_CONFIG_START__ == __FLASH_CONFIG_END__), "Linker Flash Config Support Enabled, but no .FlashConfig section provided within application");
-        /* End of Kinetis Flash Configuration data */
-        
     } > PROGRAM_FLASH
 
     .text : ALIGN(4)
