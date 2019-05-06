@@ -36,6 +36,26 @@
 #include "fw_main.h"
 #include "fw_sound.h"
 
+#define MODE_SILENT 0
+#define MODE_ANALOG 1
+#define MODE_DIGITAL 2
+
+#define BAND_VHF 1
+#define BAND_UHF 2
+
+#define VHF_MIN 1440000
+#define VHF_MAX 1479999
+#define UHF_MIN 4300000
+#define UHF_MAX 4499999
+
+#define FREQ_STEP 125
+
+extern int current_mode;
+extern int current_band;
+extern int current_VHF_frequency;
+extern int current_UHF_frequency;
+extern int current_frequency;
+
 void reset_freq_enter_digits();
 int read_freq_enter_digits();
 bool check_frequency(int tmp_band, int tmp_frequency);

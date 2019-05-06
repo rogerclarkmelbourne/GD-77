@@ -26,20 +26,6 @@
 
 #include "fw_edit.h"
 
-#define MODE_SILENT 0
-#define MODE_ANALOG 1
-#define MODE_DIGITAL 2
-
-#define BAND_VHF 1
-#define BAND_UHF 2
-
-#define VHF_MIN 1440000
-#define VHF_MAX 1479999
-#define UHF_MIN 4300000
-#define UHF_MAX 4499999
-
-#define FREQ_STEP 125
-
 int current_mode = 0;
 int current_band = 0;
 int current_VHF_frequency = 0;
