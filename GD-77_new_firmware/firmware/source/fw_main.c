@@ -85,6 +85,8 @@ void reset_splashscreen()
 	SplashScreen_Timer=0;
 }
 
+bool open_squelch=false;
+
 void trx_set_mode_band_freq_and_others()
 {
 	uint32_t f = current_frequency*1.6f;
@@ -93,12 +95,18 @@ void trx_set_mode_band_freq_and_others()
 	uint8_t fh_l = (f & 0x00ff0000) >> 16;
 	uint8_t fh_h = (f & 0xff000000) >> 24;
 
-	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x30, 0x40, 0x06); // RX off
+	uint8_t squelch = 0x00;
+	if ((current_mode == MODE_ANALOG) && (!open_squelch))
+	{
+		squelch = 0x08;
+	}
+
+	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x30, 0x40, 0x06 | squelch); // RX off
 	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x05, 0x87, 0x63); // select 'normal' frequency mode
 	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x29, fh_h, fh_l);
 	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x2a, fl_h, fl_l);
 	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x49, 0x0C, 0x15); // setting SQ open and shut threshold
-	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x30, 0x40, 0x26); // RX on
+	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x30, 0x40, 0x26 | squelch); // RX on
 
 	if (current_mode == MODE_SILENT)
 	{
@@ -176,6 +184,8 @@ void fw_main_task()
 	reset_menu();
 
 	init_edit();
+
+	open_squelch=false;
 
     while (1U)
     {

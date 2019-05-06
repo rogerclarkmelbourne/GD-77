@@ -46,6 +46,8 @@ extern int SplashScreen_Timer;
 extern bool Shutdown;
 extern int Shutdown_Timer;
 
+extern bool open_squelch;
+
 void show_splashscreen();
 void show_poweroff();
 void reset_splashscreen();

@@ -60,6 +60,7 @@ menu_item_t sub_menu2[] = {
 };
 
 menu_item_t top_menu[] = {
+		{ "Squelch", NULL },
 		{ "Top 1", NULL },
 		{ "Top 2", NULL },
 		{ "To Sub 1", sub_menu1 },
@@ -141,6 +142,11 @@ void tick_menu()
 						current_menu_level++;
 						menu_levels[current_menu_level].current_menu = tmp_sub_menu;
 						menu_levels[current_menu_level].current_menu_item = 0;
+					}
+					if ((current_menu_level==0) && (menu_levels[current_menu_level].current_menu_item==0))
+					{
+						open_squelch=!open_squelch;
+						trx_set_mode_band_freq_and_others();
 					}
 				}
 			}
