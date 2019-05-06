@@ -75,6 +75,7 @@ void update_band_and_frequency(int tmp_band, int tmp_frequency)
 	{
 		current_UHF_frequency=current_frequency;
 	}
+	trx_set_mode_band_freq_and_others();
 }
 
 void update_screen()
@@ -115,6 +116,8 @@ void init_edit()
 	current_UHF_frequency = UHF_MIN;
 	current_frequency = VHF_MIN;
 
+	trx_set_mode_band_freq_and_others();
+
 	reset_freq_enter_digits();
 }
 
@@ -147,6 +150,7 @@ void tick_edit()
 			{
 				current_mode = MODE_SILENT;
 			}
+			trx_set_mode_band_freq_and_others();
 		}
 		else if ((keys & KEY_DOWN)!=0)
 		{

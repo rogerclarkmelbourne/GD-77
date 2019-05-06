@@ -50,6 +50,8 @@ void show_splashscreen();
 void show_poweroff();
 void reset_splashscreen();
 
+void trx_set_mode_band_freq_and_others();
+
 void fw_init();
 void fw_main_task();
 

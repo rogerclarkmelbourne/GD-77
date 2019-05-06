@@ -181,7 +181,14 @@ void tick_melody()
 		{
 			if (melody_play[melody_idx]==-1)
 			{
-			    GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 0);
+				if (current_mode == MODE_SILENT)
+				{
+				    GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 0);
+				}
+				if (current_mode == MODE_ANALOG)
+				{
+				    GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 1);
+				}
 			    set_melody(NULL);
 			}
 			else
@@ -189,6 +196,10 @@ void tick_melody()
 				if (melody_idx==0)
 				{
 				    GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 1);
+					if (current_mode == MODE_ANALOG)
+					{
+					    GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 0);
+					}
 				}
 				sine_beep_freq=melody_play[melody_idx];
 				sine_beep_duration=melody_play[melody_idx+1];

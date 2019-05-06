@@ -33,6 +33,8 @@
 #include "fw_common.h"
 #include "fw_spi.h"
 
+#include "fw_edit.h"
+
 extern int melody_generic[512];
 extern int melody_poweron[];
 extern int melody_key_beep[];
