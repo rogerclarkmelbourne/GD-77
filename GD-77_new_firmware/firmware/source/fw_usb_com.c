@@ -26,10 +26,42 @@
 
 #include "fw_usb_com.h"
 
+bool int_sys;
+bool int_ts;
+
 uint8_t com_buffer[COM_BUFFER_SIZE];
 int com_buffer_write_idx = 0;
 int com_buffer_read_idx = 0;
 int com_buffer_cnt = 0;
+
+void PORTC_IRQHandler(void)
+{
+    if ((1U << Pin_INT_C6000_SYS) & PORT_GetPinsInterruptFlags(Port_INT_C6000_SYS))
+    {
+    	int_sys=true;
+        PORT_ClearPinsInterruptFlags(Port_INT_C6000_SYS, (1U << Pin_INT_C6000_SYS));
+    }
+    if ((1U << Pin_INT_C6000_TS) & PORT_GetPinsInterruptFlags(Port_INT_C6000_TS))
+    {
+    	int_ts=true;
+        PORT_ClearPinsInterruptFlags(Port_INT_C6000_TS, (1U << Pin_INT_C6000_TS));
+    }
+
+    /* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
+    exception return operation might vector to incorrect interrupt */
+    __DSB();
+}
+
+void init_HR_C6000_interrupts()
+{
+	int_sys=false;
+	int_ts=false;
+
+    PORT_SetPinInterruptConfig(Port_INT_C6000_SYS, Pin_INT_C6000_SYS, kPORT_InterruptEitherEdge);
+    PORT_SetPinInterruptConfig(Port_INT_C6000_TS, Pin_INT_C6000_TS, kPORT_InterruptEitherEdge);
+
+    NVIC_SetPriority(PORTC_IRQn, 3);
+}
 
 void add_to_commbuffer(uint8_t value)
 {

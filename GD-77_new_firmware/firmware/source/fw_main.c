@@ -116,6 +116,7 @@ void trx_set_mode_band_freq_and_others()
 	    GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 0); // connect AT1846S audio to HR_C6000
 		GPIO_PinWrite(GPIO_VHF_RX_amp_power, Pin_VHF_RX_amp_power, 0);
 		GPIO_PinWrite(GPIO_UHF_RX_amp_power, Pin_UHF_RX_amp_power, 0);
+	    NVIC_DisableIRQ(PORTC_IRQn);
 	}
 	else
 	{
@@ -124,12 +125,16 @@ void trx_set_mode_band_freq_and_others()
 			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x44, 0x06, 0x80); // set internal volume to 50%
 		    GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 1); // speaker on
 		    GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 1); // connect AT1846S audio to speaker
+		    NVIC_DisableIRQ(PORTC_IRQn);
 		}
 		else if (current_mode == MODE_DIGITAL)
 		{
 			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x44, 0x06, 0xFF); // set internal volume to 100%
 		    GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 1); // speaker on
 		    GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 0); // connect AT1846S audio to HR_C6000
+	    	int_sys=false;
+	    	int_ts=false;
+		    NVIC_EnableIRQ(PORTC_IRQn);
 		}
 		if (current_band == BAND_VHF)
 		{
@@ -172,6 +177,7 @@ void fw_main_task()
 
     // Init HR-C6000
     SPI_HR_C6000_init();
+    init_HR_C6000_interrupts();
 
     // Small startup delay after initialization to stabilize system
     vTaskDelay(portTICK_PERIOD_MS * 500);
