@@ -29,6 +29,16 @@
 bool int_sys;
 bool int_ts;
 
+uint8_t tmp_val_0x82;
+uint8_t tmp_val_0x86;
+uint8_t tmp_val_0x51;
+uint8_t tmp_val_0x52;
+uint8_t tmp_val_0x57;
+uint8_t tmp_val_0x5f;
+uint8_t tmp_ram[256];
+uint8_t tmp_ram1[256];
+uint8_t tmp_ram2[256];
+
 uint8_t com_buffer[COM_BUFFER_SIZE];
 int com_buffer_write_idx = 0;
 int com_buffer_read_idx = 0;
@@ -61,6 +71,48 @@ void init_HR_C6000_interrupts()
     PORT_SetPinInterruptConfig(Port_INT_C6000_TS, Pin_INT_C6000_TS, kPORT_InterruptEitherEdge);
 
     NVIC_SetPriority(PORTC_IRQn, 3);
+}
+
+void send_packet(uint8_t val_0x82, uint8_t val_0x86, int ram)
+{
+	if ((com_buffer_cnt+6+(ram+1))<=COM_BUFFER_SIZE)
+	{
+		taskENTER_CRITICAL();
+		add_to_commbuffer(val_0x82);
+		add_to_commbuffer(val_0x86);
+		add_to_commbuffer(tmp_val_0x51);
+		add_to_commbuffer(tmp_val_0x52);
+		add_to_commbuffer(tmp_val_0x57);
+		add_to_commbuffer(tmp_val_0x5f);
+		for (int i=0;i<=ram;i++)
+		{
+			add_to_commbuffer(tmp_ram[i]);
+		}
+		taskEXIT_CRITICAL();
+	}
+}
+
+void send_packet_big(uint8_t val_0x82, uint8_t val_0x86, int ram1, int ram2)
+{
+	if ((com_buffer_cnt+6+(ram1+1)+(ram2+1))<=COM_BUFFER_SIZE)
+	{
+		taskENTER_CRITICAL();
+		add_to_commbuffer(val_0x82);
+		add_to_commbuffer(val_0x86);
+		add_to_commbuffer(tmp_val_0x51);
+		add_to_commbuffer(tmp_val_0x52);
+		add_to_commbuffer(tmp_val_0x57);
+		add_to_commbuffer(tmp_val_0x5f);
+		for (int i=0;i<=ram1;i++)
+		{
+			add_to_commbuffer(tmp_ram1[i]);
+		}
+		for (int i=0;i<=ram2;i++)
+		{
+			add_to_commbuffer(tmp_ram2[i]);
+		}
+		taskEXIT_CRITICAL();
+	}
 }
 
 void add_to_commbuffer(uint8_t value)

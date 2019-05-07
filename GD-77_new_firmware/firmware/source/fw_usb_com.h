@@ -43,6 +43,9 @@ extern bool int_ts;
 void PORTC_IRQHandler(void);
 void init_HR_C6000_interrupts();
 
+void send_packet(uint8_t val_0x82, uint8_t val_0x86, int ram);
+void send_packet_big(uint8_t val_0x82, uint8_t val_0x86, int ram1, int ram2);
+
 void add_to_commbuffer(uint8_t value);
 
 #endif /* _FW_USB_COM_H_ */
