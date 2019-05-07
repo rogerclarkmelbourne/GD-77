@@ -38,6 +38,7 @@
 #include "fw_sound.h"
 #include "fw_menu.h"
 #include "fw_edit.h"
+#include "fw_usb_com.h"
 
 TaskHandle_t fwMainTaskHandle;
 
@@ -200,6 +201,22 @@ void fw_main_task()
     		if (keys!=0)
     		{
         	    set_melody(melody_key_beep);
+
+        	    // Send some testdata
+        	    add_to_commbuffer(0x42); // cmd 0x42
+        	    add_to_commbuffer(0x43); // 4 bytes data
+        	    add_to_commbuffer(0x44);
+        	    add_to_commbuffer(0x45);
+        	    add_to_commbuffer(0x46);
+        	    add_to_commbuffer(0x84); // cmd 0x84
+        	    add_to_commbuffer(0x85); // 8 bytes data
+        	    add_to_commbuffer(0x86);
+        	    add_to_commbuffer(0x87);
+        	    add_to_commbuffer(0x88);
+        	    add_to_commbuffer(0x89);
+        	    add_to_commbuffer(0x8a);
+        	    add_to_commbuffer(0x8b);
+        	    add_to_commbuffer(0x8c);
 
         	    if (current_menu_level==-1)
         	    {
