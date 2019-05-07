@@ -162,7 +162,7 @@ usb_status_t USB_DeviceCdcVcomCallback(class_handle_t handle, uint32_t event, vo
                     	if (s_currRecvBuf[0]=='B')
                     	{
     						int buff_cnt=0;
-    						while ((buff_cnt<(COM_BUFFER_SIZE-3)) && (com_buffer_cnt>0))
+    						while ((buff_cnt<(DATA_BUFF_SIZE-3)) && (com_buffer_cnt>0))
     						{
     							s_currSendBuf[buff_cnt+3]=com_buffer[com_buffer_read_idx];
     							com_buffer_cnt--;

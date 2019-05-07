@@ -137,7 +137,7 @@ namespace ComTool
                 {
                     sendbuffer[0] = (byte)'B';
                     port.Write(sendbuffer, 0, 1);
-                    port.Read(readbuffer, 0, 512);
+                    port.Read(readbuffer, 0, 64);
 
                     if (readbuffer[0] == 'B')
                     {
