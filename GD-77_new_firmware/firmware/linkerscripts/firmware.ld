@@ -43,6 +43,7 @@ SECTIONS
        *(.text*)
        *(.rodata .rodata.* .constdata .constdata.*)
        . = ALIGN(4);
+       _etext = . ;
     } > PROGRAM_FLASH
     
     /* DATA section for SRAM_LOWER */
