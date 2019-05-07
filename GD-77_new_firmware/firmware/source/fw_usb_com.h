@@ -43,6 +43,7 @@ extern uint8_t tmp_val_0x5f;
 extern uint8_t tmp_ram[256];
 extern uint8_t tmp_ram1[256];
 extern uint8_t tmp_ram2[256];
+extern uint16_t custom_value;
 
 extern uint8_t com_buffer[COM_BUFFER_SIZE];
 extern int com_buffer_write_idx;

@@ -35,6 +35,7 @@ uint8_t tmp_val_0x5f;
 uint8_t tmp_ram[256];
 uint8_t tmp_ram1[256];
 uint8_t tmp_ram2[256];
+uint16_t custom_value;
 
 uint8_t com_buffer[COM_BUFFER_SIZE];
 int com_buffer_write_idx = 0;
@@ -43,9 +44,11 @@ int com_buffer_cnt = 0;
 
 void send_packet(uint8_t val_0x82, uint8_t val_0x86, int ram)
 {
-	if ((com_buffer_cnt+6+(ram+1))<=COM_BUFFER_SIZE)
+	if ((com_buffer_cnt+8+(ram+1))<=COM_BUFFER_SIZE)
 	{
 		taskENTER_CRITICAL();
+		add_to_commbuffer((custom_value >> 8) & 0xff);
+		add_to_commbuffer((custom_value >> 0) & 0xff);
 		add_to_commbuffer(val_0x82);
 		add_to_commbuffer(val_0x86);
 		add_to_commbuffer(tmp_val_0x51);
@@ -62,9 +65,11 @@ void send_packet(uint8_t val_0x82, uint8_t val_0x86, int ram)
 
 void send_packet_big(uint8_t val_0x82, uint8_t val_0x86, int ram1, int ram2)
 {
-	if ((com_buffer_cnt+6+(ram1+1)+(ram2+1))<=COM_BUFFER_SIZE)
+	if ((com_buffer_cnt+8+(ram1+1)+(ram2+1))<=COM_BUFFER_SIZE)
 	{
 		taskENTER_CRITICAL();
+		add_to_commbuffer((custom_value >> 8) & 0xff);
+		add_to_commbuffer((custom_value >> 0) & 0xff);
 		add_to_commbuffer(val_0x82);
 		add_to_commbuffer(val_0x86);
 		add_to_commbuffer(tmp_val_0x51);
