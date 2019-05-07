@@ -60,6 +60,12 @@
 #define GPIO_INT_C6000_PWD   GPIOE
 #define Pin_INT_C6000_PWD    1
 
+extern bool int_sys;
+extern bool int_ts;
+
 void SPI_HR_C6000_init();
+void PORTC_IRQHandler(void);
+void init_HR_C6000_interrupts();
+void tick_HR_C6000();
 
 #endif /* _FW_HR_C6000_H_ */

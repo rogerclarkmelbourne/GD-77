@@ -26,6 +26,9 @@
 
 #include "fw_HR-C6000.h"
 
+bool int_sys;
+bool int_ts;
+
 void SPI_HR_C6000_init()
 {
     // C6000 interrupts
@@ -161,4 +164,33 @@ void SPI_HR_C6000_init()
 	write_SPI_page_reg_byte_SPI0(0x04, 0x37, 0x9E); // (dynamisch)
 	set_clear_SPI_page_reg_byte_with_mask_SPI0(0x04, 0xE4, 0x3F, 0x00); // CLEAR
 	// ------ end spi_more_init
+}
+
+void PORTC_IRQHandler(void)
+{
+    if ((1U << Pin_INT_C6000_SYS) & PORT_GetPinsInterruptFlags(Port_INT_C6000_SYS))
+    {
+    	int_sys=true;
+        PORT_ClearPinsInterruptFlags(Port_INT_C6000_SYS, (1U << Pin_INT_C6000_SYS));
+    }
+    if ((1U << Pin_INT_C6000_TS) & PORT_GetPinsInterruptFlags(Port_INT_C6000_TS))
+    {
+    	int_ts=true;
+        PORT_ClearPinsInterruptFlags(Port_INT_C6000_TS, (1U << Pin_INT_C6000_TS));
+    }
+
+    /* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
+    exception return operation might vector to incorrect interrupt */
+    __DSB();
+}
+
+void init_HR_C6000_interrupts()
+{
+	int_sys=false;
+	int_ts=false;
+
+    PORT_SetPinInterruptConfig(Port_INT_C6000_SYS, Pin_INT_C6000_SYS, kPORT_InterruptEitherEdge);
+    PORT_SetPinInterruptConfig(Port_INT_C6000_TS, Pin_INT_C6000_TS, kPORT_InterruptEitherEdge);
+
+    NVIC_SetPriority(PORTC_IRQn, 3);
 }
