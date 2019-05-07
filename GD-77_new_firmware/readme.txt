@@ -12,6 +12,12 @@ firmware:
 firmware_binaries:
   Firmware SGL binaries ready for flashing.
 
+ComTool:
+  Tool to communicate with the firmware using an USB COM port.
+
+ComTool_Binary:
+  Precompiled executable for ComTool.
+
 ------------
 
 baseline/basic_firmware_with_testmode:
