@@ -10,7 +10,7 @@ ENTRY(ResetISR)
 SECTIONS
 {
     /* MAIN TEXT SECTION */
-    .text : ALIGN(4)
+    .text_start : ALIGN(4)
     {
         FILL(0xff)
         __vectors_start__ = ABSOLUTE(.) ;
@@ -38,7 +38,14 @@ SECTIONS
         *(.after_vectors*)
     } > PROGRAM_FLASH
 
-    .text : ALIGN(4)
+    .fw_311_0x00004400_0x00007fff : ALIGN(4)
+    {
+       . = ABSOLUTE(0x4400) ;
+       *(.fw_311_0x00004400_0x00007fff)
+        KEEP(*(.fw_311_0x00004400_0x00007fff))
+    } > PROGRAM_FLASH
+
+    .text_main : ALIGN(4)
     {
        *(.text*)
        *(.rodata .rodata.* .constdata .constdata.*)
@@ -78,6 +85,13 @@ SECTIONS
        . = ALIGN(4) ;
        _edata = . ;
     } > SRAM_UPPER AT>PROGRAM_FLASH
+
+    .fw_311_0x00050000_0x0007afff : ALIGN(4)
+    {
+        . = ABSOLUTE(0x50000) ;
+       *(.fw_311_0x00050000_0x0007afff)
+        KEEP(*(.fw_311_0x00050000_0x0007afff))
+    } > PROGRAM_FLASH
 
     /* BSS section for SRAM_LOWER */
     .bss_RAM2 : ALIGN(4)
@@ -146,7 +160,7 @@ SECTIONS
      * these will need extending to give a complete picture with
      * complex images (e.g multiple Flash banks).
      */
-    _image_start = LOADADDR(.text);
-    _image_end = LOADADDR(.data) + SIZEOF(.data);
+    _image_start = LOADADDR(.text_start);
+    _image_end = LOADADDR(.fw_311_0x00050000_0x0007afff) + SIZEOF(.fw_311_0x00050000_0x0007afff);
     _image_size = _image_end - _image_start;
 }
