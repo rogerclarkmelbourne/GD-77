@@ -27,9 +27,22 @@
 #ifndef _FW_USB_COM_H_
 #define _FW_USB_COM_H_
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 #include "fw_common.h"
 
 #define COM_BUFFER_SIZE 8192
+
+extern uint8_t tmp_val_0x82;
+extern uint8_t tmp_val_0x86;
+extern uint8_t tmp_val_0x51;
+extern uint8_t tmp_val_0x52;
+extern uint8_t tmp_val_0x57;
+extern uint8_t tmp_val_0x5f;
+extern uint8_t tmp_ram[256];
+extern uint8_t tmp_ram1[256];
+extern uint8_t tmp_ram2[256];
 
 extern uint8_t com_buffer[COM_BUFFER_SIZE];
 extern int com_buffer_write_idx;
