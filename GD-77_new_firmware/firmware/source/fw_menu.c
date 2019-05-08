@@ -83,6 +83,7 @@ int current_menu_level;
 void update_menu()
 {
 	UC1701_clear();
+	update_flags();
 	UC1701_printCentered(2, "MENU MODE");
 	UC1701_printCentered(4, menu_levels[current_menu_level].current_menu[menu_levels[current_menu_level].current_menu_item].menu_item_text);
 	Display_light_Touched = true;

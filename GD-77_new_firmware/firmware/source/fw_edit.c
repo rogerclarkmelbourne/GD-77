@@ -78,9 +78,30 @@ void update_band_and_frequency(int tmp_band, int tmp_frequency)
 	trx_set_mode_band_freq_and_others();
 }
 
+void update_flags()
+{
+	if (open_squelch)
+	{
+		UC1701_printAt(1*6, 0, "SQ:OFF");
+	}
+	else
+	{
+		UC1701_printAt(1*6, 0, "SQ:ON ");
+	}
+	if (HR_C6000_datalogging)
+	{
+		UC1701_printAt(14*6, 0, "LOG:ON ");
+	}
+	else
+	{
+		UC1701_printAt(14*6, 0, "LOG:OFF");
+	}
+}
+
 void update_screen()
 {
 	UC1701_clear();
+	update_flags();
 	if (current_mode==MODE_SILENT)
 	{
 		UC1701_printCentered(2, "Silent");
