@@ -173,6 +173,122 @@ void fw_init_beep_task()
 				);
 }
 
+volatile uint8_t wavbuffer[WAV_BUFFER_COUNT][WAV_BUFFER_SIZE];
+int wavbuffer_read_idx;
+int wavbuffer_write_idx;
+volatile int wavbuffer_count;
+uint8_t tmp_wavbuffer[WAV_BUFFER_SIZE];
+
+uint8_t spi_sound1[WAV_BUFFER_SIZE*2];
+uint8_t spi_sound2[WAV_BUFFER_SIZE*2];
+uint8_t spi_sound3[WAV_BUFFER_SIZE*2];
+uint8_t spi_sound4[WAV_BUFFER_SIZE*2];
+
+volatile bool g_TX_SAI_in_use = false;
+
+void store_soundbuffer()
+{
+	taskENTER_CRITICAL();
+	int tmp_wavbuffer_count = wavbuffer_count;
+	taskEXIT_CRITICAL();
+
+	if (tmp_wavbuffer_count<WAV_BUFFER_COUNT)
+	{
+		for (int wav_idx=0;wav_idx<WAV_BUFFER_SIZE;wav_idx++)
+		{
+			wavbuffer[wavbuffer_write_idx][wav_idx]=tmp_wavbuffer[wav_idx];
+		}
+		wavbuffer_write_idx++;
+		if (wavbuffer_write_idx>=WAV_BUFFER_COUNT)
+		{
+			wavbuffer_write_idx=0;
+		}
+
+		taskENTER_CRITICAL();
+		wavbuffer_count++;
+		taskEXIT_CRITICAL();
+	}
+}
+
+void send_sound_data()
+{
+	if (wavbuffer_count>0)
+	{
+		for (int i=0; i<(WAV_BUFFER_SIZE/2); i++)
+		{
+			switch(g_SAI_TX_Handle.queueUser)
+			{
+			case 0:
+				spi_sound1[4*i+3]=wavbuffer[wavbuffer_read_idx][2*i+1];
+				spi_sound1[4*i+2]=wavbuffer[wavbuffer_read_idx][2*i];
+				spi_sound1[4*i+1]=wavbuffer[wavbuffer_read_idx][2*i+1];
+				spi_sound1[4*i]=wavbuffer[wavbuffer_read_idx][2*i];
+				break;
+			case 1:
+				spi_sound2[4*i+3]=wavbuffer[wavbuffer_read_idx][2*i+1];
+				spi_sound2[4*i+2]=wavbuffer[wavbuffer_read_idx][2*i];
+				spi_sound2[4*i+1]=wavbuffer[wavbuffer_read_idx][2*i+1];
+				spi_sound2[4*i]=wavbuffer[wavbuffer_read_idx][2*i];
+				break;
+			case 2:
+				spi_sound3[4*i+3]=wavbuffer[wavbuffer_read_idx][2*i+1];
+				spi_sound3[4*i+2]=wavbuffer[wavbuffer_read_idx][2*i];
+				spi_sound3[4*i+1]=wavbuffer[wavbuffer_read_idx][2*i+1];
+				spi_sound3[4*i]=wavbuffer[wavbuffer_read_idx][2*i];
+				break;
+			case 3:
+				spi_sound4[4*i+3]=wavbuffer[wavbuffer_read_idx][2*i+1];
+				spi_sound4[4*i+2]=wavbuffer[wavbuffer_read_idx][2*i];
+				spi_sound4[4*i+1]=wavbuffer[wavbuffer_read_idx][2*i+1];
+				spi_sound4[4*i]=wavbuffer[wavbuffer_read_idx][2*i];
+				break;
+			}
+		}
+
+		wavbuffer_read_idx++;
+		if (wavbuffer_read_idx>=WAV_BUFFER_COUNT)
+		{
+			wavbuffer_read_idx=0;
+		}
+		wavbuffer_count--;
+
+		sai_transfer_t xfer;
+		switch(g_SAI_TX_Handle.queueUser)
+		{
+		case 0:
+			xfer.data = spi_sound1;
+			break;
+		case 1:
+			xfer.data = spi_sound2;
+			break;
+		case 2:
+			xfer.data = spi_sound3;
+			break;
+		case 3:
+			xfer.data = spi_sound4;
+			break;
+		}
+		xfer.dataSize = WAV_BUFFER_SIZE*2;
+
+		SAI_TransferSendEDMA(I2S0, &g_SAI_TX_Handle, &xfer);
+
+		g_TX_SAI_in_use = true;
+	}
+}
+
+void tick_soundbuffer()
+{
+	taskENTER_CRITICAL();
+	bool tmp_g_TX_SAI_in_use = g_TX_SAI_in_use;
+	taskEXIT_CRITICAL();
+    if (!tmp_g_TX_SAI_in_use)
+    {
+    	taskENTER_CRITICAL();
+    	send_sound_data();
+    	taskEXIT_CRITICAL();
+    }
+}
+
 void tick_melody()
 {
 	if (melody_play!=NULL)

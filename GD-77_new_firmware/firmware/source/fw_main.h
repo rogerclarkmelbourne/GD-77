@@ -38,6 +38,9 @@
 #include "fw_LEDs.h"
 #include "fw_keyboard.h"
 #include "fw_display.h"
+#include "fw_i2s.h"
+
+#include "fw_sound.h"
 
 extern int Display_light_Timer;
 extern bool Display_light_Touched;

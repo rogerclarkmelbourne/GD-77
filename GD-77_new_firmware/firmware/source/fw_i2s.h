@@ -33,6 +33,8 @@
 #include "fsl_sai.h"
 #include "fsl_sai_edma.h"
 
+#include "fw_sound.h"
+
 // I2S to C6000 (I2S)
 // OUT/ON  A16 - I2S FS to C6000
 // OUT/OFF A14 - I2S CK to C6000

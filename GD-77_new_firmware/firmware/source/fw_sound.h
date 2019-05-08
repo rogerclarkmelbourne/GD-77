@@ -50,10 +50,29 @@ extern const uint8_t melody2[];
 extern const uint8_t melody3[];
 extern const uint8_t melody4[];
 
+#define WAV_BUFFER_SIZE 0xa0
+#define WAV_BUFFER_COUNT 16
+
+extern volatile uint8_t wavbuffer[WAV_BUFFER_COUNT][WAV_BUFFER_SIZE];
+extern int wavbuffer_read_idx;
+extern int wavbuffer_write_idx;
+extern volatile int wavbuffer_count;
+extern uint8_t tmp_wavbuffer[WAV_BUFFER_SIZE];
+
+extern uint8_t spi_sound1[WAV_BUFFER_SIZE*2];
+extern uint8_t spi_sound2[WAV_BUFFER_SIZE*2];
+extern uint8_t spi_sound3[WAV_BUFFER_SIZE*2];
+extern uint8_t spi_sound4[WAV_BUFFER_SIZE*2];
+
+extern volatile bool g_TX_SAI_in_use;
+
 void set_melody(int *melody);
 int get_freq(int tone);
 void create_song(const uint8_t *melody);
 void fw_init_beep_task();
+void send_sound_data();
+void store_soundbuffer();
+void tick_soundbuffer();
 void tick_melody();
 void fw_beep_task();
 
