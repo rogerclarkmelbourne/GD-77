@@ -135,6 +135,8 @@ void trx_set_mode_band_freq_and_others()
 		    GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 0); // connect AT1846S audio to HR_C6000
 	    	int_sys=false;
 	    	int_ts=false;
+	    	slot_state=0;
+	    	tick_cnt=0;
 		    NVIC_EnableIRQ(PORTC_IRQn);
 		}
 		if (current_band == BAND_VHF)

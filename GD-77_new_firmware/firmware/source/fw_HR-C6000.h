@@ -64,6 +64,9 @@
 extern bool int_sys;
 extern bool int_ts;
 
+extern int slot_state;
+extern int tick_cnt;
+
 void SPI_HR_C6000_init();
 void PORTC_IRQHandler(void);
 void init_HR_C6000_interrupts();

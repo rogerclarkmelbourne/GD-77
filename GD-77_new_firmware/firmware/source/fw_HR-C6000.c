@@ -29,6 +29,9 @@
 bool int_sys;
 bool int_ts;
 
+int slot_state;
+int tick_cnt;
+
 void SPI_HR_C6000_init()
 {
     // C6000 interrupts
@@ -189,6 +192,9 @@ void init_HR_C6000_interrupts()
 	int_sys=false;
 	int_ts=false;
 
+	slot_state=0;
+	tick_cnt=0;
+
     PORT_SetPinInterruptConfig(Port_INT_C6000_SYS, Pin_INT_C6000_SYS, kPORT_InterruptEitherEdge);
     PORT_SetPinInterruptConfig(Port_INT_C6000_TS, Pin_INT_C6000_TS, kPORT_InterruptEitherEdge);
 
@@ -214,6 +220,23 @@ void tick_HR_C6000()
 
 	if (tmp_int_ts)
 	{
+		// Transmission start/stop state machine
+		switch (slot_state)
+		{
+		case 1: // Start RX of transmission (first step)
+			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x00);
+			slot_state=2;
+			break;
+		case 2: // Start RX of transmission (second step)
+			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x50);
+			slot_state=1;
+			break;
+		case 3: // Stop RX of transmission
+			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x20);
+			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x40);
+			slot_state=0;
+			break;
+		}
 	}
 
 	if (tmp_int_sys)
@@ -229,6 +252,14 @@ void tick_HR_C6000()
 		{
 			if (tmp_val_0x86 & 0x10)
 			{
+				// Timeout interrupted transmission
+				tick_cnt++;
+                if (tick_cnt>2)
+                {
+                	slot_state=3;
+                    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
+                }
+
 				send_packet(0x20, 0x10, -1);
 			}
 			if (tmp_val_0x86 & 0x04)
@@ -241,6 +272,15 @@ void tick_HR_C6000()
 
 		if (tmp_val_0x82 & 0x10) // InterLateEntry
 		{
+			// Late entry into ongoing transmission
+			int rcrc = (tmp_val_0x51 >> 2) & 0x01;
+			int lcss = (tmp_val_0x52 >> 0) & 0x03;
+            if ((slot_state==0) && (rcrc==0) && (lcss==3))
+            {
+            	slot_state=1;
+                GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
+            }
+
 			send_packet(0x10, 0x00, -1);
 
 			write_SPI_page_reg_byte_SPI0(0x04, 0x83, 0x10);
@@ -248,6 +288,24 @@ void tick_HR_C6000()
 
 		if (tmp_val_0x82 & 0x08) // InterRecvData
 		{
+			// Reset transmission timeout
+			tick_cnt = 0;
+
+			// Start or stop transmission
+			int sc = (tmp_val_0x51 >> 0) & 0x03;
+			int rcrc = (tmp_val_0x51 >> 2) & 0x01;
+			int rxdt = (tmp_val_0x51 >> 4) & 0x0f;
+            if ((slot_state==0) && (rcrc==0) && (sc==2) && (rxdt==1))
+            {
+            	slot_state=1;
+                GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
+            }
+            if (((slot_state==1) || (slot_state==2)) && (rcrc==0) && (sc==2) && (rxdt==2))
+            {
+            	slot_state=3;
+                GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
+            }
+
             send_packet(0x08, 0x00, -1);
 
 			write_SPI_page_reg_byte_SPI0(0x04, 0x83, 0x08);
