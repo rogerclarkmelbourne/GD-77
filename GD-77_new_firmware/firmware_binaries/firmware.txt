@@ -39,3 +39,7 @@ V0.0.1:
 - MCU+PC part of comtool.
 - HR-C6000 DMR interrupt stuff.
 - MCU+PC part of packet data logging stuff.
+- Added basic HR-C6000 packet receive handling for DMR mode.
+- Added HR-C6000 packet data logging.
+- Added menu option to enable/disable HR-C6000 datalogging.
+- Display the flags (squelch, datalogging) that can be changed via menu.
