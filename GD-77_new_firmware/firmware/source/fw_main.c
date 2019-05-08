@@ -87,6 +87,7 @@ void reset_splashscreen()
 }
 
 bool open_squelch=false;
+bool HR_C6000_datalogging=false;
 
 void trx_set_mode_band_freq_and_others()
 {
@@ -193,6 +194,7 @@ void fw_main_task()
 	init_edit();
 
 	open_squelch=false;
+	HR_C6000_datalogging=false;
 
 	custom_value=0;
 

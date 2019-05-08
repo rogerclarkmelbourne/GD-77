@@ -32,6 +32,8 @@
 
 #include "fw_common.h"
 
+#include "fw_main.h"
+
 #define COM_BUFFER_SIZE 8192
 
 extern uint8_t tmp_val_0x82;

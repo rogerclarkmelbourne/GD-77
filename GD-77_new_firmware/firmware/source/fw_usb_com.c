@@ -44,7 +44,7 @@ int com_buffer_cnt = 0;
 
 void send_packet(uint8_t val_0x82, uint8_t val_0x86, int ram)
 {
-	if ((com_buffer_cnt+8+(ram+1))<=COM_BUFFER_SIZE)
+	if ((HR_C6000_datalogging) && ((com_buffer_cnt+8+(ram+1))<=COM_BUFFER_SIZE))
 	{
 		taskENTER_CRITICAL();
 		add_to_commbuffer((custom_value >> 8) & 0xff);
@@ -65,7 +65,7 @@ void send_packet(uint8_t val_0x82, uint8_t val_0x86, int ram)
 
 void send_packet_big(uint8_t val_0x82, uint8_t val_0x86, int ram1, int ram2)
 {
-	if ((com_buffer_cnt+8+(ram1+1)+(ram2+1))<=COM_BUFFER_SIZE)
+	if ((HR_C6000_datalogging) && ((com_buffer_cnt+8+(ram1+1)+(ram2+1))<=COM_BUFFER_SIZE))
 	{
 		taskENTER_CRITICAL();
 		add_to_commbuffer((custom_value >> 8) & 0xff);

@@ -61,6 +61,7 @@ menu_item_t sub_menu2[] = {
 
 menu_item_t top_menu[] = {
 		{ "Squelch", NULL },
+		{ "Datalogging", NULL },
 		{ "Top 1", NULL },
 		{ "Top 2", NULL },
 		{ "To Sub 1", sub_menu1 },
@@ -147,6 +148,10 @@ void tick_menu()
 					{
 						open_squelch=!open_squelch;
 						trx_set_mode_band_freq_and_others();
+					}
+					else if ((current_menu_level==0) && (menu_levels[current_menu_level].current_menu_item==1))
+					{
+						HR_C6000_datalogging=!HR_C6000_datalogging;
 					}
 				}
 			}

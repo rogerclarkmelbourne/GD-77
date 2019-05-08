@@ -47,6 +47,7 @@ extern bool Shutdown;
 extern int Shutdown_Timer;
 
 extern bool open_squelch;
+extern bool HR_C6000_datalogging;
 
 void show_splashscreen();
 void show_poweroff();
