@@ -51,6 +51,12 @@
 #define GPIO_I2S_TX_C6000    GPIOA
 #define Pin_I2S_TX_C6000     15
 
+extern edma_handle_t g_EDMA_TX_Handle;
+extern edma_handle_t g_EDMA_RX_Handle;
+
+extern sai_edma_handle_t g_SAI_TX_Handle;
+extern sai_edma_handle_t g_SAI_RX_Handle;
+
 void init_I2S();
 void setup_I2S();
 
