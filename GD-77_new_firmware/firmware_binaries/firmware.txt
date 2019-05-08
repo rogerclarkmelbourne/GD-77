@@ -32,3 +32,10 @@ V0.0.1:
     - Keys have special sounds for ok, cancel and wrong frequency.
 - Display shows mode, band and frequency.
 - Added additional default mode "Silent".
+- Australian bandwith limits for the time beeing.
+- Added functionality for FM analog mode.
+- Added squelch for analog mode (with open/shut option via menu).
+- Linker magic and data files for codec reuse (the data files contain only dummy data to avoid copyright issues).
+- MCU+PC part of comtool.
+- HR-C6000 DMR interrupt stuff.
+- MCU+PC part of packet data logging stuff.
