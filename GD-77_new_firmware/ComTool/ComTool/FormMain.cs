@@ -149,24 +149,11 @@ namespace ComTool
                                 com_Buf[com_Buf_pos] = readbuffer[i+3];
                                 com_Buf_pos++;
 
-                                if ((com_Buf[0] == 0x42) && (com_Buf_pos == 1 + 4))
+                                if (com_Buf_pos == 8)
                                 {
-                                    string line = "0x42:";
-                                    for (int j = 0; j < 4; j++)
-                                    {
-                                        line = line + String.Format(" {0:X2}", com_Buf[1 + j]);
-                                    }
+                                    string line = String.Format("{0:X4}: [{1:X2} {2:X2}] {3:X2} {4:X2} {5:X2} {6:X2} SC:{7:X2} RCRC:{8:X2} RPI:{9:X2} RXDT:{10:X2} LCSS:{11:X2} TC:{12:X2} AT:{13:X2} CC:{14:X2} ??:{15:X2} ST:{16:X2}", com_Buf[0] * 256 + com_Buf[1], com_Buf[2], com_Buf[3], com_Buf[4], com_Buf[5], com_Buf[6], com_Buf[7], (com_Buf[4] >> 0) & 0x03, (com_Buf[4] >> 2) & 0x01, (com_Buf[4] >> 3) & 0x01, (com_Buf[4] >> 4) & 0x0f, (com_Buf[5] >> 0) & 0x03, (com_Buf[5] >> 2) & 0x01, (com_Buf[5] >> 3) & 0x01, (com_Buf[5] >> 4) & 0x0f, (com_Buf[6] >> 2) & 0x01, (com_Buf[7] >> 0) & 0x03);
                                     SetLog(line);
-                                    com_Buf_pos = 0;
-                                }
-                                else if ((com_Buf[0] == 0x84) && (com_Buf_pos == 1 + 8))
-                                {
-                                    string line = "0x84:";
-                                    for (int j = 0; j < 8; j++)
-                                    {
-                                        line = line + String.Format(" {0:X2}", com_Buf[1 + j]);
-                                    }
-                                    SetLog(line);
+
                                     com_Buf_pos = 0;
                                 }
                             }
