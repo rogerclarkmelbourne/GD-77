@@ -129,7 +129,7 @@ void trx_set_mode_band_freq_and_others()
 		}
 		else if (current_mode == MODE_DIGITAL)
 		{
-			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x44, 0x06, 0xFF); // set internal volume to 100%
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x44, 0x06, 0xCC); // set internal volume to 80%
 		    GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 1); // speaker on
 		    GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 0); // connect AT1846S audio to HR_C6000
 	    	int_sys=false;
