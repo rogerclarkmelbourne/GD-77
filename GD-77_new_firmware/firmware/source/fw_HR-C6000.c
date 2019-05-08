@@ -194,3 +194,77 @@ void init_HR_C6000_interrupts()
 
     NVIC_SetPriority(PORTC_IRQn, 3);
 }
+
+void tick_HR_C6000()
+{
+	bool tmp_int_sys=false;
+	bool tmp_int_ts=false;
+	taskENTER_CRITICAL();
+	if (int_sys)
+	{
+		tmp_int_sys=true;
+		int_sys=false;
+	}
+	if (int_ts)
+	{
+		tmp_int_ts=true;
+		int_ts=false;
+	}
+	taskEXIT_CRITICAL();
+
+	if (tmp_int_ts)
+	{
+	}
+
+	if (tmp_int_sys)
+	{
+		read_SPI_page_reg_byte_SPI0(0x04, 0x82, &tmp_val_0x82);
+		read_SPI_page_reg_byte_SPI0(0x04, 0x86, &tmp_val_0x86);
+		read_SPI_page_reg_byte_SPI0(0x04, 0x51, &tmp_val_0x51);
+		read_SPI_page_reg_byte_SPI0(0x04, 0x52, &tmp_val_0x52);
+		read_SPI_page_reg_byte_SPI0(0x04, 0x57, &tmp_val_0x57);
+		read_SPI_page_reg_byte_SPI0(0x04, 0x5f, &tmp_val_0x5f);
+
+		if (tmp_val_0x82 & 0x20) // InterSendStop
+		{
+			if (tmp_val_0x86 & 0x10)
+			{
+				send_packet(0x20, 0x10, -1);
+			}
+			if (tmp_val_0x86 & 0x04)
+			{
+				send_packet(0x20, 0x04, -1);
+			}
+
+			write_SPI_page_reg_byte_SPI0(0x04, 0x83, 0x20);
+		}
+
+		if (tmp_val_0x82 & 0x10) // InterLateEntry
+		{
+			send_packet(0x10, 0x00, -1);
+
+			write_SPI_page_reg_byte_SPI0(0x04, 0x83, 0x10);
+		}
+
+		if (tmp_val_0x82 & 0x08) // InterRecvData
+		{
+            send_packet(0x08, 0x00, -1);
+
+			write_SPI_page_reg_byte_SPI0(0x04, 0x83, 0x08);
+		}
+
+		if (tmp_val_0x82 & 0x01) // InterPHYOnly
+		{
+			send_packet(0x01, 0x00, -1);
+
+			write_SPI_page_reg_byte_SPI0(0x04, 0x83, 0x01);
+		}
+
+		if (tmp_val_0x82 & 0xC6)
+		{
+			send_packet(0xFF, 0xFF, -1);
+
+			write_SPI_page_reg_byte_SPI0(0x04, 0x83, 0xC6);
+		}
+	}
+}

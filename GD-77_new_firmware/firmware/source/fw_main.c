@@ -194,8 +194,16 @@ void fw_main_task()
 
 	open_squelch=false;
 
+	custom_value=0;
+
     while (1U)
     {
+    	if (current_mode==MODE_DIGITAL)
+    	{
+    		tick_HR_C6000();
+    		custom_value++;
+    	}
+
     	// Read button state and event
     	fw_check_button_event(&buttons, &button_event);
 
