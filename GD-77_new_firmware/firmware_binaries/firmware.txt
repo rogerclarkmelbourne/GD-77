@@ -43,3 +43,7 @@ V0.0.1:
 - Added HR-C6000 packet data logging.
 - Added menu option to enable/disable HR-C6000 datalogging.
 - Display the flags (squelch, datalogging) that can be changed via menu.
+- Added transmission state machine with start/stop/interrupt/lateentry logic.
+- Added soundbuffer system that continously sends data via SAI/EDMA SPI/I2S to the HR-C6000.
+- Took some uncritical AMBE support stuff from https://github.com/szechyjs/dsd and https://github.com/szechyjs/mbelib.
+- Init and call the AMBE codec. (Copyright disclaimer: THIS IS NOT THE AMBE CODEC ITSELF! IT IS ONLY A STUB THAT CALLS INTO THE ORIGINAL FIRMWARE CODE!)
