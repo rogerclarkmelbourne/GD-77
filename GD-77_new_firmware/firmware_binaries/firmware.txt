@@ -47,3 +47,4 @@ V0.0.1:
 - Added soundbuffer system that continously sends data via SAI/EDMA SPI/I2S to the HR-C6000.
 - Took some uncritical AMBE support stuff from https://github.com/szechyjs/dsd and https://github.com/szechyjs/mbelib.
 - Init and call the AMBE codec. (Copyright disclaimer: THIS IS NOT THE AMBE CODEC ITSELF! IT IS ONLY A STUB THAT CALLS INTO THE ORIGINAL FIRMWARE CODE!)
+- Added additional lateinit stuff (AT1846S + HR-C6000).
