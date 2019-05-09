@@ -175,6 +175,15 @@ void fw_main_task()
 
     // Init HR-C6000
     SPI_HR_C6000_init();
+
+    // Additional init stuff
+    SPI_C6000_postinit1();
+    SPI_C6000_postinit2();
+    SPI_C6000_postinit3a();
+    SPI_C6000_postinit3b();
+    I2C_AT1846_Postinit();
+
+    // Init HR-C6000 interrupts
     init_HR_C6000_interrupts();
 
     // Small startup delay after initialization to stabilize system

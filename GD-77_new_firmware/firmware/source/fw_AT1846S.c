@@ -131,3 +131,23 @@ void I2C_AT1846S_init()
 	set_clear_I2C_reg_2byte_with_mask(0x4e, 0xff, 0x3f, 0x00, 0x80); // Select cdcss mode for tx
 	vTaskDelay(portTICK_PERIOD_MS * 200);
 }
+
+void I2C_AT1846_Postinit()
+{
+	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x58, 0xBC, 0xED); // Filters custom setting
+	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x0A, 0x7B, 0xA0); // AGC Table
+	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x41, 0x47, 0x31); // Digital voice gain, (bits 6:0) however default value is supposed to be 0x4006 hence some bits are being set outside the documented range
+	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x44, 0x05, 0xFF); // Rx and tx gain controls
+	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x59, 0x09, 0xD2); // Tx FM devitation
+	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x44, 0x05, 0xCF); // Rx and tx gain controls
+	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x44, 0x05, 0xCC); // Rx and tx gain controls
+	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x48, 0x1A, 0x32); // noise1_th (SQ setting)
+	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x60, 0x1A, 0x32); // noise2_th (SQ setting)
+	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x3F, 0x29, 0xD1); // Rssi3_th (SQ setting)
+	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x0A, 0x7B, 0xA0); // AGC Table
+	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x49, 0x0C, 0x96); // setting SQ open and shut threshold
+	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x33, 0x45, 0xF5); // agc number (recommended value)
+	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x41, 0x47, 0x0F); // Digital voice gain, (bits 6:0) however default value is supposed to be 0x4006 hence some bits are being set outside the documented range
+	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x42, 0x10, 0x36); // RDA1846 lists this as Vox Shut threshold
+	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x43, 0x00, 0xBB); // FM deviation
+}

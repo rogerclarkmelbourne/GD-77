@@ -70,6 +70,10 @@ extern int slot_state;
 extern int tick_cnt;
 
 void SPI_HR_C6000_init();
+void SPI_C6000_postinit1();
+void SPI_C6000_postinit2();
+void SPI_C6000_postinit3a();
+void SPI_C6000_postinit3b();
 void PORTC_IRQHandler(void);
 void init_HR_C6000_interrupts();
 void tick_HR_C6000();

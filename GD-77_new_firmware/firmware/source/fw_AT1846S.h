@@ -33,5 +33,6 @@
 #include "fw_i2c.h"
 
 void I2C_AT1846S_init();
+void I2C_AT1846_Postinit();
 
 #endif /* _FW_AT1846S_H_ */
