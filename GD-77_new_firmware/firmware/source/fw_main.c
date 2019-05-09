@@ -146,6 +146,7 @@ void trx_set_mode_band_freq_and_others()
 			wavbuffer_read_idx = 0;
 			wavbuffer_write_idx = 0;
 			wavbuffer_count = 0;
+			init_codec();
 		}
 		if (current_band == BAND_VHF)
 		{

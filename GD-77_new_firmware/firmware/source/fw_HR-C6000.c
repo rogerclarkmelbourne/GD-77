@@ -306,13 +306,13 @@ void tick_HR_C6000()
                 GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
             }
 
-            // Detect voice packet
+            // Detect/decode voice packet and transfer it into the output soundbuffer
             if (((slot_state==1) || (slot_state==2)) && (rcrc==0) && ((sc == 0) || (sc == 1)) && (rxdt >= 0x09) && (rxdt <= 0x0e))
             {
-            	store_soundbuffer();
+                read_SPI_page_reg_bytearray_SPI1(0x03, 0x00, tmp_ram, 27);
+            	tick_codec(tmp_ram);
+                tick_soundbuffer();
             }
-
-            tick_soundbuffer();
 
             send_packet(0x08, 0x00, -1);
 

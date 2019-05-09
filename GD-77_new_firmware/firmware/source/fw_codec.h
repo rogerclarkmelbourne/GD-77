@@ -24,54 +24,22 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _FW_HR_C6000_H_
-#define _FW_HR_C6000_H_
+#ifndef _FW_CODEC_H_
+#define _FW_CODEC_H_
 
-#include "FreeRTOS.h"
-#include "task.h"
+#include "fw_common.h"
+#include "fw_HR-C6000.h"
 
-#include "fw_spi.h"
-#include "fw_usb_com.h"
+#include "fw_sound.h"
+#include "fw_mbelib.h"
 
-#include "fw_codec.h"
+#define QUAUX(X) #X
+#define QU(X) QUAUX(X)
 
-// C6000 interrupts
-// IN      C7  - C6000 RF_RX_INTER
-// IN      C16 - C6000 RF_TX_INTER
-// IN      C17 - C6000 SYS_INTER
-// IN      C18 - C6000 TIME_SLOT_INTER
-#define Port_INT_C6000_RF_RX PORTC
-#define GPIO_INT_C6000_RF_RX GPIOC
-#define Pin_INT_C6000_RF_RX  7
-#define Port_INT_C6000_RF_TX PORTC
-#define GPIO_INT_C6000_RF_TX GPIOC
-#define Pin_INT_C6000_RF_TX  16
-#define Port_INT_C6000_SYS   PORTC
-#define GPIO_INT_C6000_SYS   GPIOC
-#define Pin_INT_C6000_SYS    17
-#define Port_INT_C6000_TS    PORTC
-#define GPIO_INT_C6000_TS    GPIOC
-#define Pin_INT_C6000_TS     18
+#define AMBE_DECODE 0x00054319;
+#define AMBE_BUFFER 0x1FFF859C;
 
-// Connections with C6000
-// OUT/ON  E0 - C6000 RESETn
-// OUT/ON  E1 - C6000 PWD
-#define Port_INT_C6000_RESET PORTE
-#define GPIO_INT_C6000_RESET GPIOE
-#define Pin_INT_C6000_RESET  0
-#define Port_INT_C6000_PWD   PORTE
-#define GPIO_INT_C6000_PWD   GPIOE
-#define Pin_INT_C6000_PWD    1
+void init_codec();
+void tick_codec(uint8_t *indata_ptr);
 
-extern bool int_sys;
-extern bool int_ts;
-
-extern int slot_state;
-extern int tick_cnt;
-
-void SPI_HR_C6000_init();
-void PORTC_IRQHandler(void);
-void init_HR_C6000_interrupts();
-void tick_HR_C6000();
-
-#endif /* _FW_HR_C6000_H_ */
+#endif /* _FW_CODEC_H_ */
