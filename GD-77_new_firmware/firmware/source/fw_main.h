@@ -33,14 +33,26 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "virtual_com.h"
+#include "fw_usb_com.h"
+
 #include "fw_common.h"
 #include "fw_buttons.h"
 #include "fw_LEDs.h"
 #include "fw_keyboard.h"
 #include "fw_display.h"
+
+#include "UC1701.h"
+
+#include "fw_i2c.h"
+#include "fw_spi.h"
 #include "fw_i2s.h"
+#include "fw_AT1846S.h"
+#include "fw_HR-C6000.h"
 
 #include "fw_sound.h"
+#include "fw_menu.h"
+#include "fw_edit.h"
 
 extern int Display_light_Timer;
 extern bool Display_light_Touched;

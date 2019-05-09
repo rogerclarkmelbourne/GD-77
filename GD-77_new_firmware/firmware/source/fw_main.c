@@ -24,21 +24,7 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "virtual_com.h"
-
 #include "fw_main.h"
-#include "fw_i2c.h"
-#include "fw_spi.h"
-#include "fw_i2s.h"
-#include "fw_AT1846S.h"
-#include "fw_HR-C6000.h"
-
-#include "UC1701.h"
-
-#include "fw_sound.h"
-#include "fw_menu.h"
-#include "fw_edit.h"
-#include "fw_usb_com.h"
 
 TaskHandle_t fwMainTaskHandle;
 
