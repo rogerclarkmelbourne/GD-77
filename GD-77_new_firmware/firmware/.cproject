@@ -82,6 +82,14 @@
 								<option id="gnu.c.compiler.option.preprocessor.undef.symbol.1187618416" name="Undefined symbols (-U)" superClass="gnu.c.compiler.option.preprocessor.undef.symbol"/>
 								<option id="gnu.c.compiler.option.include.paths.1286635929" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../board"/>
+									<listOptionValue builtIn="false" value="../include"/>
+									<listOptionValue builtIn="false" value="../include/chips"/>
+									<listOptionValue builtIn="false" value="../include/codec"/>
+									<listOptionValue builtIn="false" value="../include/display"/>
+									<listOptionValue builtIn="false" value="../include/functions"/>
+									<listOptionValue builtIn="false" value="../include/interfaces"/>
+									<listOptionValue builtIn="false" value="../include/io"/>
+									<listOptionValue builtIn="false" value="../include/usb"/>
 									<listOptionValue builtIn="false" value="../source"/>
 									<listOptionValue builtIn="false" value="../"/>
 									<listOptionValue builtIn="false" value="../amazon-freertos/include"/>
@@ -137,6 +145,14 @@
 								<option id="gnu.both.asm.option.flags.crt.13601710" name="Assembler flags" superClass="gnu.both.asm.option.flags.crt" value="-c -x assembler-with-cpp -D__REDLIB__" valueType="string"/>
 								<option id="gnu.both.asm.option.include.paths.1810846110" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="../board"/>
+									<listOptionValue builtIn="false" value="../include"/>
+									<listOptionValue builtIn="false" value="../include/chips"/>
+									<listOptionValue builtIn="false" value="../include/codec"/>
+									<listOptionValue builtIn="false" value="../include/display"/>
+									<listOptionValue builtIn="false" value="../include/functions"/>
+									<listOptionValue builtIn="false" value="../include/interfaces"/>
+									<listOptionValue builtIn="false" value="../include/io"/>
+									<listOptionValue builtIn="false" value="../include/usb"/>
 									<listOptionValue builtIn="false" value="../source"/>
 									<listOptionValue builtIn="false" value="../"/>
 									<listOptionValue builtIn="false" value="../amazon-freertos/include"/>
@@ -368,6 +384,14 @@
 								<option id="gnu.c.compiler.option.preprocessor.undef.symbol.962529853" name="Undefined symbols (-U)" superClass="gnu.c.compiler.option.preprocessor.undef.symbol"/>
 								<option id="gnu.c.compiler.option.include.paths.1787319361" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="../board"/>
+									<listOptionValue builtIn="false" value="../include"/>
+									<listOptionValue builtIn="false" value="../include/chips"/>
+									<listOptionValue builtIn="false" value="../include/codec"/>
+									<listOptionValue builtIn="false" value="../include/display"/>
+									<listOptionValue builtIn="false" value="../include/functions"/>
+									<listOptionValue builtIn="false" value="../include/interfaces"/>
+									<listOptionValue builtIn="false" value="../include/io"/>
+									<listOptionValue builtIn="false" value="../include/usb"/>
 									<listOptionValue builtIn="false" value="../source"/>
 									<listOptionValue builtIn="false" value="../"/>
 									<listOptionValue builtIn="false" value="../amazon-freertos/include"/>
@@ -421,6 +445,14 @@
 								<option id="gnu.both.asm.option.flags.crt.444083349" name="Assembler flags" superClass="gnu.both.asm.option.flags.crt" value="-c -x assembler-with-cpp -D__REDLIB__" valueType="string"/>
 								<option id="gnu.both.asm.option.include.paths.710622716" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
 									<listOptionValue builtIn="false" value="../board"/>
+									<listOptionValue builtIn="false" value="../include"/>
+									<listOptionValue builtIn="false" value="../include/chips"/>
+									<listOptionValue builtIn="false" value="../include/codec"/>
+									<listOptionValue builtIn="false" value="../include/display"/>
+									<listOptionValue builtIn="false" value="../include/functions"/>
+									<listOptionValue builtIn="false" value="../include/interfaces"/>
+									<listOptionValue builtIn="false" value="../include/io"/>
+									<listOptionValue builtIn="false" value="../include/usb"/>
 									<listOptionValue builtIn="false" value="../source"/>
 									<listOptionValue builtIn="false" value="../"/>
 									<listOptionValue builtIn="false" value="../amazon-freertos/include"/>
