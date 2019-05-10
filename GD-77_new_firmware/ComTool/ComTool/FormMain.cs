@@ -27,6 +27,7 @@
 using System;
 using System.ComponentModel;
 using System.Drawing;
+using System.IO;
 using System.IO.Ports;
 using System.Threading;
 using System.Windows.Forms;
@@ -41,7 +42,9 @@ namespace ComTool
         bool form_close = false;
 
         SerialPort port = null;
-        
+
+        StreamWriter writer;
+
         public FormMain()
         {
             InitializeComponent();
@@ -115,6 +118,11 @@ namespace ComTool
                 }
                 richTextBoxLog.SelectionStart = richTextBoxLog.Text.Length;
                 richTextBoxLog.ScrollToCaret();
+                if (checkBoxLogToFile.Checked)
+                {
+                    writer.WriteLine(text);
+                    writer.Flush();
+                }
             }));
         }
 
@@ -177,6 +185,11 @@ namespace ComTool
             port.Close();
 
             buttonStartStop.Text = "Start";
+            checkBoxLogToFile.Enabled = true;
+            if (checkBoxLogToFile.Checked)
+            {
+                writer.Close();
+            }
             running = false;
 
             if (form_close)
@@ -201,6 +214,11 @@ namespace ComTool
                     worker.RunWorkerAsync();
 
                     buttonStartStop.Text = "Stop";
+                    checkBoxLogToFile.Enabled = false;
+                    if (checkBoxLogToFile.Checked)
+                    {
+                        writer = new StreamWriter("log.txt");
+                    }
                     running = true;
                 }
                 catch (Exception ex)

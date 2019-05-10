@@ -34,6 +34,7 @@
             this.comboBoxCOMPorts = new System.Windows.Forms.ComboBox();
             this.buttonRefreshCOMPortlist = new System.Windows.Forms.Button();
             this.richTextBoxLog = new System.Windows.Forms.RichTextBox();
+            this.checkBoxLogToFile = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // buttonStartStop
@@ -93,11 +94,22 @@
             this.richTextBoxLog.TabIndex = 7;
             this.richTextBoxLog.Text = "";
             // 
+            // checkBoxLogToFile
+            // 
+            this.checkBoxLogToFile.AutoSize = true;
+            this.checkBoxLogToFile.Location = new System.Drawing.Point(96, 14);
+            this.checkBoxLogToFile.Name = "checkBoxLogToFile";
+            this.checkBoxLogToFile.Size = new System.Drawing.Size(72, 17);
+            this.checkBoxLogToFile.TabIndex = 8;
+            this.checkBoxLogToFile.Text = "Log to file";
+            this.checkBoxLogToFile.UseVisualStyleBackColor = true;
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.checkBoxLogToFile);
             this.Controls.Add(this.richTextBoxLog);
             this.Controls.Add(this.buttonRefreshCOMPortlist);
             this.Controls.Add(this.comboBoxCOMPorts);
@@ -123,6 +135,7 @@
         private System.Windows.Forms.ComboBox comboBoxCOMPorts;
         private System.Windows.Forms.Button buttonRefreshCOMPortlist;
         private System.Windows.Forms.RichTextBox richTextBoxLog;
+        private System.Windows.Forms.CheckBox checkBoxLogToFile;
     }
 }
 
