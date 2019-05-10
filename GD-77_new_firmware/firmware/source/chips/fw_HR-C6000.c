@@ -385,7 +385,7 @@ void tick_HR_C6000()
 			int sc = (tmp_val_0x51 >> 0) & 0x03;
 			int rcrc = (tmp_val_0x51 >> 2) & 0x01;
 			int rxdt = (tmp_val_0x51 >> 4) & 0x0f;
-            if ((slot_state==0) && (rcrc==0) && (sc==2) && (rxdt==1))
+            if ((slot_state==0) && (rcrc==0) && (((sc==2) && (rxdt==1)) || ((sc==1) && (rxdt==9))))
             {
             	slot_state=1;
                 GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
