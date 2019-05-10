@@ -324,6 +324,17 @@ void tick_HR_C6000()
 			slot_state=0;
 			break;
 		}
+
+    	if (((slot_state==1) || (slot_state==2)) && (tick_cnt<6))
+    	{
+    		// Timeout interrupted transmission
+    		tick_cnt++;
+            if (tick_cnt==6)
+            {
+            	slot_state=3;
+                GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
+            }
+    	}
 	}
 
 	if (tmp_int_sys)
@@ -339,14 +350,6 @@ void tick_HR_C6000()
 		{
 			if (tmp_val_0x86 & 0x10)
 			{
-				// Timeout interrupted transmission
-				tick_cnt++;
-                if (tick_cnt>2)
-                {
-                	slot_state=3;
-                    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
-                }
-
 				send_packet(0x20, 0x10, -1);
 			}
 			if (tmp_val_0x86 & 0x04)
