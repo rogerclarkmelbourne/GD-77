@@ -346,81 +346,85 @@ void tick_HR_C6000()
 		read_SPI_page_reg_byte_SPI0(0x04, 0x57, &tmp_val_0x57);
 		read_SPI_page_reg_byte_SPI0(0x04, 0x5f, &tmp_val_0x5f);
 
-		if (tmp_val_0x82 & 0x20) // InterSendStop
-		{
-			if (tmp_val_0x86 & 0x10)
-			{
-				send_packet(0x20, 0x10, -1);
-			}
-			if (tmp_val_0x86 & 0x04)
-			{
-				send_packet(0x20, 0x04, -1);
-			}
+		// Check for correct received packet
+		int rcrc = (tmp_val_0x51 >> 2) & 0x01;
+		int cc = (tmp_val_0x52 >> 4) & 0x0f;
+        if ((rcrc==0) && (cc == 1))
+        {
+    		if (tmp_val_0x82 & 0x20) // InterSendStop
+    		{
+    			if (tmp_val_0x86 & 0x10)
+    			{
+    				send_packet(0x20, 0x10, -1);
+    			}
+    			if (tmp_val_0x86 & 0x04)
+    			{
+    				send_packet(0x20, 0x04, -1);
+    			}
 
-			write_SPI_page_reg_byte_SPI0(0x04, 0x83, 0x20);
-		}
+    			write_SPI_page_reg_byte_SPI0(0x04, 0x83, 0x20);
+    		}
 
-		if (tmp_val_0x82 & 0x10) // InterLateEntry
-		{
-			// Late entry into ongoing transmission
-			int rcrc = (tmp_val_0x51 >> 2) & 0x01;
-			int lcss = (tmp_val_0x52 >> 0) & 0x03;
-            if ((slot_state==0) && (rcrc==0) && (lcss==3))
-            {
-            	slot_state=1;
-                GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
-            }
+    		if (tmp_val_0x82 & 0x10) // InterLateEntry
+    		{
+    			// Late entry into ongoing transmission
+    			int lcss = (tmp_val_0x52 >> 0) & 0x03;
+                if ((slot_state==0) && (lcss==3))
+                {
+                	slot_state=1;
+                    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
+                }
 
-			send_packet(0x10, 0x00, -1);
+    			send_packet(0x10, 0x00, -1);
 
-			write_SPI_page_reg_byte_SPI0(0x04, 0x83, 0x10);
-		}
+    			write_SPI_page_reg_byte_SPI0(0x04, 0x83, 0x10);
+    		}
 
-		if (tmp_val_0x82 & 0x08) // InterRecvData
-		{
-			// Reset transmission timeout
-			tick_cnt = 0;
+    		if (tmp_val_0x82 & 0x08) // InterRecvData
+    		{
+    			// Reset transmission timeout
+    			tick_cnt = 0;
 
-			// Start or stop transmission
-			int sc = (tmp_val_0x51 >> 0) & 0x03;
-			int rcrc = (tmp_val_0x51 >> 2) & 0x01;
-			int rxdt = (tmp_val_0x51 >> 4) & 0x0f;
-            if ((slot_state==0) && (rcrc==0) && (((sc==2) && (rxdt==1)) || ((sc==1) && (rxdt==9))))
-            {
-            	slot_state=1;
-                GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
-            }
-            if (((slot_state==1) || (slot_state==2)) && (rcrc==0) && (sc==2) && (rxdt==2))
-            {
-            	slot_state=3;
-                GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
-            }
+    			// Start or stop transmission
+    			int sc = (tmp_val_0x51 >> 0) & 0x03;
+    			int rxdt = (tmp_val_0x51 >> 4) & 0x0f;
+                if ((slot_state==0) && (((sc==2) && (rxdt==1)) || ((sc==1) && (rxdt==9))))
+                {
+                	slot_state=1;
+                    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
+                }
+                if (((slot_state==1) || (slot_state==2)) && (sc==2) && (rxdt==2))
+                {
+                	slot_state=3;
+                    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
+                }
 
-            // Detect/decode voice packet and transfer it into the output soundbuffer
-            if (((slot_state==1) || (slot_state==2)) && (rcrc==0) && ((sc == 0) || (sc == 1)) && (rxdt >= 0x09) && (rxdt <= 0x0e))
-            {
-                read_SPI_page_reg_bytearray_SPI1(0x03, 0x00, tmp_ram, 27);
-            	tick_codec(tmp_ram);
-                tick_soundbuffer();
-            }
+                // Detect/decode voice packet and transfer it into the output soundbuffer
+                if (((slot_state==1) || (slot_state==2)) && ((sc == 0) || (sc == 1)) && (rxdt >= 0x09) && (rxdt <= 0x0e))
+                {
+                    read_SPI_page_reg_bytearray_SPI1(0x03, 0x00, tmp_ram, 27);
+                	tick_codec(tmp_ram);
+                    tick_soundbuffer();
+                }
 
-            send_packet(0x08, 0x00, -1);
+                send_packet(0x08, 0x00, -1);
 
-			write_SPI_page_reg_byte_SPI0(0x04, 0x83, 0x08);
-		}
+    			write_SPI_page_reg_byte_SPI0(0x04, 0x83, 0x08);
+    		}
 
-		if (tmp_val_0x82 & 0x01) // InterPHYOnly
-		{
-			send_packet(0x01, 0x00, -1);
+    		if (tmp_val_0x82 & 0x01) // InterPHYOnly
+    		{
+    			send_packet(0x01, 0x00, -1);
 
-			write_SPI_page_reg_byte_SPI0(0x04, 0x83, 0x01);
-		}
+    			write_SPI_page_reg_byte_SPI0(0x04, 0x83, 0x01);
+    		}
 
-		if (tmp_val_0x82 & 0xC6)
-		{
-			send_packet(0xFF, 0xFF, -1);
+    		if (tmp_val_0x82 & 0xC6)
+    		{
+    			send_packet(0xFF, 0xFF, -1);
 
-			write_SPI_page_reg_byte_SPI0(0x04, 0x83, 0xC6);
-		}
+    			write_SPI_page_reg_byte_SPI0(0x04, 0x83, 0xC6);
+    		}
+        }
 	}
 }
