@@ -390,21 +390,20 @@ void tick_HR_C6000()
     			tick_cnt = 0;
 
     			// Start or stop transmission
-    			int sc = (tmp_val_0x51 >> 0) & 0x03;
     			int rxdt = (tmp_val_0x51 >> 4) & 0x0f;
-                if ((slot_state==0) && (((sc==2) && (rxdt==1)) || ((sc==1) && (rxdt==9))))
+                if ((slot_state==0) && ((rxdt==1) || (rxdt==9)))
                 {
                 	slot_state=1;
                     GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
                 }
-                if (((slot_state==1) || (slot_state==2)) && (sc==2) && (rxdt==2))
+                if (((slot_state==1) || (slot_state==2)) && (rxdt==2))
                 {
                 	slot_state=3;
                     GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
                 }
 
                 // Detect/decode voice packet and transfer it into the output soundbuffer
-                if (((slot_state==1) || (slot_state==2)) && ((sc == 0) || (sc == 1)) && (rxdt >= 0x09) && (rxdt <= 0x0e))
+                if (((slot_state==1) || (slot_state==2)) && (rxdt >= 0x09) && (rxdt <= 0x0e))
                 {
                     read_SPI_page_reg_bytearray_SPI1(0x03, 0x00, tmp_ram, 27);
                 	tick_codec(tmp_ram);
