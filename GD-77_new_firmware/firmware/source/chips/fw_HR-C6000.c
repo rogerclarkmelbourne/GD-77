@@ -379,6 +379,7 @@ void tick_HR_C6000()
                 if ((slot_state==0) && (lcss==3))
                 {
                 	slot_state=1;
+                	init_codec();
                 	skip_count = 2;
                     GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
                 }
@@ -398,6 +399,7 @@ void tick_HR_C6000()
                 if ((slot_state==0) && (rxdt==1))
                 {
                 	slot_state=1;
+                	init_codec();
                 	skip_count = 0;
                     GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
                 }

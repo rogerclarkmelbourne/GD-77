@@ -125,6 +125,10 @@ void trx_set_mode_band_freq_and_others()
 			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x44, 0x06, 0xCC); // set internal volume to 80%
 		    GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 1); // speaker on
 		    GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 0); // connect AT1846S audio to HR_C6000
+			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x20);
+			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x00);
+			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x20);
+			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x40);
 	    	int_sys=false;
 	    	int_ts=false;
 	    	slot_state=0;
