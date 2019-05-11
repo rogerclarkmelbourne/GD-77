@@ -26,6 +26,10 @@
 
 #include "fw_main.h"
 
+#if defined(USE_SEGGER_RTT) && (USE_SEGGER_RTT > 0)
+#include <SeggerRTT/RTT/SEGGER_RTT.h>
+#endif
+
 TaskHandle_t fwMainTaskHandle;
 
 void fw_init()
@@ -203,6 +207,10 @@ void fw_main_task()
 	HR_C6000_datalogging=false;
 
 	custom_value=0;
+
+#if defined(USE_SEGGER_RTT) && (USE_SEGGER_RTT > 0)
+    SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
+#endif
 
     while (1U)
     {

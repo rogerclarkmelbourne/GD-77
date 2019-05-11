@@ -26,6 +26,8 @@
 #ifndef FREERTOS_CONFIG_H
 #define FREERTOS_CONFIG_H
 
+#define USE_SEGGER_RTT 0
+
 /*-----------------------------------------------------------
  * Application specific definitions.
  *

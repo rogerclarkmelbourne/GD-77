@@ -26,6 +26,10 @@
 
 #include "fw_HR-C6000.h"
 
+#if defined(USE_SEGGER_RTT) && (USE_SEGGER_RTT > 0)
+#include <SeggerRTT/RTT/SEGGER_RTT.h>
+#endif
+
 bool int_sys;
 bool int_ts;
 
@@ -406,6 +410,10 @@ void tick_HR_C6000()
                 	tick_codec(tmp_ram);
                     tick_soundbuffer();
                 }
+
+#if defined(USE_SEGGER_RTT) && (USE_SEGGER_RTT > 0)
+            	SEGGER_RTT_printf(0, "%02x [%02x %02x] %02x %02x %02x %02x SC:%02x RCRC:%02x RPI:%02x RXDT:%02x LCSS:%02x TC:%02x AT:%02x CC:%02x ??:%02x ST:%02x\r\n", slot_state, tmp_val_0x82, tmp_val_0x86, tmp_val_0x51, tmp_val_0x52, tmp_val_0x57, tmp_val_0x5f, (tmp_val_0x51 >> 0) & 0x03, (tmp_val_0x51 >> 2) & 0x01, (tmp_val_0x51 >> 3) & 0x01, (tmp_val_0x51 >> 4) & 0x0f, (tmp_val_0x52 >> 0) & 0x03, (tmp_val_0x52 >> 2) & 0x01, (tmp_val_0x52 >> 3) & 0x01, (tmp_val_0x52 >> 4) & 0x0f, (tmp_val_0x57 >> 2) & 0x01, (tmp_val_0x5f >> 0) & 0x03);
+#endif
 
                 send_packet(0x08, 0x00, -1);
 
