@@ -53,3 +53,11 @@ V0.0.1a:
 - Improved transmission timeout handling.
 - Added another transmission starting condition.
 - Improved checking for correct received packets.
+
+V0.0.1b:
+- Don't check for sc anymore.
+- Changed packet handling.
+- Check for rpi==0.
+- Skip some data at late entry.
+- Added better reinit of codec and HR-C6000.
+- Added better RX LED handling.
