@@ -352,8 +352,9 @@ void tick_HR_C6000()
 
 		// Check for correct received packet
 		int rcrc = (tmp_val_0x51 >> 2) & 0x01;
+		int rpi = (tmp_val_0x51 >> 3) & 0x01;
 		int cc = (tmp_val_0x52 >> 4) & 0x0f;
-        if ((rcrc==0) && (cc == 1))
+        if ((rcrc==0) && (rpi==0) && (cc == 1))
         {
     		if (tmp_val_0x82 & 0x20) // InterSendStop
     		{
