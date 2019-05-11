@@ -107,6 +107,7 @@ void trx_set_mode_band_freq_and_others()
 	    GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 0); // connect AT1846S audio to HR_C6000
 		GPIO_PinWrite(GPIO_VHF_RX_amp_power, Pin_VHF_RX_amp_power, 0);
 		GPIO_PinWrite(GPIO_UHF_RX_amp_power, Pin_UHF_RX_amp_power, 0);
+        GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
 	    SAI_TransferTerminateSendEDMA(I2S0, &g_SAI_TX_Handle);
 	    NVIC_DisableIRQ(PORTC_IRQn);
 	}
@@ -117,6 +118,7 @@ void trx_set_mode_band_freq_and_others()
 			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x44, 0x06, 0x80); // set internal volume to 50%
 		    GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 1); // speaker on
 		    GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 1); // connect AT1846S audio to speaker
+            GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
 		    SAI_TransferTerminateSendEDMA(I2S0, &g_SAI_TX_Handle);
 		    NVIC_DisableIRQ(PORTC_IRQn);
 		}
@@ -125,6 +127,7 @@ void trx_set_mode_band_freq_and_others()
 			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x44, 0x06, 0xCC); // set internal volume to 80%
 		    GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 1); // speaker on
 		    GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 0); // connect AT1846S audio to HR_C6000
+            GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
 			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x20);
 			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x00);
 			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x20);
