@@ -68,6 +68,7 @@ extern bool int_ts;
 
 extern int slot_state;
 extern int tick_cnt;
+extern int skip_count;
 
 void SPI_HR_C6000_init();
 void SPI_C6000_postinit1();

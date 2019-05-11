@@ -35,6 +35,7 @@ bool int_ts;
 
 int slot_state;
 int tick_cnt;
+int skip_count;
 
 void SPI_HR_C6000_init()
 {
@@ -285,6 +286,7 @@ void init_HR_C6000_interrupts()
 
 	slot_state=0;
 	tick_cnt=0;
+	skip_count=0;
 
     PORT_SetPinInterruptConfig(Port_INT_C6000_SYS, Pin_INT_C6000_SYS, kPORT_InterruptEitherEdge);
     PORT_SetPinInterruptConfig(Port_INT_C6000_TS, Pin_INT_C6000_TS, kPORT_InterruptEitherEdge);
@@ -377,6 +379,7 @@ void tick_HR_C6000()
                 if ((slot_state==0) && (lcss==3))
                 {
                 	slot_state=1;
+                	skip_count = 2;
                     GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
                 }
 
@@ -395,6 +398,7 @@ void tick_HR_C6000()
                 if ((slot_state==0) && (rxdt==1))
                 {
                 	slot_state=1;
+                	skip_count = 0;
                     GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
                 }
                 if (((slot_state==1) || (slot_state==2)) && (rxdt==2))
@@ -403,8 +407,13 @@ void tick_HR_C6000()
                     GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
                 }
 
+            	if ((skip_count>0) && (rxdt == 0x09))
+            	{
+            		skip_count--;
+            	}
+
                 // Detect/decode voice packet and transfer it into the output soundbuffer
-                if ((slot_state!=0) && (rxdt >= 0x09) && (rxdt <= 0x0e))
+                if ((slot_state!=0) && (skip_count==0) && (rxdt >= 0x09) && (rxdt <= 0x0e))
                 {
                     read_SPI_page_reg_bytearray_SPI1(0x03, 0x00, tmp_ram, 27);
                 	tick_codec(tmp_ram);

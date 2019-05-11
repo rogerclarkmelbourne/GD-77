@@ -129,6 +129,7 @@ void trx_set_mode_band_freq_and_others()
 	    	int_ts=false;
 	    	slot_state=0;
 	    	tick_cnt=0;
+	    	skip_count=0;
 		    NVIC_EnableIRQ(PORTC_IRQn);
 		    g_TX_SAI_in_use = false;
 		    SAI_TxSoftwareReset(I2S0, kSAI_ResetAll);
