@@ -218,6 +218,7 @@ void fw_main_task()
 
 #if defined(USE_SEGGER_RTT)
     SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
+    SEGGER_RTT_printf(0,"Segger RTT initialised\n");
 #endif
 
     while (1U)
