@@ -36,5 +36,7 @@ GD-77, GD-77S, RD-5R, MD-760, DM-1801 and DM-860 reverse engineering
 
 "GD-77_bin2sgl" contains a command line version of the firmware reencrypt tool. It has been modified by Roger VK3KYY and converts bin to SGL file by prepending the header.
 
+"GD-77_dat_files_creator" contains a file extractor to create supplemental data (*.dat files) needed for building the custom GD-77 firmware. It has been written by Roger VK3KYY.
+
 # Experimental only
 "GD-77_new_firmware" contains the MCUXpresso project and the tools that will lead to a new GD-77 firmware written from scratch.
