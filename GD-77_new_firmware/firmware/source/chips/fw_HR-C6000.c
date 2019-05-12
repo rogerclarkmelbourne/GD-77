@@ -395,27 +395,28 @@ void tick_HR_C6000()
     			tick_cnt = 0;
 
     			// Start or stop transmission
-    			int rxdt = (tmp_val_0x51 >> 4) & 0x0f;
-                if ((slot_state==0) && (rxdt==1))
+    			int rxdt_data = (tmp_val_0x51 >> 4) & 0x07;
+    			int rxdt_voice = (tmp_val_0x51 >> 4) & 0x0f;
+                if ((slot_state==0) && (rxdt_data==1))
                 {
                 	slot_state=1;
                 	init_codec();
                 	skip_count = 0;
                     GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
                 }
-                if (((slot_state==1) || (slot_state==2)) && (rxdt==2))
+                if (((slot_state==1) || (slot_state==2)) && (rxdt_data==2))
                 {
                 	slot_state=3;
                     GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
                 }
 
-            	if ((skip_count>0) && (rxdt == 0x09))
+            	if ((skip_count>0) && (rxdt_voice == 0x09))
             	{
             		skip_count--;
             	}
 
                 // Detect/decode voice packet and transfer it into the output soundbuffer
-                if ((slot_state!=0) && (skip_count==0) && (rxdt >= 0x09) && (rxdt <= 0x0e))
+                if ((slot_state!=0) && (skip_count==0) && (rxdt_voice >= 0x09) && (rxdt_voice <= 0x0e))
                 {
                     read_SPI_page_reg_bytearray_SPI1(0x03, 0x00, tmp_ram, 27);
                 	tick_codec(tmp_ram);
@@ -423,7 +424,7 @@ void tick_HR_C6000()
                 }
 
 #if defined(USE_SEGGER_RTT)
-            	SEGGER_RTT_printf(0, "%02x [%02x %02x] %02x %02x %02x %02x SC:%02x RCRC:%02x RPI:%02x RXDT:%02x LCSS:%02x TC:%02x AT:%02x CC:%02x ??:%02x ST:%02x\r\n", slot_state, tmp_val_0x82, tmp_val_0x86, tmp_val_0x51, tmp_val_0x52, tmp_val_0x57, tmp_val_0x5f, (tmp_val_0x51 >> 0) & 0x03, (tmp_val_0x51 >> 2) & 0x01, (tmp_val_0x51 >> 3) & 0x01, (tmp_val_0x51 >> 4) & 0x0f, (tmp_val_0x52 >> 0) & 0x03, (tmp_val_0x52 >> 2) & 0x01, (tmp_val_0x52 >> 3) & 0x01, (tmp_val_0x52 >> 4) & 0x0f, (tmp_val_0x57 >> 2) & 0x01, (tmp_val_0x5f >> 0) & 0x03);
+            	SEGGER_RTT_printf(0, "%02x [%02x %02x] %02x %02x %02x %02x SC:%02x RCRC:%02x RPI:%02x RXDT_DATA:%02x RXDT_VOICE:%02x LCSS:%02x TC:%02x AT:%02x CC:%02x ??:%02x ST:%02x\r\n", slot_state, tmp_val_0x82, tmp_val_0x86, tmp_val_0x51, tmp_val_0x52, tmp_val_0x57, tmp_val_0x5f, (tmp_val_0x51 >> 0) & 0x03, (tmp_val_0x51 >> 2) & 0x01, (tmp_val_0x51 >> 3) & 0x01, (tmp_val_0x51 >> 4) & 0x07, (tmp_val_0x51 >> 4) & 0x0f, (tmp_val_0x52 >> 0) & 0x03, (tmp_val_0x52 >> 2) & 0x01, (tmp_val_0x52 >> 3) & 0x01, (tmp_val_0x52 >> 4) & 0x0f, (tmp_val_0x57 >> 2) & 0x01, (tmp_val_0x5f >> 0) & 0x03);
 #endif
 
                 send_packet(0x08, 0x00, -1);
