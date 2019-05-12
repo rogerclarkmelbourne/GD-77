@@ -26,7 +26,7 @@
 
 #include "fw_main.h"
 
-#if defined(USE_SEGGER_RTT) && (USE_SEGGER_RTT > 0)
+#if defined(USE_SEGGER_RTT)
 #include <SeggerRTT/RTT/SEGGER_RTT.h>
 #endif
 
@@ -216,7 +216,7 @@ void fw_main_task()
 
 	custom_value=0;
 
-#if defined(USE_SEGGER_RTT) && (USE_SEGGER_RTT > 0)
+#if defined(USE_SEGGER_RTT)
     SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_BLOCK_IF_FIFO_FULL);
 #endif
 
