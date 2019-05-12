@@ -1,0 +1,5 @@
+/GD-77_new_firmware/firmware/.settings
+/GD-77_new_firmware/firmware/Debug
+/GD-77_new_firmware/firmware/Release
+/GD-77_new_firmware/firmware/*.launch
+/GD-77_new_firmware/firmware/linkerdata/*.dat
