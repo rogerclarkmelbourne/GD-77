@@ -338,6 +338,9 @@ void tick_HR_C6000()
             if (tick_cnt==6)
             {
             	slot_state=3;
+#if defined(USE_SEGGER_RTT)
+            	SEGGER_RTT_printf(0, ">>> TIMEOUT\r\n");
+#endif
                 GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
             }
     	}
@@ -381,8 +384,15 @@ void tick_HR_C6000()
                 	slot_state=1;
                 	init_codec();
                 	skip_count = 2;
+#if defined(USE_SEGGER_RTT)
+            	SEGGER_RTT_printf(0, ">>> START LATE\r\n");
+#endif
                     GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
                 }
+
+#if defined(USE_SEGGER_RTT)
+            	SEGGER_RTT_printf(0, "LATE %02x [%02x %02x] %02x %02x %02x %02x SC:%02x RCRC:%02x RPI:%02x RXDT_DATA:%02x RXDT_VOICE:%02x LCSS:%02x TC:%02x AT:%02x CC:%02x ??:%02x ST:%02x\r\n", slot_state, tmp_val_0x82, tmp_val_0x86, tmp_val_0x51, tmp_val_0x52, tmp_val_0x57, tmp_val_0x5f, (tmp_val_0x51 >> 0) & 0x03, (tmp_val_0x51 >> 2) & 0x01, (tmp_val_0x51 >> 3) & 0x01, (tmp_val_0x51 >> 4) & 0x07, (tmp_val_0x51 >> 4) & 0x0f, (tmp_val_0x52 >> 0) & 0x03, (tmp_val_0x52 >> 2) & 0x01, (tmp_val_0x52 >> 3) & 0x01, (tmp_val_0x52 >> 4) & 0x0f, (tmp_val_0x57 >> 2) & 0x01, (tmp_val_0x5f >> 0) & 0x03);
+#endif
 
     			send_packet(0x10, 0x00, -1);
 
@@ -403,11 +413,17 @@ void tick_HR_C6000()
                 	slot_state=1;
                 	init_codec();
                 	skip_count = 0;
+#if defined(USE_SEGGER_RTT)
+            	SEGGER_RTT_printf(0, ">>> START\r\n");
+#endif
                     GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
                 }
                 if (((slot_state==1) || (slot_state==2)) && (sc==2) && (rxdt_data==2))
                 {
                 	slot_state=3;
+#if defined(USE_SEGGER_RTT)
+            	SEGGER_RTT_printf(0, ">>> STOP\r\n");
+#endif
                     GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
                 }
 
@@ -425,7 +441,7 @@ void tick_HR_C6000()
                 }
 
 #if defined(USE_SEGGER_RTT)
-            	SEGGER_RTT_printf(0, "%02x [%02x %02x] %02x %02x %02x %02x SC:%02x RCRC:%02x RPI:%02x RXDT_DATA:%02x RXDT_VOICE:%02x LCSS:%02x TC:%02x AT:%02x CC:%02x ??:%02x ST:%02x\r\n", slot_state, tmp_val_0x82, tmp_val_0x86, tmp_val_0x51, tmp_val_0x52, tmp_val_0x57, tmp_val_0x5f, (tmp_val_0x51 >> 0) & 0x03, (tmp_val_0x51 >> 2) & 0x01, (tmp_val_0x51 >> 3) & 0x01, (tmp_val_0x51 >> 4) & 0x07, (tmp_val_0x51 >> 4) & 0x0f, (tmp_val_0x52 >> 0) & 0x03, (tmp_val_0x52 >> 2) & 0x01, (tmp_val_0x52 >> 3) & 0x01, (tmp_val_0x52 >> 4) & 0x0f, (tmp_val_0x57 >> 2) & 0x01, (tmp_val_0x5f >> 0) & 0x03);
+            	SEGGER_RTT_printf(0, "DATA %02x [%02x %02x] %02x %02x %02x %02x SC:%02x RCRC:%02x RPI:%02x RXDT_DATA:%02x RXDT_VOICE:%02x LCSS:%02x TC:%02x AT:%02x CC:%02x ??:%02x ST:%02x\r\n", slot_state, tmp_val_0x82, tmp_val_0x86, tmp_val_0x51, tmp_val_0x52, tmp_val_0x57, tmp_val_0x5f, (tmp_val_0x51 >> 0) & 0x03, (tmp_val_0x51 >> 2) & 0x01, (tmp_val_0x51 >> 3) & 0x01, (tmp_val_0x51 >> 4) & 0x07, (tmp_val_0x51 >> 4) & 0x0f, (tmp_val_0x52 >> 0) & 0x03, (tmp_val_0x52 >> 2) & 0x01, (tmp_val_0x52 >> 3) & 0x01, (tmp_val_0x52 >> 4) & 0x0f, (tmp_val_0x57 >> 2) & 0x01, (tmp_val_0x5f >> 0) & 0x03);
 #endif
 
                 send_packet(0x08, 0x00, -1);
@@ -446,6 +462,12 @@ void tick_HR_C6000()
 
     			write_SPI_page_reg_byte_SPI0(0x04, 0x83, 0xC6);
     		}
+        }
+        else
+        {
+#if defined(USE_SEGGER_RTT)
+            	SEGGER_RTT_printf(0, "---- %02x [%02x %02x] %02x %02x %02x %02x SC:%02x RCRC:%02x RPI:%02x RXDT_DATA:%02x RXDT_VOICE:%02x LCSS:%02x TC:%02x AT:%02x CC:%02x ??:%02x ST:%02x\r\n", slot_state, tmp_val_0x82, tmp_val_0x86, tmp_val_0x51, tmp_val_0x52, tmp_val_0x57, tmp_val_0x5f, (tmp_val_0x51 >> 0) & 0x03, (tmp_val_0x51 >> 2) & 0x01, (tmp_val_0x51 >> 3) & 0x01, (tmp_val_0x51 >> 4) & 0x07, (tmp_val_0x51 >> 4) & 0x0f, (tmp_val_0x52 >> 0) & 0x03, (tmp_val_0x52 >> 2) & 0x01, (tmp_val_0x52 >> 3) & 0x01, (tmp_val_0x52 >> 4) & 0x0f, (tmp_val_0x57 >> 2) & 0x01, (tmp_val_0x5f >> 0) & 0x03);
+#endif
         }
 	}
 }
