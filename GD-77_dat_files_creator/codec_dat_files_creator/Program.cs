@@ -52,6 +52,7 @@ namespace codec_dat_files_creator
 				ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
 				WebClient wc = new WebClient();
+                wc.Proxy = null;
 
 				Console.WriteLine("Download encrypted firmware (sgl) file from GitHub.\nPlease wait.\nThis may take some time ;-) ");
 				byte[] dataBuf = wc.DownloadData("http://github.com/rogerclarkmelbourne/Radioddity_GD-77/raw/master/firmware/GD-77_V3.1.1.sgl");
