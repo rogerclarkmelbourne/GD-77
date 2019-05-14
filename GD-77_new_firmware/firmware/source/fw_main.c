@@ -56,7 +56,7 @@ void show_splashscreen()
 {
 	UC1701_clear();
 	UC1701_printCentered(1, "Experimental");
-	UC1701_printCentered(2, "firmware V0.0.1b");
+	UC1701_printCentered(2, "firmware V0.0.1c");
 	UC1701_printCentered(4, "by");
 	UC1701_printCentered(6, "DG4KLU");
 	Display_light_Touched = true;

@@ -61,3 +61,10 @@ V0.0.1b:
 - Skip some data at late entry.
 - Added better reinit of codec and HR-C6000.
 - Added better RX LED handling.
+
+V0.0.1c:
+- Optimized the packet handling algorithm again.
+- RTT optimization.
+- Added tool to create *.dat files.
+- More detailed packet logging.
+
