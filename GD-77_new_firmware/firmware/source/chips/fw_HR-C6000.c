@@ -354,6 +354,7 @@ void tick_HR_C6000()
 		read_SPI_page_reg_byte_SPI0(0x04, 0x52, &tmp_val_0x52);
 		read_SPI_page_reg_byte_SPI0(0x04, 0x57, &tmp_val_0x57);
 		read_SPI_page_reg_byte_SPI0(0x04, 0x5f, &tmp_val_0x5f);
+		read_SPI_page_reg_bytearray_SPI0(0x02, 0x00, tmp_ram, 0x0c);
 
 		// Check for correct received packet
 		int rcrc = (tmp_val_0x51 >> 2) & 0x01;
@@ -391,7 +392,12 @@ void tick_HR_C6000()
                 }
 
 #if defined(USE_SEGGER_RTT)
-            	SEGGER_RTT_printf(0, "LATE %02x [%02x %02x] %02x %02x %02x %02x SC:%02x RCRC:%02x RPI:%02x RXDT_DATA:%02x RXDT_VOICE:%02x LCSS:%02x TC:%02x AT:%02x CC:%02x ??:%02x ST:%02x\r\n", slot_state, tmp_val_0x82, tmp_val_0x86, tmp_val_0x51, tmp_val_0x52, tmp_val_0x57, tmp_val_0x5f, (tmp_val_0x51 >> 0) & 0x03, (tmp_val_0x51 >> 2) & 0x01, (tmp_val_0x51 >> 3) & 0x01, (tmp_val_0x51 >> 4) & 0x07, (tmp_val_0x51 >> 4) & 0x0f, (tmp_val_0x52 >> 0) & 0x03, (tmp_val_0x52 >> 2) & 0x01, (tmp_val_0x52 >> 3) & 0x01, (tmp_val_0x52 >> 4) & 0x0f, (tmp_val_0x57 >> 2) & 0x01, (tmp_val_0x5f >> 0) & 0x03);
+            	SEGGER_RTT_printf(0, "LATE %02x [%02x %02x] %02x %02x %02x %02x SC:%02x RCRC:%02x RPI:%02x RXDT_DATA:%02x RXDT_VOICE:%02x LCSS:%02x TC:%02x AT:%02x CC:%02x ??:%02x ST:%02x RAM:", slot_state, tmp_val_0x82, tmp_val_0x86, tmp_val_0x51, tmp_val_0x52, tmp_val_0x57, tmp_val_0x5f, (tmp_val_0x51 >> 0) & 0x03, (tmp_val_0x51 >> 2) & 0x01, (tmp_val_0x51 >> 3) & 0x01, (tmp_val_0x51 >> 4) & 0x07, (tmp_val_0x51 >> 4) & 0x0f, (tmp_val_0x52 >> 0) & 0x03, (tmp_val_0x52 >> 2) & 0x01, (tmp_val_0x52 >> 3) & 0x01, (tmp_val_0x52 >> 4) & 0x0f, (tmp_val_0x57 >> 2) & 0x01, (tmp_val_0x5f >> 0) & 0x03);
+				for (int i=0;i<0x0c;i++)
+				{
+	            	SEGGER_RTT_printf(0, " %02x", tmp_ram[i]);
+				}
+            	SEGGER_RTT_printf(0, "\r\n");
 #endif
 
     			send_packet(0x10, 0x00, -1);
@@ -441,7 +447,12 @@ void tick_HR_C6000()
                 }
 
 #if defined(USE_SEGGER_RTT)
-            	SEGGER_RTT_printf(0, "DATA %02x [%02x %02x] %02x %02x %02x %02x SC:%02x RCRC:%02x RPI:%02x RXDT_DATA:%02x RXDT_VOICE:%02x LCSS:%02x TC:%02x AT:%02x CC:%02x ??:%02x ST:%02x\r\n", slot_state, tmp_val_0x82, tmp_val_0x86, tmp_val_0x51, tmp_val_0x52, tmp_val_0x57, tmp_val_0x5f, (tmp_val_0x51 >> 0) & 0x03, (tmp_val_0x51 >> 2) & 0x01, (tmp_val_0x51 >> 3) & 0x01, (tmp_val_0x51 >> 4) & 0x07, (tmp_val_0x51 >> 4) & 0x0f, (tmp_val_0x52 >> 0) & 0x03, (tmp_val_0x52 >> 2) & 0x01, (tmp_val_0x52 >> 3) & 0x01, (tmp_val_0x52 >> 4) & 0x0f, (tmp_val_0x57 >> 2) & 0x01, (tmp_val_0x5f >> 0) & 0x03);
+            	SEGGER_RTT_printf(0, "DATA %02x [%02x %02x] %02x %02x %02x %02x SC:%02x RCRC:%02x RPI:%02x RXDT_DATA:%02x RXDT_VOICE:%02x LCSS:%02x TC:%02x AT:%02x CC:%02x ??:%02x ST:%02x RAM:", slot_state, tmp_val_0x82, tmp_val_0x86, tmp_val_0x51, tmp_val_0x52, tmp_val_0x57, tmp_val_0x5f, (tmp_val_0x51 >> 0) & 0x03, (tmp_val_0x51 >> 2) & 0x01, (tmp_val_0x51 >> 3) & 0x01, (tmp_val_0x51 >> 4) & 0x07, (tmp_val_0x51 >> 4) & 0x0f, (tmp_val_0x52 >> 0) & 0x03, (tmp_val_0x52 >> 2) & 0x01, (tmp_val_0x52 >> 3) & 0x01, (tmp_val_0x52 >> 4) & 0x0f, (tmp_val_0x57 >> 2) & 0x01, (tmp_val_0x5f >> 0) & 0x03);
+				for (int i=0;i<0x0c;i++)
+				{
+	            	SEGGER_RTT_printf(0, " %02x", tmp_ram[i]);
+				}
+            	SEGGER_RTT_printf(0, "\r\n");
 #endif
 
                 send_packet(0x08, 0x00, -1);
@@ -466,7 +477,12 @@ void tick_HR_C6000()
         else
         {
 #if defined(USE_SEGGER_RTT)
-            	SEGGER_RTT_printf(0, "---- %02x [%02x %02x] %02x %02x %02x %02x SC:%02x RCRC:%02x RPI:%02x RXDT_DATA:%02x RXDT_VOICE:%02x LCSS:%02x TC:%02x AT:%02x CC:%02x ??:%02x ST:%02x\r\n", slot_state, tmp_val_0x82, tmp_val_0x86, tmp_val_0x51, tmp_val_0x52, tmp_val_0x57, tmp_val_0x5f, (tmp_val_0x51 >> 0) & 0x03, (tmp_val_0x51 >> 2) & 0x01, (tmp_val_0x51 >> 3) & 0x01, (tmp_val_0x51 >> 4) & 0x07, (tmp_val_0x51 >> 4) & 0x0f, (tmp_val_0x52 >> 0) & 0x03, (tmp_val_0x52 >> 2) & 0x01, (tmp_val_0x52 >> 3) & 0x01, (tmp_val_0x52 >> 4) & 0x0f, (tmp_val_0x57 >> 2) & 0x01, (tmp_val_0x5f >> 0) & 0x03);
+            	SEGGER_RTT_printf(0, "---- %02x [%02x %02x] %02x %02x %02x %02x SC:%02x RCRC:%02x RPI:%02x RXDT_DATA:%02x RXDT_VOICE:%02x LCSS:%02x TC:%02x AT:%02x CC:%02x ??:%02x ST:%02x RAM:", slot_state, tmp_val_0x82, tmp_val_0x86, tmp_val_0x51, tmp_val_0x52, tmp_val_0x57, tmp_val_0x5f, (tmp_val_0x51 >> 0) & 0x03, (tmp_val_0x51 >> 2) & 0x01, (tmp_val_0x51 >> 3) & 0x01, (tmp_val_0x51 >> 4) & 0x07, (tmp_val_0x51 >> 4) & 0x0f, (tmp_val_0x52 >> 0) & 0x03, (tmp_val_0x52 >> 2) & 0x01, (tmp_val_0x52 >> 3) & 0x01, (tmp_val_0x52 >> 4) & 0x0f, (tmp_val_0x57 >> 2) & 0x01, (tmp_val_0x5f >> 0) & 0x03);
+				for (int i=0;i<0x0c;i++)
+				{
+	            	SEGGER_RTT_printf(0, " %02x", tmp_ram[i]);
+				}
+            	SEGGER_RTT_printf(0, "\r\n");
 #endif
         }
 	}
