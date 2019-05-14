@@ -326,16 +326,18 @@ void tick_HR_C6000()
 			break;
 		case 3: // Stop RX of transmission
 			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x20);
+			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x00);
+			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x20);
 			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x40);
 			slot_state=0;
 			break;
 		}
 
-    	if (((slot_state==1) || (slot_state==2)) && (tick_cnt<6))
+    	if (tick_cnt<10)
     	{
     		// Timeout interrupted transmission
     		tick_cnt++;
-            if (tick_cnt==6)
+            if (tick_cnt==10)
             {
             	slot_state=3;
 #if defined(USE_SEGGER_RTT)
@@ -379,8 +381,7 @@ void tick_HR_C6000()
     		if (tmp_val_0x82 & 0x10) // InterLateEntry
     		{
     			// Late entry into ongoing transmission
-    			int lcss = (tmp_val_0x52 >> 0) & 0x03;
-                if ((slot_state==0) && (lcss==3))
+                if ((slot_state==0) && (tmp_ram[0]==0))
                 {
                 	slot_state=1;
                 	init_codec();
@@ -392,7 +393,7 @@ void tick_HR_C6000()
                 }
 
 #if defined(USE_SEGGER_RTT)
-            	SEGGER_RTT_printf(0, "LATE %02x [%02x %02x] %02x %02x %02x %02x SC:%02x RCRC:%02x RPI:%02x RXDT_DATA:%02x RXDT_VOICE:%02x LCSS:%02x TC:%02x AT:%02x CC:%02x ??:%02x ST:%02x RAM:", slot_state, tmp_val_0x82, tmp_val_0x86, tmp_val_0x51, tmp_val_0x52, tmp_val_0x57, tmp_val_0x5f, (tmp_val_0x51 >> 0) & 0x03, (tmp_val_0x51 >> 2) & 0x01, (tmp_val_0x51 >> 3) & 0x01, (tmp_val_0x51 >> 4) & 0x07, (tmp_val_0x51 >> 4) & 0x0f, (tmp_val_0x52 >> 0) & 0x03, (tmp_val_0x52 >> 2) & 0x01, (tmp_val_0x52 >> 3) & 0x01, (tmp_val_0x52 >> 4) & 0x0f, (tmp_val_0x57 >> 2) & 0x01, (tmp_val_0x5f >> 0) & 0x03);
+            	SEGGER_RTT_printf(0, "LATE %02x [%02x %02x] %02x %02x %02x %02x SC:%02x RCRC:%02x RPI:%02x RXDT:%02x LCSS:%02x TC:%02x AT:%02x CC:%02x ??:%02x ST:%02x RAM:", slot_state, tmp_val_0x82, tmp_val_0x86, tmp_val_0x51, tmp_val_0x52, tmp_val_0x57, tmp_val_0x5f, (tmp_val_0x51 >> 0) & 0x03, (tmp_val_0x51 >> 2) & 0x01, (tmp_val_0x51 >> 3) & 0x01, (tmp_val_0x51 >> 4) & 0x0f, (tmp_val_0x52 >> 0) & 0x03, (tmp_val_0x52 >> 2) & 0x01, (tmp_val_0x52 >> 3) & 0x01, (tmp_val_0x52 >> 4) & 0x0f, (tmp_val_0x57 >> 2) & 0x01, (tmp_val_0x5f >> 0) & 0x03);
 				for (int i=0;i<0x0c;i++)
 				{
 	            	SEGGER_RTT_printf(0, " %02x", tmp_ram[i]);
@@ -411,10 +412,9 @@ void tick_HR_C6000()
     			tick_cnt = 0;
 
     			// Start or stop transmission
-    			int rxdt_data = (tmp_val_0x51 >> 4) & 0x07;
-    			int rxdt_voice = (tmp_val_0x51 >> 4) & 0x0f;
+    			int rxdt = (tmp_val_0x51 >> 4) & 0x0f;
     			int sc = (tmp_val_0x51 >> 0) & 0x03;
-                if ((slot_state==0) && (sc==2) && (rxdt_data==1))
+                if ((slot_state==0) && (sc==2) && (rxdt==1) && (tmp_ram[0]==0))
                 {
                 	slot_state=1;
                 	init_codec();
@@ -424,7 +424,7 @@ void tick_HR_C6000()
 #endif
                     GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
                 }
-                if (((slot_state==1) || (slot_state==2)) && (sc==2) && (rxdt_data==2))
+                if ((sc==2) && (rxdt==2) && (tmp_ram[0]==0))
                 {
                 	slot_state=3;
 #if defined(USE_SEGGER_RTT)
@@ -433,13 +433,13 @@ void tick_HR_C6000()
                     GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
                 }
 
-            	if ((skip_count>0) && (sc!=2) && (rxdt_voice == 0x09))
+            	if ((slot_state!=0) && (skip_count>0) && (sc!=2) && ((rxdt & 0x07) == 0x01))
             	{
             		skip_count--;
             	}
 
                 // Detect/decode voice packet and transfer it into the output soundbuffer
-                if ((slot_state!=0) && (skip_count==0) && (sc!=2) && (rxdt_voice >= 0x09) && (rxdt_voice <= 0x0e))
+                if ((slot_state!=0) && (skip_count==0) && (sc!=2) && ((rxdt & 0x07) >= 0x01) && ((rxdt & 0x07) <= 0x06))
                 {
                     read_SPI_page_reg_bytearray_SPI1(0x03, 0x00, tmp_ram, 27);
                 	tick_codec(tmp_ram);
@@ -447,7 +447,7 @@ void tick_HR_C6000()
                 }
 
 #if defined(USE_SEGGER_RTT)
-            	SEGGER_RTT_printf(0, "DATA %02x [%02x %02x] %02x %02x %02x %02x SC:%02x RCRC:%02x RPI:%02x RXDT_DATA:%02x RXDT_VOICE:%02x LCSS:%02x TC:%02x AT:%02x CC:%02x ??:%02x ST:%02x RAM:", slot_state, tmp_val_0x82, tmp_val_0x86, tmp_val_0x51, tmp_val_0x52, tmp_val_0x57, tmp_val_0x5f, (tmp_val_0x51 >> 0) & 0x03, (tmp_val_0x51 >> 2) & 0x01, (tmp_val_0x51 >> 3) & 0x01, (tmp_val_0x51 >> 4) & 0x07, (tmp_val_0x51 >> 4) & 0x0f, (tmp_val_0x52 >> 0) & 0x03, (tmp_val_0x52 >> 2) & 0x01, (tmp_val_0x52 >> 3) & 0x01, (tmp_val_0x52 >> 4) & 0x0f, (tmp_val_0x57 >> 2) & 0x01, (tmp_val_0x5f >> 0) & 0x03);
+            	SEGGER_RTT_printf(0, "DATA %02x [%02x %02x] %02x %02x %02x %02x SC:%02x RCRC:%02x RPI:%02x RXDT:%02x LCSS:%02x TC:%02x AT:%02x CC:%02x ??:%02x ST:%02x RAM:", slot_state, tmp_val_0x82, tmp_val_0x86, tmp_val_0x51, tmp_val_0x52, tmp_val_0x57, tmp_val_0x5f, (tmp_val_0x51 >> 0) & 0x03, (tmp_val_0x51 >> 2) & 0x01, (tmp_val_0x51 >> 3) & 0x01, (tmp_val_0x51 >> 4) & 0x0f, (tmp_val_0x52 >> 0) & 0x03, (tmp_val_0x52 >> 2) & 0x01, (tmp_val_0x52 >> 3) & 0x01, (tmp_val_0x52 >> 4) & 0x0f, (tmp_val_0x57 >> 2) & 0x01, (tmp_val_0x5f >> 0) & 0x03);
 				for (int i=0;i<0x0c;i++)
 				{
 	            	SEGGER_RTT_printf(0, " %02x", tmp_ram[i]);
@@ -477,7 +477,7 @@ void tick_HR_C6000()
         else
         {
 #if defined(USE_SEGGER_RTT)
-            	SEGGER_RTT_printf(0, "---- %02x [%02x %02x] %02x %02x %02x %02x SC:%02x RCRC:%02x RPI:%02x RXDT_DATA:%02x RXDT_VOICE:%02x LCSS:%02x TC:%02x AT:%02x CC:%02x ??:%02x ST:%02x RAM:", slot_state, tmp_val_0x82, tmp_val_0x86, tmp_val_0x51, tmp_val_0x52, tmp_val_0x57, tmp_val_0x5f, (tmp_val_0x51 >> 0) & 0x03, (tmp_val_0x51 >> 2) & 0x01, (tmp_val_0x51 >> 3) & 0x01, (tmp_val_0x51 >> 4) & 0x07, (tmp_val_0x51 >> 4) & 0x0f, (tmp_val_0x52 >> 0) & 0x03, (tmp_val_0x52 >> 2) & 0x01, (tmp_val_0x52 >> 3) & 0x01, (tmp_val_0x52 >> 4) & 0x0f, (tmp_val_0x57 >> 2) & 0x01, (tmp_val_0x5f >> 0) & 0x03);
+            	SEGGER_RTT_printf(0, "---- %02x [%02x %02x] %02x %02x %02x %02x SC:%02x RCRC:%02x RPI:%02x RXDT:%02x LCSS:%02x TC:%02x AT:%02x CC:%02x ??:%02x ST:%02x RAM:", slot_state, tmp_val_0x82, tmp_val_0x86, tmp_val_0x51, tmp_val_0x52, tmp_val_0x57, tmp_val_0x5f, (tmp_val_0x51 >> 0) & 0x03, (tmp_val_0x51 >> 2) & 0x01, (tmp_val_0x51 >> 3) & 0x01, (tmp_val_0x51 >> 4) & 0x0f, (tmp_val_0x52 >> 0) & 0x03, (tmp_val_0x52 >> 2) & 0x01, (tmp_val_0x52 >> 3) & 0x01, (tmp_val_0x52 >> 4) & 0x0f, (tmp_val_0x57 >> 2) & 0x01, (tmp_val_0x5f >> 0) & 0x03);
 				for (int i=0;i<0x0c;i++)
 				{
 	            	SEGGER_RTT_printf(0, " %02x", tmp_ram[i]);
