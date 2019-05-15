@@ -308,6 +308,7 @@ void init_digital_DMR_RX()
 
 void init_digital()
 {
+	GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 0);
     GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
 	init_digital_DMR_RX();
 	init_digital_state();
