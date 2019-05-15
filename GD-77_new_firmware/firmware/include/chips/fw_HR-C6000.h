@@ -70,6 +70,10 @@ extern int slot_state;
 extern int tick_cnt;
 extern int skip_count;
 
+extern int last_TG;
+extern int last_DMRID;
+extern int qsodata_timer;
+
 void SPI_HR_C6000_init();
 void SPI_C6000_postinit1();
 void SPI_C6000_postinit2();
@@ -81,6 +85,7 @@ void init_digital_state();
 void init_digital_DMR_RX();
 void init_digital();
 void terminate_digital();
+void store_qsodata();
 void tick_HR_C6000();
 
 #endif /* _FW_HR_C6000_H_ */

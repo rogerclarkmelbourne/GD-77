@@ -60,6 +60,7 @@ int read_freq_enter_digits();
 bool check_frequency(int tmp_band, int tmp_frequency);
 void update_band_and_frequency(int tmp_band, int tmp_frequency);
 void update_flags();
+void update_qsodata();
 void update_screen();
 void init_edit();
 void tick_edit();

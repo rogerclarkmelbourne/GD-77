@@ -37,6 +37,10 @@ int slot_state;
 int tick_cnt;
 int skip_count;
 
+int last_TG;
+int last_DMRID;
+int qsodata_timer;
+
 void SPI_HR_C6000_init()
 {
     // C6000 interrupts
@@ -296,6 +300,9 @@ void init_digital_state()
 	slot_state=0;
 	tick_cnt=0;
 	skip_count=0;
+	last_TG = 0;
+	last_DMRID = 0;
+	qsodata_timer = 0;
 }
 
 void init_digital_DMR_RX()
@@ -320,7 +327,16 @@ void terminate_digital()
 {
 	GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 0);
     GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
+	init_digital_state();
     NVIC_DisableIRQ(PORTC_IRQn);
+}
+
+void store_qsodata()
+{
+	last_TG=(tmp_ram[3]<<16)+(tmp_ram[4]<<8)+(tmp_ram[5]<<0);
+	last_DMRID=(tmp_ram[6]<<16)+(tmp_ram[7]<<8)+(tmp_ram[8]<<0);
+	qsodata_timer=4000;
+	update_screen();
 }
 
 void tick_HR_C6000()
@@ -413,6 +429,7 @@ void tick_HR_C6000()
                 if ((slot_state==0) && (tmp_ram[0]==0))
                 {
                 	slot_state=1;
+                	store_qsodata();
                 	init_codec();
                 	skip_count = 2;
 #if defined(USE_SEGGER_RTT)
@@ -445,6 +462,7 @@ void tick_HR_C6000()
                 if ((slot_state==0) && (sc==2) && (rxdt==1) && (tmp_ram[0]==0))
                 {
                 	slot_state=1;
+                	store_qsodata();
                 	init_codec();
                 	skip_count = 0;
 #if defined(USE_SEGGER_RTT)
@@ -467,6 +485,7 @@ void tick_HR_C6000()
                 // Detect/decode voice packet and transfer it into the output soundbuffer
                 if ((slot_state!=0) && (skip_count==0) && (sc!=2) && ((rxdt & 0x07) >= 0x01) && ((rxdt & 0x07) <= 0x06))
                 {
+                	store_qsodata();
                     read_SPI_page_reg_bytearray_SPI1(0x03, 0x00, tmp_ram, 27);
                 	tick_codec(tmp_ram);
                     tick_soundbuffer();
@@ -511,5 +530,17 @@ void tick_HR_C6000()
             	SEGGER_RTT_printf(0, "\r\n");
 #endif
         }
+	}
+
+	if (qsodata_timer>0)
+	{
+		qsodata_timer--;
+		if (qsodata_timer==0)
+		{
+			last_TG = 0;
+			last_DMRID = 0;
+			update_screen();
+		}
+		Display_light_Touched = true;
 	}
 }

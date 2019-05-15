@@ -98,10 +98,28 @@ void update_flags()
 	}
 }
 
+void update_qsodata()
+{
+	if (qsodata_timer>0)
+	{
+		char buffer[32];
+		sprintf(buffer,"TG %d", last_TG);
+		UC1701_printCentered(5, buffer);
+		sprintf(buffer,"DMRID %d", last_DMRID);
+		UC1701_printCentered(6, buffer);
+	}
+	else
+	{
+		UC1701_printCentered(5, "                    ");
+		UC1701_printCentered(6, "                    ");
+	}
+}
+
 void update_screen()
 {
 	UC1701_clear();
 	update_flags();
+	update_qsodata();
 	if (current_mode==MODE_ANALOG)
 	{
 		UC1701_printCentered(2, "analog");
@@ -121,7 +139,7 @@ void update_screen()
 	{
 		sprintf(buffer,"%c%c%c.%c%c%c%c MHz", freq_enter_digits[0], freq_enter_digits[1], freq_enter_digits[2], freq_enter_digits[3], freq_enter_digits[4], freq_enter_digits[5], freq_enter_digits[6] );
 	}
-	UC1701_printCentered(5, buffer);
+	UC1701_printCentered(3, buffer);
 	Display_light_Touched = true;
 }
 
