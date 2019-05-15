@@ -186,6 +186,21 @@ uint8_t spi_sound4[WAV_BUFFER_SIZE*2];
 
 volatile bool g_TX_SAI_in_use = false;
 
+void init_sound()
+{
+    g_TX_SAI_in_use = false;
+    SAI_TxSoftwareReset(I2S0, kSAI_ResetAll);
+	SAI_TxEnable(I2S0, true);
+	wavbuffer_read_idx = 0;
+	wavbuffer_write_idx = 0;
+	wavbuffer_count = 0;
+}
+
+void terminate_sound()
+{
+    SAI_TransferTerminateSendEDMA(I2S0, &g_SAI_TX_Handle);
+}
+
 void store_soundbuffer()
 {
 	taskENTER_CRITICAL();

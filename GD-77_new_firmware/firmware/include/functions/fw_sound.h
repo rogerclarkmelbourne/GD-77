@@ -66,6 +66,8 @@ extern uint8_t spi_sound4[WAV_BUFFER_SIZE*2];
 
 extern volatile bool g_TX_SAI_in_use;
 
+void init_sound();
+void terminate_sound();
 void set_melody(int *melody);
 int get_freq(int tone);
 void create_song(const uint8_t *melody);
