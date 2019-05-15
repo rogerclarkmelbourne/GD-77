@@ -36,7 +36,6 @@
 #include "fw_main.h"
 #include "fw_sound.h"
 
-#define MODE_SILENT 0
 #define MODE_ANALOG 1
 #define MODE_DIGITAL 2
 

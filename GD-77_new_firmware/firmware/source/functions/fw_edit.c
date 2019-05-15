@@ -102,13 +102,9 @@ void update_screen()
 {
 	UC1701_clear();
 	update_flags();
-	if (current_mode==MODE_SILENT)
+	if (current_mode==MODE_ANALOG)
 	{
-		UC1701_printCentered(2, "Silent");
-	}
-	else if (current_mode==MODE_ANALOG)
-	{
-		UC1701_printCentered(2, "FM analog");
+		UC1701_printCentered(2, "analog");
 	}
 	else if (current_mode==MODE_DIGITAL)
 	{
@@ -131,7 +127,7 @@ void update_screen()
 
 void init_edit()
 {
-	current_mode = MODE_SILENT;
+	current_mode = MODE_DIGITAL;
 	current_band = BAND_VHF;
 	current_VHF_frequency = VHF_MIN;
 	current_UHF_frequency = UHF_MIN;
@@ -159,17 +155,13 @@ void tick_edit()
 		}
 		else if ((keys & KEY_STAR)!=0)
 		{
-			if (current_mode == MODE_SILENT)
-			{
-				current_mode = MODE_ANALOG;
-			}
-			else if (current_mode == MODE_ANALOG)
+			if (current_mode == MODE_ANALOG)
 			{
 				current_mode = MODE_DIGITAL;
 			}
 			else if (current_mode == MODE_DIGITAL)
 			{
-				current_mode = MODE_SILENT;
+				current_mode = MODE_ANALOG;
 			}
 			trx_set_mode_band_freq_and_others();
 		}
