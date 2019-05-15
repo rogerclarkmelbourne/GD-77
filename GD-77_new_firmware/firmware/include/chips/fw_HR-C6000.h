@@ -77,6 +77,8 @@ void SPI_C6000_postinit3a();
 void SPI_C6000_postinit3b();
 void PORTC_IRQHandler(void);
 void init_HR_C6000_interrupts();
+void init_digital();
+void terminate_digital();
 void tick_HR_C6000();
 
 #endif /* _FW_HR_C6000_H_ */

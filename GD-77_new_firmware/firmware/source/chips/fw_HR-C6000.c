@@ -294,6 +294,27 @@ void init_HR_C6000_interrupts()
     NVIC_SetPriority(PORTC_IRQn, 3);
 }
 
+void init_digital()
+{
+	write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x20);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x00);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x20);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x40);
+	int_sys=false;
+	int_ts=false;
+	slot_state=0;
+	tick_cnt=0;
+	skip_count=0;
+    NVIC_EnableIRQ(PORTC_IRQn);
+	init_codec();
+}
+
+void terminate_digital()
+{
+    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
+    NVIC_DisableIRQ(PORTC_IRQn);
+}
+
 void tick_HR_C6000()
 {
 	bool tmp_int_sys=false;
