@@ -29,6 +29,32 @@
 bool open_squelch=false;
 bool HR_C6000_datalogging=false;
 
+int trx_measure_count = 0;
+
+void trx_check_analog_squelch()
+{
+	trx_measure_count++;
+	if (trx_measure_count==50)
+	{
+    	if (melody_play==NULL)
+    	{
+    		uint8_t RX_signal;
+    		uint8_t RX_noise;
+    		read_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x1b, &RX_noise, &RX_signal);
+
+    		if ((RX_signal<45) || (open_squelch))
+    		{
+    		    GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 1); // speaker on
+    		}
+    		else
+    		{
+    		    GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 0); // speaker off
+    		}
+    	}
+    	trx_measure_count=0;
+	}
+}
+
 void trx_set_mode_band_freq_and_others()
 {
 	uint32_t f = current_frequency*1.6f;

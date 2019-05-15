@@ -131,6 +131,8 @@ void fw_main_task()
 	open_squelch=false;
 	HR_C6000_datalogging=false;
 
+	trx_measure_count = 0;
+
 #if defined(USE_SEGGER_RTT)
     SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_NO_BLOCK_TRIM);
     SEGGER_RTT_printf(0,"Segger RTT initialised\n");
@@ -141,6 +143,10 @@ void fw_main_task()
     	if (current_mode==MODE_DIGITAL)
     	{
     		tick_HR_C6000();
+    	}
+    	else if (current_mode==MODE_ANALOG)
+    	{
+    		trx_check_analog_squelch();
     	}
 
     	// Read button state and event

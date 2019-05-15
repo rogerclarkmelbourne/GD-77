@@ -28,10 +28,14 @@
 #define _FW_TRX_H_
 
 #include "fw_edit.h"
+#include "fw_sound.h"
 
 extern bool open_squelch;
 extern bool HR_C6000_datalogging;
 
+extern int trx_measure_count;
+
+void trx_check_analog_squelch();
 void trx_set_mode_band_freq_and_others();
 
 #endif /* _FW_TRX_H_ */

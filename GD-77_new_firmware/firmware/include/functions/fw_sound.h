@@ -44,6 +44,8 @@ extern int melody_orange_beep[];
 extern int melody_ACK_beep[];
 extern int melody_NACK_beep[];
 extern int melody_ERROR_beep[];
+extern int *melody_play;
+extern int melody_idx;
 
 extern const uint8_t melody1[];
 extern const uint8_t melody2[];
