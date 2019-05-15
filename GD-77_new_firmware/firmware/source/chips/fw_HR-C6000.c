@@ -281,12 +281,7 @@ void PORTC_IRQHandler(void)
 
 void init_HR_C6000_interrupts()
 {
-	int_sys=false;
-	int_ts=false;
-
-	slot_state=0;
-	tick_cnt=0;
-	skip_count=0;
+	init_digital_state();
 
     PORT_SetPinInterruptConfig(Port_INT_C6000_SYS, Pin_INT_C6000_SYS, kPORT_InterruptEitherEdge);
     PORT_SetPinInterruptConfig(Port_INT_C6000_TS, Pin_INT_C6000_TS, kPORT_InterruptEitherEdge);
@@ -294,17 +289,27 @@ void init_HR_C6000_interrupts()
     NVIC_SetPriority(PORTC_IRQn, 3);
 }
 
-void init_digital()
+void init_digital_state()
 {
-	write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x20);
-	write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x00);
-	write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x20);
-	write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x40);
 	int_sys=false;
 	int_ts=false;
 	slot_state=0;
 	tick_cnt=0;
 	skip_count=0;
+}
+
+void init_digital_DMR_RX()
+{
+	write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x20);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x00);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x20);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x40);
+}
+
+void init_digital()
+{
+	init_digital_DMR_RX();
+	init_digital_state();
     NVIC_EnableIRQ(PORTC_IRQn);
 	init_codec();
 }
@@ -346,10 +351,7 @@ void tick_HR_C6000()
 			slot_state=1;
 			break;
 		case 3: // Stop RX of transmission
-			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x20);
-			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x00);
-			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x20);
-			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x40);
+			init_digital_DMR_RX();
 			slot_state=0;
 			break;
 		}
