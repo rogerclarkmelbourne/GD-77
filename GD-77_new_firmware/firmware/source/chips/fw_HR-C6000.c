@@ -308,6 +308,7 @@ void init_digital_DMR_RX()
 
 void init_digital()
 {
+    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
 	init_digital_DMR_RX();
 	init_digital_state();
     NVIC_EnableIRQ(PORTC_IRQn);
