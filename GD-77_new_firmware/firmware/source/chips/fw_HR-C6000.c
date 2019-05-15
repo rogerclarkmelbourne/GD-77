@@ -317,6 +317,7 @@ void init_digital()
 
 void terminate_digital()
 {
+	GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 0);
     GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
     NVIC_DisableIRQ(PORTC_IRQn);
 }
@@ -345,6 +346,8 @@ void tick_HR_C6000()
 		{
 		case 1: // Start RX of transmission (first step)
 			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x00);
+			GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 1);
+		    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
 			slot_state=2;
 			break;
 		case 2: // Start RX of transmission (second step)
@@ -353,6 +356,8 @@ void tick_HR_C6000()
 			break;
 		case 3: // Stop RX of transmission
 			init_digital_DMR_RX();
+			GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 0);
+		    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
 			slot_state=0;
 			break;
 		}
@@ -367,7 +372,6 @@ void tick_HR_C6000()
 #if defined(USE_SEGGER_RTT)
             	SEGGER_RTT_printf(0, ">>> TIMEOUT\r\n");
 #endif
-                GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
             }
     	}
 	}
@@ -413,7 +417,6 @@ void tick_HR_C6000()
 #if defined(USE_SEGGER_RTT)
             	SEGGER_RTT_printf(0, ">>> START LATE\r\n");
 #endif
-                    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
                 }
 
 #if defined(USE_SEGGER_RTT)
@@ -446,7 +449,6 @@ void tick_HR_C6000()
 #if defined(USE_SEGGER_RTT)
             	SEGGER_RTT_printf(0, ">>> START\r\n");
 #endif
-                    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
                 }
                 if ((sc==2) && (rxdt==2) && (tmp_ram[0]==0))
                 {
@@ -454,7 +456,6 @@ void tick_HR_C6000()
 #if defined(USE_SEGGER_RTT)
             	SEGGER_RTT_printf(0, ">>> STOP\r\n");
 #endif
-                    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
                 }
 
             	if ((slot_state!=0) && (skip_count>0) && (sc!=2) && ((rxdt & 0x07) == 0x01))
