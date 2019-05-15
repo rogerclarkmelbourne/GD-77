@@ -24,49 +24,14 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _FW_MAIN_H_
-#define _FW_MAIN_H_
+#ifndef _FW_TRX_H_
+#define _FW_TRX_H_
 
-#include <stdint.h>
-#include <stdio.h>
-
-#include "FreeRTOS.h"
-#include "task.h"
-
-#include "virtual_com.h"
-#include "fw_usb_com.h"
-
-#include "fw_common.h"
-#include "fw_buttons.h"
-#include "fw_LEDs.h"
-#include "fw_keyboard.h"
-#include "fw_display.h"
-
-#include "UC1701.h"
-
-#include "fw_i2c.h"
-#include "fw_spi.h"
-#include "fw_i2s.h"
-#include "fw_AT1846S.h"
-#include "fw_HR-C6000.h"
-
-#include "fw_sound.h"
-#include "fw_menu.h"
 #include "fw_edit.h"
-#include "fw_trx.h"
 
-extern int Display_light_Timer;
-extern bool Display_light_Touched;
-extern bool Show_SplashScreen;
-extern int SplashScreen_Timer;
-extern bool Shutdown;
-extern int Shutdown_Timer;
+extern bool open_squelch;
+extern bool HR_C6000_datalogging;
 
-void show_splashscreen();
-void show_poweroff();
-void reset_splashscreen();
+void trx_set_mode_band_freq_and_others();
 
-void fw_init();
-void fw_main_task();
-
-#endif /* _FW_MAIN_H_ */
+#endif /* _FW_TRX_H_ */
