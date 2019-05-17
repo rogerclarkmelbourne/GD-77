@@ -57,19 +57,6 @@ void fw_init_common()
     // Power On/Off logic
 	GPIO_PinWrite(GPIO_Keep_Power_On, Pin_Keep_Power_On, 1);
 
-    // SOFT_SPI to W25Q80BV 1M flash
-    PORT_SetPinMux(Port_SOFT_SPI_CS_FLASH, Pin_SOFT_SPI_CS_FLASH, kPORT_MuxAsGpio);
-    PORT_SetPinMux(Port_SOFT_SPI_CLK_FLASH, Pin_SOFT_SPI_CLK_FLASH, kPORT_MuxAsGpio);
-    PORT_SetPinMux(Port_SOFT_SPI_DI_FLASH, Pin_SOFT_SPI_DI_FLASH, kPORT_MuxAsGpio);
-    PORT_SetPinMux(Port_SOFT_SPI_DO_FLASH, Pin_SOFT_SPI_DO_FLASH, kPORT_MuxAsGpio);
-    GPIO_PinInit(GPIO_SOFT_SPI_CS_FLASH, Pin_SOFT_SPI_CS_FLASH, &pin_config_output);
-    GPIO_PinInit(GPIO_SOFT_SPI_CLK_FLASH, Pin_SOFT_SPI_CLK_FLASH, &pin_config_output);
-    GPIO_PinInit(GPIO_SOFT_SPI_DI_FLASH,Pin_SOFT_SPI_DI_FLASH, &pin_config_output);
-    GPIO_PinInit(GPIO_SOFT_SPI_DO_FLASH, Pin_SOFT_SPI_DO_FLASH, &pin_config_input);
-    GPIO_PinWrite(GPIO_SOFT_SPI_CS_FLASH, Pin_SOFT_SPI_CS_FLASH, 1);
-    GPIO_PinWrite(GPIO_SOFT_SPI_CLK_FLASH, Pin_SOFT_SPI_CLK_FLASH, 0);
-    GPIO_PinWrite(GPIO_SOFT_SPI_DI_FLASH,Pin_SOFT_SPI_DI_FLASH, 1);
-
     // Speaker mute and RX/TX mux init
     PORT_SetPinMux(Port_speaker_mute, Pin_speaker_mute, kPORT_MuxAsGpio);
     PORT_SetPinMux(Port_RX_audio_mux, Pin_RX_audio_mux, kPORT_MuxAsGpio);

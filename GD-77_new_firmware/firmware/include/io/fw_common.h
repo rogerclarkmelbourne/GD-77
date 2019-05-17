@@ -41,24 +41,6 @@ extern gpio_pin_config_t pin_config_output;
 #define GPIO_Power_Switch 	GPIOA
 #define Pin_Power_Switch	13
 
-// SOFT_SPI to W25Q80BV 1M flash
-// OUT/ON  A19 - SOFT_SPI /CS to W25Q80BV 1M flash
-// OUT/OFF E5  - SOFT_SPI CLK to W25Q80BV 1M flash
-// OUT/ON  E4  - SOFT_SPI DI to W25Q80BV 1M flash
-// IN      E6  - SOFT_SPI DO to W25Q80BV 1M flash
-#define Port_SOFT_SPI_CS_FLASH  PORTA
-#define GPIO_SOFT_SPI_CS_FLASH  GPIOA
-#define Pin_SOFT_SPI_CS_FLASH   19
-#define Port_SOFT_SPI_CLK_FLASH PORTE
-#define GPIO_SOFT_SPI_CLK_FLASH GPIOE
-#define Pin_SOFT_SPI_CLK_FLASH  5
-#define Port_SOFT_SPI_DI_FLASH  PORTE
-#define GPIO_SOFT_SPI_DI_FLASH  GPIOE
-#define Pin_SOFT_SPI_DI_FLASH   4
-#define Port_SOFT_SPI_DO_FLASH  PORTE
-#define GPIO_SOFT_SPI_DO_FLASH  GPIOE
-#define Pin_SOFT_SPI_DO_FLASH   6
-
 // Other connections
 // OUT/OFF A17 - RF_ant_switch
 // OUT/OFF B0  - speaker_mute

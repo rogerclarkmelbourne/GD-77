@@ -1,5 +1,5 @@
 /*
- * Copyright (C)2019 Kai Ludwig, DG4KLU
+ * Copyright (C)2019 Roger Clark. VK3KYY / G4KYF
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -24,50 +24,37 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _FW_MAIN_H_
-#define _FW_MAIN_H_
-
-#include <stdint.h>
-#include <stdio.h>
+#ifndef _SPI_FLASH_H_
+#define _SPI_FLASH_H_
 
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "virtual_com.h"
-#include "fw_usb_com.h"
-
 #include "fw_common.h"
-#include "fw_buttons.h"
-#include "fw_LEDs.h"
-#include "fw_keyboard.h"
-#include "fw_display.h"
 
-#include "UC1701.h"
+#define Port_SPI_FLASH_CS_U  	PORTA
+#define GPIO_SPI_FLASH_CS_U  	GPIOA
+#define Pin_SPI_FLASH_CS_U   	19
 
-#include "fw_i2c.h"
-#include "fw_spi.h"
-#include "fw_i2s.h"
-#include "fw_AT1846S.h"
-#include "fw_HR-C6000.h"
+#define Port_SPI_FLASH_CLK_U 	PORTE
+#define GPIO_SPI_FLASH_CLK_U 	GPIOE
+#define Pin_SPI_FLASH_CLK_U  	5
 
-#include "fw_sound.h"
-#include "fw_menu.h"
-#include "fw_edit.h"
-#include "fw_trx.h"
-#include "fw_SPI_Flash.h"
+#define Port_SPI_FLASH_DI_U  	PORTE
+#define GPIO_SPI_FLASH_DI_U  	GPIOE
+#define Pin_SPI_FLASH_DI_U   	6
 
-extern int Display_light_Timer;
-extern bool Display_light_Touched;
-extern bool Show_SplashScreen;
-extern int SplashScreen_Timer;
-extern bool Shutdown;
-extern int Shutdown_Timer;
+#define Port_SPI_FLASH_DO_U  	PORTE
+#define GPIO_SPI_FLASH_DO_U  	GPIOE
+#define Pin_SPI_FLASH_DO_U   	4
 
-void show_splashscreen();
-void show_poweroff();
-void reset_splashscreen();
+// Public functions
+bool SPI_Flash_init();
+bool SPI_Flash_read(uint32_t addrress,uint8_t *buf,int size);
+bool SPI_Flash_writePage(uint32_t address,uint8_t *dataBuf);// page is 256 bytes
+bool SPI_Flash_eraseSector(uint32_t address);// sector is 16 pages  = 4k bytes
+int SPI_Flash_readManufacturer();// Not necessarily Winbond !
+int SPI_Flash_readPartID();// Should be 4014 for 1M or 4017 for 8M
+int SPI_Flash_readStatusRegister();// May come in handy
 
-void fw_init();
-void fw_main_task();
-
-#endif /* _FW_MAIN_H_ */
+#endif /* _SPI_FLASH_H_ */
