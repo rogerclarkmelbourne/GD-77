@@ -193,6 +193,10 @@ namespace ComTool
                         sendbuffer[0] = (byte)'R';
                         sendbuffer[1] = (byte)data_mode;
                         port.Write(sendbuffer, 0, 2);
+                        while (port.BytesToRead == 0)
+                        {
+                            Thread.Sleep(0);
+                        }
                         port.Read(readbuffer, 0, 64);
 
                         if (readbuffer[0] == 'R')
@@ -211,6 +215,10 @@ namespace ComTool
                         sendbuffer[0] = (byte)'W';
                         sendbuffer[1] = (byte)data_mode;
                         port.Write(sendbuffer, 0, 2);
+                        while (port.BytesToRead == 0)
+                        {
+                            Thread.Sleep(0);
+                        }
                         port.Read(readbuffer, 0, 64);
 
                         if (readbuffer[0] == 'W')
@@ -342,6 +350,7 @@ namespace ComTool
                     fileStream = saveFileDialog.OpenFile();
                     data_pos = data_start;
                     data_mode = 1;
+                    SetLog("read started");
                 }
             }
         }
@@ -356,6 +365,7 @@ namespace ComTool
                     fileStream = saveFileDialog.OpenFile();
                     data_pos = data_start;
                     data_mode = 2;
+                    SetLog("read started");
                 }
             }
         }
@@ -373,6 +383,7 @@ namespace ComTool
                         fileStream = openFileDialog.OpenFile();
                         data_pos = data_start;
                         data_mode = 3;
+                        SetLog("write started");
                     }
                 }
             }
@@ -391,6 +402,7 @@ namespace ComTool
                         fileStream = openFileDialog.OpenFile();
                         data_pos = data_start;
                         data_mode = 4;
+                        SetLog("write started");
                     }
                 }
             }

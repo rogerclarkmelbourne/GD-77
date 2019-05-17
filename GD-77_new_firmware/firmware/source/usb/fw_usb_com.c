@@ -47,19 +47,26 @@ USB_DMA_NONINIT_DATA_ALIGN(USB_DATA_ALIGN_SIZE) static uint8_t s_ComBuf[DATA_BUF
 
 void tick_com_request()
 {
-	if (com_request!=0)
+	if (com_request==1)
 	{
-		if (com_request==1)
+		if (com_requestbuffer[0]=='R')
 		{
 			s_ComBuf[0] = com_requestbuffer[0];
 			s_ComBuf[1] = com_requestbuffer[1];
 			USB_DeviceCdcAcmSend(s_cdcVcom.cdcAcmHandle, USB_CDC_VCOM_BULK_IN_ENDPOINT, s_ComBuf, 2);
-			com_request=2;
 		}
-		else if (com_request==2)
+		else if (com_requestbuffer[0]=='W')
 		{
-			com_request = 0;
+			s_ComBuf[0] = com_requestbuffer[0];
+			s_ComBuf[1] = com_requestbuffer[1];
+			USB_DeviceCdcAcmSend(s_cdcVcom.cdcAcmHandle, USB_CDC_VCOM_BULK_IN_ENDPOINT, s_ComBuf, 2);
 		}
+		else
+		{
+			s_ComBuf[0] = '-';
+			USB_DeviceCdcAcmSend(s_cdcVcom.cdcAcmHandle, USB_CDC_VCOM_BULK_IN_ENDPOINT, s_ComBuf, 1);
+		}
+		com_request=0;
 	}
 }
 
