@@ -45,6 +45,14 @@ namespace ComTool
 
         StreamWriter writer;
 
+        SaveFileDialog saveFileDialog = new SaveFileDialog();
+        OpenFileDialog openFileDialog = new OpenFileDialog();
+        int data_start = 0;
+        int data_length = 0;
+        int data_pos = 0;
+        int data_mode = 0;
+        Stream fileStream;
+
         public FormMain()
         {
             InitializeComponent();
@@ -55,6 +63,16 @@ namespace ComTool
             this.Location = new Point((Screen.PrimaryScreen.WorkingArea.Width - this.Width) / 2, (Screen.PrimaryScreen.WorkingArea.Height - this.Height) / 2);
 
             loadCOMPortlist();
+
+            saveFileDialog.InitialDirectory = Directory.GetCurrentDirectory();
+            saveFileDialog.Filter = "bin files (*.bin)|*.bin|All files (*.*)|*.*";
+            saveFileDialog.FilterIndex = 1;
+            saveFileDialog.RestoreDirectory = true;
+
+            openFileDialog.InitialDirectory = Directory.GetCurrentDirectory();
+            openFileDialog.Filter = "bin files (*.bin)|*.bin|All files (*.*)|*.*";
+            openFileDialog.FilterIndex = 1;
+            openFileDialog.RestoreDirectory = true;
         }
 
         private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
@@ -143,29 +161,42 @@ namespace ComTool
             {
                 try
                 {
-                    sendbuffer[0] = (byte)'B';
-                    port.Write(sendbuffer, 0, 1);
-                    port.Read(readbuffer, 0, 64);
-
-                    if (readbuffer[0] == 'B')
+                    if (data_mode == 0)
                     {
-                        int len = (readbuffer[1] << 8) + (readbuffer[2] << 0);
-                        for (int i = 0; i < len; i++)
+                        sendbuffer[0] = (byte)'B';
+                        port.Write(sendbuffer, 0, 1);
+                        port.Read(readbuffer, 0, 64);
+
+                        if (readbuffer[0] == 'B')
                         {
-                            if (com_Buf_pos < com_Buf.Length)
+                            int len = (readbuffer[1] << 8) + (readbuffer[2] << 0);
+                            for (int i = 0; i < len; i++)
                             {
-                                com_Buf[com_Buf_pos] = readbuffer[i+3];
-                                com_Buf_pos++;
-
-                                if (com_Buf_pos == 8)
+                                if (com_Buf_pos < com_Buf.Length)
                                 {
-                                    string line = String.Format("{0:X4}: [{1:X2} {2:X2}] {3:X2} {4:X2} {5:X2} {6:X2} SC:{7:X2} RCRC:{8:X2} RPI:{9:X2} RXDT:{10:X2} LCSS:{11:X2} TC:{12:X2} AT:{13:X2} CC:{14:X2} ??:{15:X2} ST:{16:X2}", com_Buf[0] * 256 + com_Buf[1], com_Buf[2], com_Buf[3], com_Buf[4], com_Buf[5], com_Buf[6], com_Buf[7], (com_Buf[4] >> 0) & 0x03, (com_Buf[4] >> 2) & 0x01, (com_Buf[4] >> 3) & 0x01, (com_Buf[4] >> 4) & 0x0f, (com_Buf[5] >> 0) & 0x03, (com_Buf[5] >> 2) & 0x01, (com_Buf[5] >> 3) & 0x01, (com_Buf[5] >> 4) & 0x0f, (com_Buf[6] >> 2) & 0x01, (com_Buf[7] >> 0) & 0x03);
-                                    SetLog(line);
+                                    com_Buf[com_Buf_pos] = readbuffer[i + 3];
+                                    com_Buf_pos++;
 
-                                    com_Buf_pos = 0;
+                                    if (com_Buf_pos == 8)
+                                    {
+                                        string line = String.Format("{0:X4}: [{1:X2} {2:X2}] {3:X2} {4:X2} {5:X2} {6:X2} SC:{7:X2} RCRC:{8:X2} RPI:{9:X2} RXDT:{10:X2} LCSS:{11:X2} TC:{12:X2} AT:{13:X2} CC:{14:X2} ??:{15:X2} ST:{16:X2}", com_Buf[0] * 256 + com_Buf[1], com_Buf[2], com_Buf[3], com_Buf[4], com_Buf[5], com_Buf[6], com_Buf[7], (com_Buf[4] >> 0) & 0x03, (com_Buf[4] >> 2) & 0x01, (com_Buf[4] >> 3) & 0x01, (com_Buf[4] >> 4) & 0x0f, (com_Buf[5] >> 0) & 0x03, (com_Buf[5] >> 2) & 0x01, (com_Buf[5] >> 3) & 0x01, (com_Buf[5] >> 4) & 0x0f, (com_Buf[6] >> 2) & 0x01, (com_Buf[7] >> 0) & 0x03);
+                                        SetLog(line);
+
+                                        com_Buf_pos = 0;
+                                    }
                                 }
                             }
                         }
+                    }
+                    else if ((data_mode == 1) || (data_mode == 2))
+                    {
+                        SetLog("read " + data_mode.ToString());
+                        close_data_mode();
+                    }
+                    else if ((data_mode == 3) || (data_mode == 4))
+                    {
+                        SetLog("write " + data_mode.ToString());
+                        close_data_mode();
                     }
                 }
                 catch (Exception ex)
@@ -174,7 +205,10 @@ namespace ComTool
                     break;
                 }
 
-                Thread.Sleep(10);
+                if ((data_mode != 1) && (data_mode != 2) && (data_mode != 3) && (data_mode != 4))
+                {
+                    Thread.Sleep(10);
+                }
             }
 
             SetLog("STOP");
@@ -249,24 +283,91 @@ namespace ComTool
             loadCOMPortlist();
         }
 
+        private void close_data_mode()
+        {
+            fileStream.Close();
+            data_mode = 0;
+        }
+
+        private bool check_data_fields()
+        {
+            if (!int.TryParse(textBoxDataStart.Text, System.Globalization.NumberStyles.HexNumber, null, out data_start))
+            {
+                MessageBox.Show("ERROR: Please check 'start'.");
+                return false;
+            }
+
+            if (!int.TryParse(textBoxDataLength.Text, System.Globalization.NumberStyles.HexNumber, null, out data_length))
+            {
+                MessageBox.Show("ERROR: Please check 'length'.");
+                return false;
+            }
+
+            return true;
+        }
+
         private void buttonReadFlash_Click(object sender, EventArgs e)
         {
-
+            if (check_data_fields())
+            {
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    saveFileDialog.InitialDirectory = Path.GetDirectoryName(saveFileDialog.FileName);
+                    fileStream = saveFileDialog.OpenFile();
+                    data_pos = data_start;
+                    data_mode = 1;
+                }
+            }
         }
 
         private void buttonReadEEPROM_Click(object sender, EventArgs e)
         {
-
+            if (check_data_fields())
+            {
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    saveFileDialog.InitialDirectory = Path.GetDirectoryName(saveFileDialog.FileName);
+                    fileStream = saveFileDialog.OpenFile();
+                    data_pos = data_start;
+                    data_mode = 2;
+                }
+            }
         }
 
         private void buttonWriteFlash_Click(object sender, EventArgs e)
         {
-
+            if (check_data_fields())
+            {
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    DialogResult dialogResult = MessageBox.Show("Do you really want to write to the external flash?", "External Flash Write", MessageBoxButtons.YesNo);
+                    if (dialogResult == DialogResult.Yes)
+                    {
+                        openFileDialog.InitialDirectory = Path.GetDirectoryName(openFileDialog.FileName);
+                        fileStream = openFileDialog.OpenFile();
+                        data_pos = data_start;
+                        data_mode = 3;
+                    }
+                }
+            }
         }
 
         private void buttonWriteEEPROM_Click(object sender, EventArgs e)
         {
-
+            if (check_data_fields())
+            {
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    DialogResult dialogResult = MessageBox.Show("Do you really want to write to the EEPROM?", "EEPROM Write", MessageBoxButtons.YesNo);
+                    if (dialogResult == DialogResult.Yes)
+                    {
+                        openFileDialog.InitialDirectory = Path.GetDirectoryName(openFileDialog.FileName);
+                        fileStream = openFileDialog.OpenFile();
+                        data_pos = data_start;
+                        data_mode = 4;
+                    }
+                }
+            }
         }
     }
 }
