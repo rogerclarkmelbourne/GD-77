@@ -71,3 +71,5 @@ V0.0.1c:
 V0.0.1d:
 - Proper muting of speaker in analog and digital mode.
 - Added TG and DMRID display.
+- Integrated new SPI flash library written by Roger Clark VK3KYY / G4KYF.
+- Integrated new EEPROM library written by Roger Clark VK3KYY / G4KYF.
