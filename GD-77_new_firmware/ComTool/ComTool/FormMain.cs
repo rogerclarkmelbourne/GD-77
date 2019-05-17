@@ -188,6 +188,10 @@ namespace ComTool
             checkBoxLogToFile.Enabled = true;
             comboBoxCOMPorts.Enabled = true;
             buttonRefreshCOMPortlist.Enabled = true;
+            buttonReadFlash.Enabled = false;
+            buttonWriteFlash.Enabled = false;
+            buttonReadEEPROM.Enabled = false;
+            buttonWriteEEPROM.Enabled = false;
             if (checkBoxLogToFile.Checked)
             {
                 writer.Close();
@@ -219,6 +223,10 @@ namespace ComTool
                     checkBoxLogToFile.Enabled = false;
                     comboBoxCOMPorts.Enabled = false;
                     buttonRefreshCOMPortlist.Enabled = false;
+                    buttonReadFlash.Enabled = true;
+                    buttonWriteFlash.Enabled = true;
+                    buttonReadEEPROM.Enabled = true;
+                    buttonWriteEEPROM.Enabled = true;
                     if (checkBoxLogToFile.Checked)
                     {
                         writer = new StreamWriter("log.txt");
@@ -239,6 +247,26 @@ namespace ComTool
         private void buttonRefreshCOMPortlist_Click(object sender, EventArgs e)
         {
             loadCOMPortlist();
+        }
+
+        private void buttonReadFlash_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void buttonReadEEPROM_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void buttonWriteFlash_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void buttonWriteEEPROM_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
