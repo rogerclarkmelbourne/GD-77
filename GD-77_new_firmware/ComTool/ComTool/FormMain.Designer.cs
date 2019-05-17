@@ -72,14 +72,14 @@
             this.comboBoxCOMPorts.Location = new System.Drawing.Point(586, 12);
             this.comboBoxCOMPorts.Name = "comboBoxCOMPorts";
             this.comboBoxCOMPorts.Size = new System.Drawing.Size(121, 21);
-            this.comboBoxCOMPorts.TabIndex = 4;
+            this.comboBoxCOMPorts.TabIndex = 2;
             // 
             // buttonRefreshCOMPortlist
             // 
             this.buttonRefreshCOMPortlist.Location = new System.Drawing.Point(713, 11);
             this.buttonRefreshCOMPortlist.Name = "buttonRefreshCOMPortlist";
             this.buttonRefreshCOMPortlist.Size = new System.Drawing.Size(75, 23);
-            this.buttonRefreshCOMPortlist.TabIndex = 5;
+            this.buttonRefreshCOMPortlist.TabIndex = 3;
             this.buttonRefreshCOMPortlist.Text = "Refresh";
             this.buttonRefreshCOMPortlist.UseVisualStyleBackColor = true;
             this.buttonRefreshCOMPortlist.Click += new System.EventHandler(this.buttonRefreshCOMPortlist_Click);
@@ -91,7 +91,7 @@
             this.richTextBoxLog.ReadOnly = true;
             this.richTextBoxLog.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.ForcedVertical;
             this.richTextBoxLog.Size = new System.Drawing.Size(773, 384);
-            this.richTextBoxLog.TabIndex = 7;
+            this.richTextBoxLog.TabIndex = 4;
             this.richTextBoxLog.Text = "";
             // 
             // checkBoxLogToFile
@@ -100,7 +100,7 @@
             this.checkBoxLogToFile.Location = new System.Drawing.Point(96, 14);
             this.checkBoxLogToFile.Name = "checkBoxLogToFile";
             this.checkBoxLogToFile.Size = new System.Drawing.Size(72, 17);
-            this.checkBoxLogToFile.TabIndex = 8;
+            this.checkBoxLogToFile.TabIndex = 1;
             this.checkBoxLogToFile.Text = "Log to file";
             this.checkBoxLogToFile.UseVisualStyleBackColor = true;
             // 

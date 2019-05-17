@@ -186,6 +186,8 @@ namespace ComTool
 
             buttonStartStop.Text = "Start";
             checkBoxLogToFile.Enabled = true;
+            comboBoxCOMPorts.Enabled = true;
+            buttonRefreshCOMPortlist.Enabled = true;
             if (checkBoxLogToFile.Checked)
             {
                 writer.Close();
@@ -215,6 +217,8 @@ namespace ComTool
 
                     buttonStartStop.Text = "Stop";
                     checkBoxLogToFile.Enabled = false;
+                    comboBoxCOMPorts.Enabled = false;
+                    buttonRefreshCOMPortlist.Enabled = false;
                     if (checkBoxLogToFile.Checked)
                     {
                         writer = new StreamWriter("log.txt");
