@@ -190,13 +190,39 @@ namespace ComTool
                     }
                     else if ((data_mode == 1) || (data_mode == 2))
                     {
-                        SetLog("read " + data_mode.ToString());
-                        close_data_mode();
+                        sendbuffer[0] = (byte)'R';
+                        sendbuffer[1] = (byte)data_mode;
+                        port.Write(sendbuffer, 0, 2);
+                        port.Read(readbuffer, 0, 64);
+
+                        if (readbuffer[0] == 'R')
+                        {
+                            SetLog("read "+ readbuffer[1].ToString());
+                            close_data_mode();
+                        }
+                        else
+                        {
+                            SetLog("read error");
+                            close_data_mode();
+                        }
                     }
                     else if ((data_mode == 3) || (data_mode == 4))
                     {
-                        SetLog("write " + data_mode.ToString());
-                        close_data_mode();
+                        sendbuffer[0] = (byte)'W';
+                        sendbuffer[1] = (byte)data_mode;
+                        port.Write(sendbuffer, 0, 2);
+                        port.Read(readbuffer, 0, 64);
+
+                        if (readbuffer[0] == 'W')
+                        {
+                            SetLog("write " + readbuffer[1].ToString());
+                            close_data_mode();
+                        }
+                        else
+                        {
+                            SetLog("write error");
+                            close_data_mode();
+                        }
                     }
                 }
                 catch (Exception ex)

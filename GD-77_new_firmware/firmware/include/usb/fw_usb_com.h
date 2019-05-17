@@ -27,6 +27,8 @@
 #ifndef _FW_USB_COM_H_
 #define _FW_USB_COM_H_
 
+#include "virtual_com.h"
+
 #include "FreeRTOS.h"
 #include "task.h"
 
@@ -35,6 +37,7 @@
 #include "fw_main.h"
 
 #define COM_BUFFER_SIZE 8192
+#define COM_REQUESTBUFFER_SIZE 64
 
 extern uint8_t tmp_val_0x82;
 extern uint8_t tmp_val_0x86;
@@ -51,6 +54,11 @@ extern int com_buffer_write_idx;
 extern int com_buffer_read_idx;
 extern int com_buffer_cnt;
 
+extern int com_request;
+extern uint8_t com_requestbuffer[COM_REQUESTBUFFER_SIZE];
+extern usb_cdc_vcom_struct_t s_cdcVcom;
+
+void tick_com_request();
 void send_packet(uint8_t val_0x82, uint8_t val_0x86, int ram);
 void send_packet_big(uint8_t val_0x82, uint8_t val_0x86, int ram1, int ram2);
 

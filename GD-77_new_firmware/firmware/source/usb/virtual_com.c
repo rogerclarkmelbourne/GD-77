@@ -176,6 +176,19 @@ usb_status_t USB_DeviceCdcVcomCallback(class_handle_t handle, uint32_t event, vo
 						s_currSendBuf[2]=(buff_cnt>>0) & 0xff;
 						error = USB_DeviceCdcAcmSend(s_cdcVcom.cdcAcmHandle, USB_CDC_VCOM_BULK_IN_ENDPOINT, s_currSendBuf, buff_cnt+3);
 					}
+					else
+					{
+						if (com_request==0)
+						{
+							memcpy(com_requestbuffer,s_currRecvBuf,COM_REQUESTBUFFER_SIZE);
+							com_request=1;
+						}
+						else
+						{
+							s_currSendBuf[0] = '-';
+							error = USB_DeviceCdcAcmSend(s_cdcVcom.cdcAcmHandle, USB_CDC_VCOM_BULK_IN_ENDPOINT, s_currSendBuf, 1);
+						}
+					}
                 }
             }
         }

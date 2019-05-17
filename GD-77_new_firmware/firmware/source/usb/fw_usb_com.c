@@ -41,6 +41,28 @@ int com_buffer_write_idx = 0;
 int com_buffer_read_idx = 0;
 int com_buffer_cnt = 0;
 
+int com_request = 0;
+uint8_t com_requestbuffer[COM_REQUESTBUFFER_SIZE];
+USB_DMA_NONINIT_DATA_ALIGN(USB_DATA_ALIGN_SIZE) static uint8_t s_ComBuf[DATA_BUFF_SIZE];
+
+void tick_com_request()
+{
+	if (com_request!=0)
+	{
+		if (com_request==1)
+		{
+			s_ComBuf[0] = com_requestbuffer[0];
+			s_ComBuf[1] = com_requestbuffer[1];
+			USB_DeviceCdcAcmSend(s_cdcVcom.cdcAcmHandle, USB_CDC_VCOM_BULK_IN_ENDPOINT, s_ComBuf, 2);
+			com_request=2;
+		}
+		else if (com_request==2)
+		{
+			com_request = 0;
+		}
+	}
+}
+
 void send_packet(uint8_t val_0x82, uint8_t val_0x86, int ram)
 {
 	if ((HR_C6000_datalogging) && ((com_buffer_cnt+8+(ram+1))<=COM_BUFFER_SIZE))

@@ -142,6 +142,8 @@ void fw_main_task()
 
     while (1U)
     {
+    	tick_com_request();
+
     	if (current_mode==MODE_DIGITAL)
     	{
     		tick_HR_C6000();
