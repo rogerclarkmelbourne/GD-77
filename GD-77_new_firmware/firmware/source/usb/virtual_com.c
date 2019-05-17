@@ -157,28 +157,25 @@ usb_status_t USB_DeviceCdcVcomCallback(class_handle_t handle, uint32_t event, vo
             {
                 if ((0 != epCbParam->length) && (0xFFFFFFFF != epCbParam->length))
                 {
-                    if ((0 != epCbParam->length) && (0xFFFFFFFF != epCbParam->length))
-                    {
-                    	if (s_currRecvBuf[0]=='B')
-                    	{
-    						int buff_cnt=0;
-    						while ((buff_cnt<(DATA_BUFF_SIZE-3)) && (com_buffer_cnt>0))
-    						{
-    							s_currSendBuf[buff_cnt+3]=com_buffer[com_buffer_read_idx];
-    							com_buffer_cnt--;
-    							com_buffer_read_idx++;
-    							if (com_buffer_read_idx==COM_BUFFER_SIZE)
-    							{
-    								com_buffer_read_idx=0;
-    							}
-    							buff_cnt++;
-    						}
-                            s_currSendBuf[0] = 'B';
-    						s_currSendBuf[1]=(buff_cnt>>8) & 0xff;
-    						s_currSendBuf[2]=(buff_cnt>>0) & 0xff;
-                            error = USB_DeviceCdcAcmSend(s_cdcVcom.cdcAcmHandle, USB_CDC_VCOM_BULK_IN_ENDPOINT, s_currSendBuf, buff_cnt+3);
-                    	}
-                    }
+					if (s_currRecvBuf[0]=='B')
+					{
+						int buff_cnt=0;
+						while ((buff_cnt<(DATA_BUFF_SIZE-3)) && (com_buffer_cnt>0))
+						{
+							s_currSendBuf[buff_cnt+3]=com_buffer[com_buffer_read_idx];
+							com_buffer_cnt--;
+							com_buffer_read_idx++;
+							if (com_buffer_read_idx==COM_BUFFER_SIZE)
+							{
+								com_buffer_read_idx=0;
+							}
+							buff_cnt++;
+						}
+						s_currSendBuf[0] = s_currRecvBuf[0];
+						s_currSendBuf[1]=(buff_cnt>>8) & 0xff;
+						s_currSendBuf[2]=(buff_cnt>>0) & 0xff;
+						error = USB_DeviceCdcAcmSend(s_cdcVcom.cdcAcmHandle, USB_CDC_VCOM_BULK_IN_ENDPOINT, s_currSendBuf, buff_cnt+3);
+					}
                 }
             }
         }
