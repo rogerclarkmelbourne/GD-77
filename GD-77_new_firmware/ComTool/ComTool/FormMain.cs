@@ -52,6 +52,7 @@ namespace ComTool
         int data_pos = 0;
         int data_mode = 0;
         Stream fileStream;
+        int old_progress = 0;
 
         public FormMain()
         {
@@ -190,23 +191,54 @@ namespace ComTool
                     }
                     else if ((data_mode == 1) || (data_mode == 2))
                     {
-                        sendbuffer[0] = (byte)'R';
-                        sendbuffer[1] = (byte)data_mode;
-                        port.Write(sendbuffer, 0, 2);
-                        while (port.BytesToRead == 0)
+                        int size = (data_start + data_length) - data_pos;
+                        if (size > 0)
                         {
-                            Thread.Sleep(0);
-                        }
-                        port.Read(readbuffer, 0, 64);
+                            if (size > 32)
+                            {
+                                size = 32;
+                            }
 
-                        if (readbuffer[0] == 'R')
-                        {
-                            SetLog("read "+ readbuffer[1].ToString());
-                            close_data_mode();
+                            sendbuffer[0] = (byte)'R';
+                            sendbuffer[1] = (byte)((data_pos >> 8) & 0xFF);
+                            sendbuffer[2] = (byte)((data_pos >> 0) & 0xFF);
+                            sendbuffer[3] = (byte)((size >> 8) & 0xFF);
+                            sendbuffer[4] = (byte)((size >> 0) & 0xFF);
+                            sendbuffer[5] = (byte)data_mode;
+                            port.Write(sendbuffer, 0, 6);
+                            while (port.BytesToRead==0)
+                            {
+                                Thread.Sleep(0);
+                            }
+                            port.Read(readbuffer, 0, 64);
+
+                            if (readbuffer[0] == 'R')
+                            {
+                                int len = (readbuffer[1] << 8) + (readbuffer[2] << 0);
+                                for (int i = 0; i < len; i++)
+                                {
+                                    fileStream.WriteByte(readbuffer[i + 3]);
+                                }
+                                fileStream.Flush();
+
+                                int progress = (data_pos-data_start)*100/data_length;
+                                if (old_progress!=progress)
+                                {
+                                    SetLog(String.Format("{0}%", progress));
+                                    old_progress = progress;
+                                }
+
+                                data_pos = data_pos + len;
+                            }
+                            else
+                            {
+                                SetLog(String.Format("read stopped (error at {0:X8})", data_pos));
+                                close_data_mode();
+                            }
                         }
                         else
                         {
-                            SetLog("read error");
+                            SetLog("read finished");
                             close_data_mode();
                         }
                     }
@@ -350,6 +382,7 @@ namespace ComTool
                     fileStream = saveFileDialog.OpenFile();
                     data_pos = data_start;
                     data_mode = 1;
+                    old_progress = 0;
                     SetLog("read started");
                 }
             }
@@ -365,6 +398,7 @@ namespace ComTool
                     fileStream = saveFileDialog.OpenFile();
                     data_pos = data_start;
                     data_mode = 2;
+                    old_progress = 0;
                     SetLog("read started");
                 }
             }
@@ -383,6 +417,7 @@ namespace ComTool
                         fileStream = openFileDialog.OpenFile();
                         data_pos = data_start;
                         data_mode = 3;
+                        old_progress = 0;
                         SetLog("write started");
                     }
                 }
@@ -402,6 +437,7 @@ namespace ComTool
                         fileStream = openFileDialog.OpenFile();
                         data_pos = data_start;
                         data_mode = 4;
+                        old_progress = 0;
                         SetLog("write started");
                     }
                 }

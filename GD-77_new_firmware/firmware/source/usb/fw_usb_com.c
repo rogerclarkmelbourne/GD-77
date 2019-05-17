@@ -49,11 +49,37 @@ void tick_com_request()
 {
 	if (com_request==1)
 	{
-		if (com_requestbuffer[0]=='R')
+		if (com_requestbuffer[0]=='R') // 'R' read data (com_requestbuffer[5]: 1 => external flash, 2 => EEPROM)
 		{
-			s_ComBuf[0] = com_requestbuffer[0];
-			s_ComBuf[1] = com_requestbuffer[1];
-			USB_DeviceCdcAcmSend(s_cdcVcom.cdcAcmHandle, USB_CDC_VCOM_BULK_IN_ENDPOINT, s_ComBuf, 2);
+			uint16_t address=com_requestbuffer[1]*256+com_requestbuffer[2];
+			uint16_t length=com_requestbuffer[3]*256+com_requestbuffer[4];
+			if (length>32)
+			{
+				length=32;
+			}
+
+			bool result;
+			if (com_requestbuffer[5]==1)
+			{
+				result = SPI_Flash_read(address, &s_ComBuf[3], length);
+			}
+			else if (com_requestbuffer[5]==2)
+			{
+				result = EEPROM_Read(address, &s_ComBuf[3], length);
+			}
+
+			if (result)
+			{
+				s_ComBuf[0] = com_requestbuffer[0];
+				s_ComBuf[1]=(length>>8)&0xFF;
+				s_ComBuf[2]=(length>>0)&0xFF;
+				USB_DeviceCdcAcmSend(s_cdcVcom.cdcAcmHandle, USB_CDC_VCOM_BULK_IN_ENDPOINT, s_ComBuf, length+3);
+			}
+			else
+			{
+				s_ComBuf[0] = '-';
+				USB_DeviceCdcAcmSend(s_cdcVcom.cdcAcmHandle, USB_CDC_VCOM_BULK_IN_ENDPOINT, s_ComBuf, 1);
+			}
 		}
 		else if (com_requestbuffer[0]=='W')
 		{
