@@ -333,10 +333,15 @@ void terminate_digital()
 
 void store_qsodata()
 {
-	last_TG=(tmp_ram[3]<<16)+(tmp_ram[4]<<8)+(tmp_ram[5]<<0);
-	last_DMRID=(tmp_ram[6]<<16)+(tmp_ram[7]<<8)+(tmp_ram[8]<<0);
+	int tmp_last_TG=(tmp_ram[3]<<16)+(tmp_ram[4]<<8)+(tmp_ram[5]<<0);
+	int tmp_last_DMRID=(tmp_ram[6]<<16)+(tmp_ram[7]<<8)+(tmp_ram[8]<<0);
 	qsodata_timer=4000;
-	update_screen();
+	if ((tmp_last_TG!=last_TG) || (tmp_last_DMRID!=last_DMRID))
+	{
+		last_TG=tmp_last_TG;
+		last_DMRID=tmp_last_DMRID;
+		update_screen();
+	}
 }
 
 void tick_HR_C6000()
