@@ -200,12 +200,14 @@ namespace ComTool
                             }
 
                             sendbuffer[0] = (byte)'R';
-                            sendbuffer[1] = (byte)((data_pos >> 8) & 0xFF);
-                            sendbuffer[2] = (byte)((data_pos >> 0) & 0xFF);
-                            sendbuffer[3] = (byte)((size >> 8) & 0xFF);
-                            sendbuffer[4] = (byte)((size >> 0) & 0xFF);
-                            sendbuffer[5] = (byte)data_mode;
-                            port.Write(sendbuffer, 0, 6);
+                            sendbuffer[1] = (byte)data_mode;
+                            sendbuffer[2] = (byte)((data_pos >> 24) & 0xFF);
+                            sendbuffer[3] = (byte)((data_pos >> 16) & 0xFF);
+                            sendbuffer[4] = (byte)((data_pos >> 8) & 0xFF);
+                            sendbuffer[5] = (byte)((data_pos >> 0) & 0xFF);
+                            sendbuffer[6] = (byte)((size >> 8) & 0xFF);
+                            sendbuffer[7] = (byte)((size >> 0) & 0xFF);
+                            port.Write(sendbuffer, 0, 8);
                             while (port.BytesToRead==0)
                             {
                                 Thread.Sleep(0);

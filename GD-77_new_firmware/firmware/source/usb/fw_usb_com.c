@@ -49,21 +49,21 @@ void tick_com_request()
 {
 	if (com_request==1)
 	{
-		if (com_requestbuffer[0]=='R') // 'R' read data (com_requestbuffer[5]: 1 => external flash, 2 => EEPROM)
+		if (com_requestbuffer[0]=='R') // 'R' read data (com_requestbuffer[1]: 1 => external flash, 2 => EEPROM)
 		{
-			uint16_t address=com_requestbuffer[1]*256+com_requestbuffer[2];
-			uint16_t length=com_requestbuffer[3]*256+com_requestbuffer[4];
+			uint32_t address=(com_requestbuffer[2]<<24)+(com_requestbuffer[3]<<16)+(com_requestbuffer[4]<<8)+(com_requestbuffer[5]<<0);
+			uint32_t length=(com_requestbuffer[6]<<8)+(com_requestbuffer[7]<<0);
 			if (length>32)
 			{
 				length=32;
 			}
 
 			bool result;
-			if (com_requestbuffer[5]==1)
+			if (com_requestbuffer[1]==1)
 			{
 				result = SPI_Flash_read(address, &s_ComBuf[3], length);
 			}
-			else if (com_requestbuffer[5]==2)
+			else if (com_requestbuffer[1]==2)
 			{
 				result = EEPROM_Read(address, &s_ComBuf[3], length);
 			}
