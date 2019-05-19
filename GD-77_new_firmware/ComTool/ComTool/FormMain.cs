@@ -357,7 +357,7 @@ namespace ComTool
             data_mode = 0;
         }
 
-        private bool check_data_fields()
+        private bool check_data_fields(bool check_length)
         {
             if (!int.TryParse(textBoxDataStart.Text, System.Globalization.NumberStyles.HexNumber, null, out data_start))
             {
@@ -365,10 +365,13 @@ namespace ComTool
                 return false;
             }
 
-            if (!int.TryParse(textBoxDataLength.Text, System.Globalization.NumberStyles.HexNumber, null, out data_length))
+            if (check_length)
             {
-                MessageBox.Show("ERROR: Please check 'length'.");
-                return false;
+                if (!int.TryParse(textBoxDataLength.Text, System.Globalization.NumberStyles.HexNumber, null, out data_length))
+                {
+                    MessageBox.Show("ERROR: Please check 'length'.");
+                    return false;
+                }
             }
 
             return true;
@@ -376,7 +379,7 @@ namespace ComTool
 
         private void buttonReadFlash_Click(object sender, EventArgs e)
         {
-            if (check_data_fields())
+            if (check_data_fields(true))
             {
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
@@ -392,7 +395,7 @@ namespace ComTool
 
         private void buttonReadEEPROM_Click(object sender, EventArgs e)
         {
-            if (check_data_fields())
+            if (check_data_fields(true))
             {
                 if (saveFileDialog.ShowDialog() == DialogResult.OK)
                 {
@@ -408,7 +411,7 @@ namespace ComTool
 
         private void buttonWriteFlash_Click(object sender, EventArgs e)
         {
-            if (check_data_fields())
+            if (check_data_fields(false))
             {
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
@@ -418,6 +421,7 @@ namespace ComTool
                         openFileDialog.InitialDirectory = Path.GetDirectoryName(openFileDialog.FileName);
                         fileStream = openFileDialog.OpenFile();
                         data_pos = data_start;
+                        data_length = (int)fileStream.Length;
                         data_mode = 3;
                         old_progress = 0;
                         SetLog("write started");
@@ -428,7 +432,7 @@ namespace ComTool
 
         private void buttonWriteEEPROM_Click(object sender, EventArgs e)
         {
-            if (check_data_fields())
+            if (check_data_fields(false))
             {
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
@@ -438,6 +442,7 @@ namespace ComTool
                         openFileDialog.InitialDirectory = Path.GetDirectoryName(openFileDialog.FileName);
                         fileStream = openFileDialog.OpenFile();
                         data_pos = data_start;
+                        data_length = (int)fileStream.Length;
                         data_mode = 4;
                         old_progress = 0;
                         SetLog("write started");
