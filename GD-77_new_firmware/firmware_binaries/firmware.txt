@@ -75,3 +75,4 @@ V0.0.1d:
 - Integrated new EEPROM library written by Roger Clark VK3KYY / G4KYF.
 - Firmware support for external flash and EEPROM read/write.
 - ComTool support for external flash and EEPROM read/write.
+- Integrated DMRID lookup stuff written by Roger Clark VK3KYY / G4KYF.
