@@ -51,6 +51,7 @@ namespace ComTool
         int data_length = 0;
         int data_pos = 0;
         int data_mode = 0;
+        int data_sector = 0;
         Stream fileStream;
         int old_progress = 0;
 
@@ -143,6 +144,61 @@ namespace ComTool
                     writer.Flush();
                 }
             }));
+        }
+
+        bool prepare_sector(int address, ref byte[] sendbuffer, ref byte[] readbuffer)
+        {
+            data_sector = address / 4096;
+
+            sendbuffer[0] = (byte)'W';
+            sendbuffer[1] = 1;
+            sendbuffer[2] = (byte)((data_sector >> 16) & 0xFF);
+            sendbuffer[3] = (byte)((data_sector >> 8) & 0xFF);
+            sendbuffer[4] = (byte)((data_sector >> 0) & 0xFF);
+            port.Write(sendbuffer, 0, 5);
+            while (port.BytesToRead == 0)
+            {
+                Thread.Sleep(0);
+            }
+            port.Read(readbuffer, 0, 64);
+
+            return ((readbuffer[0] == sendbuffer[0]) && (readbuffer[1] == sendbuffer[1]));
+        }
+
+        bool send_data(int address, int len, ref byte[] sendbuffer, ref byte[] readbuffer)
+        {
+            sendbuffer[0] = (byte)'W';
+            sendbuffer[1] = 2;
+            sendbuffer[2] = (byte)((address >> 24) & 0xFF);
+            sendbuffer[3] = (byte)((address >> 16) & 0xFF);
+            sendbuffer[4] = (byte)((address >> 8) & 0xFF);
+            sendbuffer[5] = (byte)((address >> 0) & 0xFF);
+            sendbuffer[6] = (byte)((len >> 8) & 0xFF);
+            sendbuffer[7] = (byte)((len >> 0) & 0xFF);
+            port.Write(sendbuffer, 0, len + 8);
+            while (port.BytesToRead == 0)
+            {
+                Thread.Sleep(0);
+            }
+            port.Read(readbuffer, 0, 64);
+
+            return ((readbuffer[0] == sendbuffer[0]) && (readbuffer[1] == sendbuffer[1]));
+        }
+
+        bool write_sector(ref byte[] sendbuffer, ref byte[] readbuffer)
+        {
+            data_sector = -1;
+
+            sendbuffer[0] = (byte)'W';
+            sendbuffer[1] = 3;
+            port.Write(sendbuffer, 0, 2);
+            while (port.BytesToRead == 0)
+            {
+                Thread.Sleep(0);
+            }
+            port.Read(readbuffer, 0, 64);
+
+            return ((readbuffer[0] == sendbuffer[0]) && (readbuffer[1] == sendbuffer[1]));
         }
 
         void worker_DoWork(object sender, DoWorkEventArgs e)
@@ -244,7 +300,80 @@ namespace ComTool
                             close_data_mode();
                         }
                     }
-                    else if ((data_mode == 3) || (data_mode == 4))
+                    else if (data_mode == 3)
+                    {
+                        int size = (data_start + data_length) - data_pos;
+                        if (size > 0)
+                        {
+                            if (size > 32)
+                            {
+                                size = 32;
+                            }
+
+                            if (data_sector == -1)
+                            {
+                                if (!prepare_sector(data_pos, ref sendbuffer, ref readbuffer))
+                                {
+                                    SetLog(String.Format("write stopped (prepare sector error at {0:X8})", data_pos));
+                                    close_data_mode();
+                                };
+                            }
+
+                            if (data_mode != 0)
+                            {
+                                int len = 0;
+                                for (int i = 0; i < size; i++)
+                                {
+                                    sendbuffer[i + 8] = (byte)fileStream.ReadByte();
+                                    len++;
+
+                                    if (data_sector != ((data_pos + len) / 4096))
+                                    {
+                                        break;
+                                    }
+                                }
+
+                                if (send_data(data_pos, len, ref sendbuffer, ref readbuffer))
+                                {
+                                    int progress = (data_pos - data_start) * 100 / data_length;
+                                    if (old_progress != progress)
+                                    {
+                                        SetLog(String.Format("{0}%", progress));
+                                        old_progress = progress;
+                                    }
+
+                                    data_pos = data_pos + len;
+
+                                    if (data_sector != (data_pos / 4096))
+                                    {
+                                        if (!write_sector(ref sendbuffer, ref readbuffer))
+                                        {
+                                            SetLog(String.Format("write stopped (write sector error at {0:X8})", data_pos));
+                                            close_data_mode();
+                                        };
+                                    }
+                                }
+                                else
+                                {
+                                    SetLog(String.Format("write stopped (send data error at {0:X8})", data_pos));
+                                    close_data_mode();
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (data_sector != -1)
+                            {
+                                if (!write_sector(ref sendbuffer, ref readbuffer))
+                                {
+                                    SetLog(String.Format("write stopped (write sector error at {0:X8})", data_pos));
+                                };
+                            }
+                            SetLog("write finished");
+                            close_data_mode();
+                        }
+                    }
+                    else if (data_mode == 4)
                     {
                         sendbuffer[0] = (byte)'W';
                         sendbuffer[1] = (byte)data_mode;
@@ -423,6 +552,7 @@ namespace ComTool
                         data_pos = data_start;
                         data_length = (int)fileStream.Length;
                         data_mode = 3;
+                        data_sector = -1;
                         old_progress = 0;
                         SetLog("write started");
                     }

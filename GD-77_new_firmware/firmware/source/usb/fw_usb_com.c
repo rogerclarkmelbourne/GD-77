@@ -45,6 +45,9 @@ int com_request = 0;
 uint8_t com_requestbuffer[COM_REQUESTBUFFER_SIZE];
 USB_DMA_NONINIT_DATA_ALIGN(USB_DATA_ALIGN_SIZE) static uint8_t s_ComBuf[DATA_BUFF_SIZE];
 
+static uint8_t sectorbuffer[4096];
+int sector = -1;
+
 void tick_com_request()
 {
 	if (com_request==1)
@@ -83,9 +86,69 @@ void tick_com_request()
 		}
 		else if (com_requestbuffer[0]=='W')
 		{
-			s_ComBuf[0] = com_requestbuffer[0];
-			s_ComBuf[1] = com_requestbuffer[1];
-			USB_DeviceCdcAcmSend(s_cdcVcom.cdcAcmHandle, USB_CDC_VCOM_BULK_IN_ENDPOINT, s_ComBuf, 2);
+			bool ok=false;
+			if (com_requestbuffer[1]==1)
+			{
+				if (sector==-1)
+				{
+					sector=(com_requestbuffer[2]<<16)+(com_requestbuffer[3]<<8)+(com_requestbuffer[4]<<0);
+					ok = SPI_Flash_read(sector*4096,sectorbuffer,4096);
+				}
+			}
+			else if (com_requestbuffer[1]==2)
+			{
+				if (sector>=0)
+				{
+					uint32_t address=(com_requestbuffer[2]<<24)+(com_requestbuffer[3]<<16)+(com_requestbuffer[4]<<8)+(com_requestbuffer[5]<<0);
+					uint32_t length=(com_requestbuffer[6]<<8)+(com_requestbuffer[7]<<0);
+					if (length>32)
+					{
+						length=32;
+					}
+
+					for (int i=0;i<length;i++)
+					{
+						if (sector==(address+i)/4096)
+						{
+							sectorbuffer[(address+i) % 4096]=com_requestbuffer[i+8];
+						}
+					}
+
+					ok=true;
+				}
+			}
+			else if (com_requestbuffer[1]==3)
+			{
+				if (sector>=0)
+				{
+					ok = SPI_Flash_eraseSector(sector*4096);
+					if (ok)
+					{
+						for (int i=0;i<16;i++)
+						{
+							ok = SPI_Flash_writePage(sector*4096+i*256,sectorbuffer+i*256);
+							if (!ok)
+							{
+								break;
+							}
+						}
+					}
+					sector=-1;
+				}
+			}
+
+			if (ok)
+			{
+				s_ComBuf[0] = com_requestbuffer[0];
+				s_ComBuf[1] = com_requestbuffer[1];
+				USB_DeviceCdcAcmSend(s_cdcVcom.cdcAcmHandle, USB_CDC_VCOM_BULK_IN_ENDPOINT, s_ComBuf, 2);
+			}
+			else
+			{
+				sector=-1;
+				s_ComBuf[0] = '-';
+				USB_DeviceCdcAcmSend(s_cdcVcom.cdcAcmHandle, USB_CDC_VCOM_BULK_IN_ENDPOINT, s_ComBuf, 1);
+			}
 		}
 		else
 		{
