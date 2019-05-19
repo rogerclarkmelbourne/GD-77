@@ -98,14 +98,94 @@ void update_flags()
 	}
 }
 
+typedef struct dmrIdData
+{
+	int id;
+	char text[16];
+} dmrIdRecord;
+
+int int2bcd(int i)
+{
+    int result = 0;
+    int shift = 0;
+
+    while (i)
+    {
+        result +=  (i % 10) << shift;
+        i = i / 10;
+        shift += 4;
+    }
+    return result;
+}
+
+bool dmrIDLookup( int targetId,dmrIdRecord *foundRecord)
+{
+	uint32_t l = 0;
+	uint32_t numRecords;
+	uint32_t r;
+	uint32_t m;
+
+	uint32_t recordLenth;//15+4;
+	uint8_t headerBuf[32];
+
+	targetId=int2bcd(targetId);
+
+	SPI_Flash_read(0x30000,headerBuf,0x0c);
+
+	if (headerBuf[0] != 'I' || headerBuf[1] != 'D' || headerBuf[2] != '-')
+	{
+		return false;
+	}
+
+	numRecords = (uint32_t) headerBuf[8] | (uint32_t) headerBuf[9] << 8 | (uint32_t)headerBuf[10] <<16 | (uint32_t)headerBuf[11] << 24 ;
+
+	recordLenth = (uint32_t) headerBuf[3] - 0x4a;
+
+	r = numRecords - 1;
+
+	while (l <= r)
+	{
+		m = (l + r) >> 1;
+
+		SPI_Flash_read(0x3000c + recordLenth*m,(uint8_t *)foundRecord,recordLenth);
+
+		if (foundRecord->id < targetId)
+		{
+			l = m + 1;
+		}
+		else
+		{
+			if (foundRecord->id >targetId)
+			{
+				r = m - 1;
+			}
+			else
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 void update_qsodata()
 {
 	if (qsodata_timer>0)
 	{
 		char buffer[32];
+		dmrIdRecord currentRec;
+
 		sprintf(buffer,"TG %d", last_TG);
 		UC1701_printCentered(5, buffer);
-		sprintf(buffer,"DMRID %d", last_DMRID);
+		if (!dmrIDLookup(last_DMRID,&currentRec))
+		{
+			sprintf(buffer,"DMRID %d", last_DMRID);
+		}
+		else
+		{
+			sprintf(buffer,"%s", currentRec.text);
+		}
 		UC1701_printCentered(6, buffer);
 	}
 	else
