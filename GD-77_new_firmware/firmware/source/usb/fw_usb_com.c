@@ -136,6 +136,18 @@ void tick_com_request()
 					sector=-1;
 				}
 			}
+			else if (com_requestbuffer[1]==4)
+			{
+				uint32_t address=(com_requestbuffer[2]<<24)+(com_requestbuffer[3]<<16)+(com_requestbuffer[4]<<8)+(com_requestbuffer[5]<<0);
+				uint32_t length=(com_requestbuffer[6]<<8)+(com_requestbuffer[7]<<0);
+				if (length>32)
+				{
+					length=32;
+				}
+
+				ok = EEPROM_Write(address, com_requestbuffer+8, length);
+			    vTaskDelay(portTICK_PERIOD_MS * 5);
+			}
 
 			if (ok)
 			{

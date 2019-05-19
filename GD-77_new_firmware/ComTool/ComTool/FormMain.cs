@@ -375,23 +375,67 @@ namespace ComTool
                     }
                     else if (data_mode == 4)
                     {
-                        sendbuffer[0] = (byte)'W';
-                        sendbuffer[1] = (byte)data_mode;
-                        port.Write(sendbuffer, 0, 2);
-                        while (port.BytesToRead == 0)
+                        int size = (data_start + data_length) - data_pos;
+                        if (size > 0)
                         {
-                            Thread.Sleep(0);
-                        }
-                        port.Read(readbuffer, 0, 64);
+                            if (size > 32)
+                            {
+                                size = 32;
+                            }
 
-                        if (readbuffer[0] == 'W')
-                        {
-                            SetLog("write " + readbuffer[1].ToString());
-                            close_data_mode();
+                            if (data_sector == -1)
+                            {
+                                data_sector = data_pos / 128;
+                            }
+
+                            int len = 0;
+                            for (int i = 0; i < size; i++)
+                            {
+                                sendbuffer[i + 8] = (byte)fileStream.ReadByte();
+                                len++;
+
+                                if (data_sector != ((data_pos + len) / 128))
+                                {
+                                    data_sector = -1;
+                                    break;
+                                }
+                            }
+
+                            sendbuffer[0] = (byte)'W';
+                            sendbuffer[1] = 4;
+                            sendbuffer[2] = (byte)((data_pos >> 24) & 0xFF);
+                            sendbuffer[3] = (byte)((data_pos >> 16) & 0xFF);
+                            sendbuffer[4] = (byte)((data_pos >> 8) & 0xFF);
+                            sendbuffer[5] = (byte)((data_pos >> 0) & 0xFF);
+                            sendbuffer[6] = (byte)((len >> 8) & 0xFF);
+                            sendbuffer[7] = (byte)((len >> 0) & 0xFF);
+                            port.Write(sendbuffer, 0, len + 8);
+                            while (port.BytesToRead == 0)
+                            {
+                                Thread.Sleep(0);
+                            }
+                            port.Read(readbuffer, 0, 64);
+
+                            if ((readbuffer[0] == sendbuffer[0]) && (readbuffer[1] == sendbuffer[1]))
+                            {
+                                int progress = (data_pos - data_start) * 100 / data_length;
+                                if (old_progress != progress)
+                                {
+                                    SetLog(String.Format("{0}%", progress));
+                                    old_progress = progress;
+                                }
+
+                                data_pos = data_pos + len;
+                            }
+                            else
+                            {
+                                SetLog(String.Format("write stopped (send data error at {0:X8})", data_pos));
+                                close_data_mode();
+                            }
                         }
                         else
                         {
-                            SetLog("write error");
+                            SetLog("write finished");
                             close_data_mode();
                         }
                     }
@@ -574,6 +618,7 @@ namespace ComTool
                         data_pos = data_start;
                         data_length = (int)fileStream.Length;
                         data_mode = 4;
+                        data_sector = -1;
                         old_progress = 0;
                         SetLog("write started");
                     }
