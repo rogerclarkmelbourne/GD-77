@@ -51,6 +51,12 @@
 #ifndef __UC1701_H__
 #define __UC1701_H__
 
+#define UC1701_COMMAND 0
+#define UC1701_DATA    1
+
+// Send a command or data to the display...
+void UC1701_transfer(uint8_t mode, int data1);
+
 // Display initialization (dimensions in pixels)...
 void UC1701_begin();
 
@@ -84,9 +90,5 @@ void UC1701_drawBitmap(const uint8_t *data, uint8_t columns, uint8_t lines);
 
 // Draw a chart element at the current cursor position...
 void UC1701_drawColumn(uint8_t lines, uint8_t value);
-
-// Send a command or data to the display...
-void UC1701_Transfer_command(int data1);
-void UC1701_Transfer_data(int data1);
 
 #endif /* __UC1701_H__ */
