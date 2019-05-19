@@ -134,7 +134,7 @@ void I2C_AT1846S_init()
 
 void I2C_AT1846_Postinit()
 {
-	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x58, 0xBC, 0xED); // Filters custom setting
+	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x58, 0xBC, 0xFD); // Filters custom setting
 	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x0A, 0x7B, 0xA0); // AGC Table
 	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x41, 0x47, 0x31); // Digital voice gain, (bits 6:0) however default value is supposed to be 0x4006 hence some bits are being set outside the documented range
 	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x44, 0x05, 0xFF); // Rx and tx gain controls
