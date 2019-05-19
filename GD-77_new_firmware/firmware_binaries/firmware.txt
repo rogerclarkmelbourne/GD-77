@@ -73,3 +73,5 @@ V0.0.1d:
 - Added TG and DMRID display.
 - Integrated new SPI flash library written by Roger Clark VK3KYY / G4KYF.
 - Integrated new EEPROM library written by Roger Clark VK3KYY / G4KYF.
+- Firmware support for external flash and EEPROM read/write.
+- ComTool support for external flash and EEPROM read/write.
