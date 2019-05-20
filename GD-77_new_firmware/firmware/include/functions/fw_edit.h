@@ -47,6 +47,9 @@
 #define FREQ_STEP 125
 #define FREQ_COUNT 4
 
+#define STORAGE_BASE_ADDRESS 0xFF00
+#define STORAGE_MAGIC_NUMBER 0x4711
+
 extern int current_mode;
 extern int current_frequency[FREQ_COUNT];
 extern int current_frequency_idx;
@@ -60,6 +63,10 @@ void update_frequency(int tmp_frequency);
 void update_flags();
 void update_qsodata();
 void update_screen();
+void save_value(int idx, int value);
+int load_value(int idx);
+void save_settings();
+void load_settings();
 void init_edit();
 void tick_edit();
 

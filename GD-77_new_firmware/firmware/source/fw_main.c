@@ -195,6 +195,7 @@ void fw_main_task()
 
     	if ((GPIO_PinRead(GPIO_Power_Switch, Pin_Power_Switch)!=0) && (!Shutdown))
     	{
+    		save_settings();
     		reset_splashscreen();
     		reset_menu();
     		show_poweroff();

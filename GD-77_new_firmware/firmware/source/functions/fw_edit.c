@@ -222,14 +222,59 @@ void update_screen()
 	Display_light_Touched = true;
 }
 
-void init_edit()
+void save_value(int idx, int value)
 {
-	current_mode = MODE_DIGITAL;
+	int tmp_value=load_value(idx);
+	if (tmp_value!=value)
+	{
+		EEPROM_Write(STORAGE_BASE_ADDRESS+idx*sizeof(int), (uint8_t*)&value, sizeof(int));
+	    vTaskDelay(portTICK_PERIOD_MS * 5);
+	}
+}
+
+int load_value(int idx)
+{
+	int tmp_value=0;
+	EEPROM_Read(STORAGE_BASE_ADDRESS+idx*sizeof(int), (uint8_t*)&tmp_value, sizeof(int));
+	return tmp_value;
+}
+
+void save_settings()
+{
+	save_value(0, STORAGE_MAGIC_NUMBER);
+	save_value(1, current_mode);
+	save_value(2, current_frequency_idx);
 	for (int i=0;i<FREQ_COUNT;i++)
 	{
-		current_frequency[i] = VHF_MIN;
+		save_value(3+i, current_frequency[i]);
 	}
-	current_frequency_idx=0;
+}
+
+void load_settings()
+{
+	if (load_value(0)==STORAGE_MAGIC_NUMBER)
+	{
+		current_mode = load_value(1);
+		current_frequency_idx = load_value(2);
+		for (int i=0;i<FREQ_COUNT;i++)
+		{
+			current_frequency[i] = load_value(3+i);
+		}
+	}
+	else
+	{
+		current_mode = MODE_DIGITAL;
+		for (int i=0;i<FREQ_COUNT;i++)
+		{
+			current_frequency[i] = VHF_MIN;
+		}
+		current_frequency_idx=0;
+	}
+}
+
+void init_edit()
+{
+	load_settings();
 
 	trx_set_mode_band_freq_and_others();
 
