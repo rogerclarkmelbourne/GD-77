@@ -57,7 +57,7 @@ void trx_check_analog_squelch()
 
 void trx_set_mode_band_freq_and_others()
 {
-	uint32_t f = current_frequency*1.6f;
+	uint32_t f = current_frequency[current_frequency_idx]*1.6f;
 	uint8_t fl_l = (f & 0x000000ff) >> 0;
 	uint8_t fl_h = (f & 0x0000ff00) >> 8;
 	uint8_t fh_l = (f & 0x00ff0000) >> 16;

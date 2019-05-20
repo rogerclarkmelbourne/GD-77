@@ -27,7 +27,8 @@
 #include "fw_edit.h"
 
 int current_mode = 0;
-int current_frequency = 0;
+int current_frequency[FREQ_COUNT];
+int current_frequency_idx;
 
 char freq_enter_digits[7] = { '-', '-', '-', '-', '-', '-', '-' };
 int freq_enter_idx = 0;
@@ -62,17 +63,17 @@ bool check_frequency(int tmp_frequency)
 
 bool check_frequency_is_VHF()
 {
-	return ((current_frequency>=VHF_MIN) && (current_frequency<=VHF_MAX));
+	return ((current_frequency[current_frequency_idx]>=VHF_MIN) && (current_frequency[current_frequency_idx]<=VHF_MAX));
 }
 
 bool check_frequency_is_UHF()
 {
-	return ((current_frequency>=UHF_MIN) && (current_frequency<=UHF_MAX));
+	return ((current_frequency[current_frequency_idx]>=UHF_MIN) && (current_frequency[current_frequency_idx]<=UHF_MAX));
 }
 
 void update_frequency(int tmp_frequency)
 {
-	current_frequency=tmp_frequency;
+	current_frequency[current_frequency_idx]=tmp_frequency;
 	trx_set_mode_band_freq_and_others();
 }
 
@@ -209,13 +210,13 @@ void update_screen()
 	char buffer[32];
 	if (freq_enter_idx==0)
 	{
-		int val_before_dp = current_frequency/10000;
-		int val_after_dp = current_frequency - val_before_dp*10000;
-		sprintf(buffer,"%d.%04d MHz", val_before_dp, val_after_dp);
+		int val_before_dp = current_frequency[current_frequency_idx]/10000;
+		int val_after_dp = current_frequency[current_frequency_idx] - val_before_dp*10000;
+		sprintf(buffer,"#%d %d.%04d MHz", current_frequency_idx+1, val_before_dp, val_after_dp);
 	}
 	else
 	{
-		sprintf(buffer,"%c%c%c.%c%c%c%c MHz", freq_enter_digits[0], freq_enter_digits[1], freq_enter_digits[2], freq_enter_digits[3], freq_enter_digits[4], freq_enter_digits[5], freq_enter_digits[6] );
+		sprintf(buffer,"#%d %c%c%c.%c%c%c%c MHz", current_frequency_idx+1, freq_enter_digits[0], freq_enter_digits[1], freq_enter_digits[2], freq_enter_digits[3], freq_enter_digits[4], freq_enter_digits[5], freq_enter_digits[6] );
 	}
 	UC1701_printCentered(3, buffer);
 	Display_light_Touched = true;
@@ -224,7 +225,11 @@ void update_screen()
 void init_edit()
 {
 	current_mode = MODE_DIGITAL;
-	current_frequency = VHF_MIN;
+	for (int i=0;i<FREQ_COUNT;i++)
+	{
+		current_frequency[i] = VHF_MIN;
+	}
+	current_frequency_idx=0;
 
 	trx_set_mode_band_freq_and_others();
 
@@ -235,7 +240,25 @@ void tick_edit()
 {
 	if (freq_enter_idx==0)
 	{
-		if ((keys & KEY_STAR)!=0)
+		if ((keys & KEY_RIGHT)!=0)
+		{
+			current_frequency_idx++;
+			if (current_frequency_idx>FREQ_COUNT-1)
+			{
+				current_frequency_idx=0;
+			}
+			trx_set_mode_band_freq_and_others();
+		}
+		else if ((keys & KEY_LEFT)!=0)
+		{
+			current_frequency_idx--;
+			if (current_frequency_idx<0)
+			{
+				current_frequency_idx=FREQ_COUNT-1;
+			}
+			trx_set_mode_band_freq_and_others();
+		}
+		else if ((keys & KEY_STAR)!=0)
 		{
 			if (current_mode == MODE_ANALOG)
 			{
@@ -249,7 +272,7 @@ void tick_edit()
 		}
 		else if ((keys & KEY_DOWN)!=0)
 		{
-			int tmp_frequency=current_frequency-FREQ_STEP;
+			int tmp_frequency=current_frequency[current_frequency_idx]-FREQ_STEP;
 			if (check_frequency(tmp_frequency))
 			{
 				update_frequency(tmp_frequency);
@@ -261,7 +284,7 @@ void tick_edit()
 		}
 		else if ((keys & KEY_UP)!=0)
 		{
-			int tmp_frequency=current_frequency+FREQ_STEP;
+			int tmp_frequency=current_frequency[current_frequency_idx]+FREQ_STEP;
 			if (check_frequency(tmp_frequency))
 			{
 				update_frequency(tmp_frequency);

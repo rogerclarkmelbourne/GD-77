@@ -45,9 +45,11 @@
 #define UHF_MAX 4499999
 
 #define FREQ_STEP 125
+#define FREQ_COUNT 4
 
 extern int current_mode;
-extern int current_frequency;
+extern int current_frequency[FREQ_COUNT];
+extern int current_frequency_idx;
 
 void reset_freq_enter_digits();
 int read_freq_enter_digits();
