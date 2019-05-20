@@ -76,3 +76,8 @@ V0.0.1d:
 - Firmware support for external flash and EEPROM read/write.
 - ComTool support for external flash and EEPROM read/write.
 - Integrated DMRID lookup stuff written by Roger Clark VK3KYY / G4KYF.
+
+V0.0.1e:
+- Optimized filter setting to improve DMR sensitivity.
+- Simplified frequency system.
+- Store multiple frequencies as array, use right/left to cycle them.
