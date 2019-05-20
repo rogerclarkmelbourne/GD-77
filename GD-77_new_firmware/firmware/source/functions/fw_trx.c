@@ -90,12 +90,12 @@ void trx_set_mode_band_freq_and_others()
 		init_sound();
 		init_digital();
 	}
-	if (current_band == BAND_VHF)
+	if (check_frequency_is_VHF())
 	{
 		GPIO_PinWrite(GPIO_VHF_RX_amp_power, Pin_VHF_RX_amp_power, 1);
 		GPIO_PinWrite(GPIO_UHF_RX_amp_power, Pin_UHF_RX_amp_power, 0);
 	}
-	else if (current_band == BAND_UHF)
+	else if (check_frequency_is_UHF())
 	{
 		GPIO_PinWrite(GPIO_VHF_RX_amp_power, Pin_VHF_RX_amp_power, 0);
 		GPIO_PinWrite(GPIO_UHF_RX_amp_power, Pin_UHF_RX_amp_power, 1);

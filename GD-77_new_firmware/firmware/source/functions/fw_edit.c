@@ -27,9 +27,6 @@
 #include "fw_edit.h"
 
 int current_mode = 0;
-int current_band = 0;
-int current_VHF_frequency = 0;
-int current_UHF_frequency = 0;
 int current_frequency = 0;
 
 char freq_enter_digits[7] = { '-', '-', '-', '-', '-', '-', '-' };
@@ -58,23 +55,24 @@ int read_freq_enter_digits()
 	return result;
 }
 
-bool check_frequency(int tmp_band, int tmp_frequency)
+bool check_frequency(int tmp_frequency)
 {
-	return ((tmp_band == BAND_VHF) && (tmp_frequency>=VHF_MIN) && (tmp_frequency<=VHF_MAX)) || ((tmp_band == BAND_UHF) && (tmp_frequency>=UHF_MIN) && (tmp_frequency<=UHF_MAX));
+	return ((tmp_frequency>=VHF_MIN) && (tmp_frequency<=VHF_MAX)) || ((tmp_frequency>=UHF_MIN) && (tmp_frequency<=UHF_MAX));
 }
 
-void update_band_and_frequency(int tmp_band, int tmp_frequency)
+bool check_frequency_is_VHF()
 {
-	current_band=tmp_band;
+	return ((current_frequency>=VHF_MIN) && (current_frequency<=VHF_MAX));
+}
+
+bool check_frequency_is_UHF()
+{
+	return ((current_frequency>=UHF_MIN) && (current_frequency<=UHF_MAX));
+}
+
+void update_frequency(int tmp_frequency)
+{
 	current_frequency=tmp_frequency;
-	if (current_band == BAND_VHF)
-	{
-		current_VHF_frequency=current_frequency;
-	}
-	else if (current_band == BAND_UHF)
-	{
-		current_UHF_frequency=current_frequency;
-	}
 	trx_set_mode_band_freq_and_others();
 }
 
@@ -226,9 +224,6 @@ void update_screen()
 void init_edit()
 {
 	current_mode = MODE_DIGITAL;
-	current_band = BAND_VHF;
-	current_VHF_frequency = VHF_MIN;
-	current_UHF_frequency = UHF_MIN;
 	current_frequency = VHF_MIN;
 
 	trx_set_mode_band_freq_and_others();
@@ -240,18 +235,7 @@ void tick_edit()
 {
 	if (freq_enter_idx==0)
 	{
-		if ((keys & KEY_HASH)!=0)
-		{
-			if (current_band == BAND_VHF)
-			{
-				update_band_and_frequency(BAND_UHF, current_UHF_frequency);
-			}
-			else if (current_band == BAND_UHF)
-			{
-				update_band_and_frequency(BAND_VHF, current_VHF_frequency);
-			}
-		}
-		else if ((keys & KEY_STAR)!=0)
+		if ((keys & KEY_STAR)!=0)
 		{
 			if (current_mode == MODE_ANALOG)
 			{
@@ -266,9 +250,9 @@ void tick_edit()
 		else if ((keys & KEY_DOWN)!=0)
 		{
 			int tmp_frequency=current_frequency-FREQ_STEP;
-			if (check_frequency(current_band, tmp_frequency))
+			if (check_frequency(tmp_frequency))
 			{
-				update_band_and_frequency(current_band, tmp_frequency);
+				update_frequency(tmp_frequency);
 			}
 			else
 			{
@@ -278,9 +262,9 @@ void tick_edit()
 		else if ((keys & KEY_UP)!=0)
 		{
 			int tmp_frequency=current_frequency+FREQ_STEP;
-			if (check_frequency(current_band, tmp_frequency))
+			if (check_frequency(tmp_frequency))
 			{
-				update_band_and_frequency(current_band, tmp_frequency);
+				update_frequency(tmp_frequency);
 			}
 			else
 			{
@@ -298,18 +282,9 @@ void tick_edit()
 		else if ((keys & KEY_GREEN)!=0)
 		{
 			int tmp_frequency=read_freq_enter_digits();
-			int tmp_band=0;
-			if ((tmp_frequency>=VHF_MIN) && (tmp_frequency<=VHF_MAX))
+			if (check_frequency(tmp_frequency))
 			{
-				tmp_band=BAND_VHF;
-			}
-			else if ((tmp_frequency>=UHF_MIN) && (tmp_frequency<=UHF_MAX))
-			{
-				tmp_band=BAND_UHF;
-			}
-			if (check_frequency(tmp_band, tmp_frequency))
-			{
-				update_band_and_frequency(tmp_band, tmp_frequency);
+				update_frequency(tmp_frequency);
 				reset_freq_enter_digits();
         	    set_melody(melody_ACK_beep);
 			}
