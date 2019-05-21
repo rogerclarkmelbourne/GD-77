@@ -29,6 +29,9 @@
 static WDOG_Type *wdog_base = WDOG;
 int watchdog_refresh_tick=0;
 
+int battery_voltage = 0;
+int battery_voltage_tick = 0;
+
 void init_watchdog()
 {
     wdog_config_t config;
@@ -41,6 +44,9 @@ void init_watchdog()
     }
 
     watchdog_refresh_tick=0;
+
+	battery_voltage=get_battery_voltage();
+	battery_voltage_tick=0;
 }
 
 void tick_watchdog()
@@ -50,5 +56,17 @@ void tick_watchdog()
 	{
     	WDOG_Refresh(wdog_base);
     	watchdog_refresh_tick=0;
+	}
+
+	battery_voltage_tick++;
+	if (battery_voltage_tick==2000)
+	{
+		int tmp_battery_voltage = get_battery_voltage();
+		if (battery_voltage!=tmp_battery_voltage)
+		{
+			battery_voltage=tmp_battery_voltage;
+			update_flags();
+		}
+		battery_voltage_tick=0;
 	}
 }

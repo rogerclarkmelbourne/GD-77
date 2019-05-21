@@ -95,6 +95,11 @@ void update_flags()
 	{
 		UC1701_printAt(14*6, 0, "LOG:OFF");
 	}
+	int val_before_dp = battery_voltage/10;
+	int val_after_dp = battery_voltage-val_before_dp*10;
+	char buffer[32];
+	sprintf(buffer,"%d.%dV", val_before_dp, val_after_dp);
+	UC1701_printCentered(0, buffer);
 }
 
 typedef struct dmrIdData

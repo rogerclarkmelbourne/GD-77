@@ -29,6 +29,12 @@
 
 #include "fsl_wdog.h"
 
+#include "fw_adc.h"
+#include "fw_edit.h"
+
+extern int battery_voltage;
+extern int battery_voltage_tick;
+
 void init_watchdog();
 void tick_watchdog();
 

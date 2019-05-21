@@ -90,3 +90,9 @@ void ADC0_IRQHandler(void)
     exception return operation might vector to incorrect interrupt */
     __DSB();
 }
+
+// result of conversion is rounded voltage*10 as integer
+int get_battery_voltage()
+{
+	return adc0_dp1/41.6f+0.5f;
+}

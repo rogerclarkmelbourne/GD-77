@@ -38,5 +38,6 @@ extern uint32_t adc0_dp3;
 void trigger_adc();
 void adc_init();
 void ADC0_IRQHandler(void);
+int get_battery_voltage();
 
 #endif /* _FW_ADC_H_ */
