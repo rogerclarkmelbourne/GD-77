@@ -76,6 +76,12 @@ void reset_splashscreen()
 	SplashScreen_Timer=0;
 }
 
+void show_lowbattery()
+{
+	UC1701_clear();
+	UC1701_printCentered(4, "LOW BATTERY !!!");
+}
+
 void fw_main_task()
 {
     USB_DeviceApplicationInit();
@@ -137,6 +143,13 @@ void fw_main_task()
 	HR_C6000_datalogging=false;
 
 	trx_measure_count = 0;
+
+	if (get_battery_voltage()<CUTOFF_VOLTAGE_UPPER_HYST)
+	{
+		show_lowbattery();
+		GPIO_PinWrite(GPIO_Keep_Power_On, Pin_Keep_Power_On, 0);
+		while(1U) {};
+	}
 
 	init_watchdog();
 
@@ -200,18 +213,25 @@ void fw_main_task()
     		tick_menu();
     	}
 
-    	if ((GPIO_PinRead(GPIO_Power_Switch, Pin_Power_Switch)!=0) && (!Shutdown))
+    	if (((GPIO_PinRead(GPIO_Power_Switch, Pin_Power_Switch)!=0) || (battery_voltage<CUTOFF_VOLTAGE_LOWER_HYST)) && (!Shutdown))
     	{
     		save_settings();
     		reset_splashscreen();
     		reset_menu();
-    		show_poweroff();
+    		if (battery_voltage<CUTOFF_VOLTAGE_LOWER_HYST)
+    		{
+    			show_lowbattery();
+    		}
+    		else
+    		{
+        		show_poweroff();
+    		}
 		    GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 0);
 		    set_melody(NULL);
     		Shutdown=true;
 			Shutdown_Timer = 2000;
     	}
-    	else if ((GPIO_PinRead(GPIO_Power_Switch, Pin_Power_Switch)==0) && (Shutdown))
+    	else if ((GPIO_PinRead(GPIO_Power_Switch, Pin_Power_Switch)==0) && (battery_voltage>CUTOFF_VOLTAGE_LOWER_HYST) && (Shutdown))
     	{
 			update_screen();
 			Shutdown=false;

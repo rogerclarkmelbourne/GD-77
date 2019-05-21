@@ -29,6 +29,9 @@
 
 #include "fsl_adc16.h"
 
+#define CUTOFF_VOLTAGE_UPPER_HYST 64
+#define CUTOFF_VOLTAGE_LOWER_HYST 62
+
 extern uint32_t adc_channel;
 extern uint32_t adc0_dp0;
 extern uint32_t adc0_dp1;

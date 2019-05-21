@@ -69,6 +69,7 @@ extern int Shutdown_Timer;
 void show_splashscreen();
 void show_poweroff();
 void reset_splashscreen();
+void show_lowbattery();
 
 void fw_init();
 void fw_main_task();
