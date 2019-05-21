@@ -24,52 +24,12 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _FW_MAIN_H_
-#define _FW_MAIN_H_
+#ifndef _FW_WDOG_H_
+#define _FW_WDOG_H_
 
-#include <stdint.h>
-#include <stdio.h>
+#include "fsl_wdog.h"
 
-#include "FreeRTOS.h"
-#include "task.h"
+void init_watchdog();
+void tick_watchdog();
 
-#include "virtual_com.h"
-#include "fw_usb_com.h"
-
-#include "fw_common.h"
-#include "fw_buttons.h"
-#include "fw_LEDs.h"
-#include "fw_keyboard.h"
-#include "fw_display.h"
-
-#include "UC1701.h"
-
-#include "fw_i2c.h"
-#include "fw_spi.h"
-#include "fw_i2s.h"
-#include "fw_AT1846S.h"
-#include "fw_HR-C6000.h"
-#include "fw_wdog.h"
-
-#include "fw_sound.h"
-#include "fw_menu.h"
-#include "fw_edit.h"
-#include "fw_trx.h"
-#include "fw_SPI_Flash.h"
-#include "fw_EEPROM.h"
-
-extern int Display_light_Timer;
-extern bool Display_light_Touched;
-extern bool Show_SplashScreen;
-extern int SplashScreen_Timer;
-extern bool Shutdown;
-extern int Shutdown_Timer;
-
-void show_splashscreen();
-void show_poweroff();
-void reset_splashscreen();
-
-void fw_init();
-void fw_main_task();
-
-#endif /* _FW_MAIN_H_ */
+#endif /* _FW_WDOG_H_ */

@@ -135,6 +135,8 @@ void fw_main_task()
 
 	trx_measure_count = 0;
 
+	init_watchdog();
+
 #if defined(USE_SEGGER_RTT)
     SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_NO_BLOCK_TRIM);
     SEGGER_RTT_printf(0,"Segger RTT initialised\n");
@@ -142,6 +144,8 @@ void fw_main_task()
 
     while (1U)
     {
+    	tick_watchdog();
+
     	tick_com_request();
 
     	if (current_mode==MODE_DIGITAL)
