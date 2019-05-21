@@ -24,53 +24,69 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _FW_MAIN_H_
-#define _FW_MAIN_H_
-
-#include <stdint.h>
-#include <stdio.h>
-
-#include "FreeRTOS.h"
-#include "task.h"
-
-#include "virtual_com.h"
-#include "fw_usb_com.h"
-
-#include "fw_common.h"
-#include "fw_buttons.h"
-#include "fw_LEDs.h"
-#include "fw_keyboard.h"
-#include "fw_display.h"
-
-#include "UC1701.h"
-
-#include "fw_i2c.h"
-#include "fw_spi.h"
-#include "fw_i2s.h"
-#include "fw_AT1846S.h"
-#include "fw_HR-C6000.h"
-#include "fw_wdog.h"
 #include "fw_adc.h"
 
-#include "fw_sound.h"
-#include "fw_menu.h"
-#include "fw_edit.h"
-#include "fw_trx.h"
-#include "fw_SPI_Flash.h"
-#include "fw_EEPROM.h"
+uint32_t adc_channel;
+uint32_t adc0_dp0;
+uint32_t adc0_dp1;
+uint32_t adc0_dp2;
+uint32_t adc0_dp3;
 
-extern int Display_light_Timer;
-extern bool Display_light_Touched;
-extern bool Show_SplashScreen;
-extern int SplashScreen_Timer;
-extern bool Shutdown;
-extern int Shutdown_Timer;
+void trigger_adc()
+{
+    adc16_channel_config_t adc16ChannelConfigStruct;
 
-void show_splashscreen();
-void show_poweroff();
-void reset_splashscreen();
+    adc16ChannelConfigStruct.channelNumber = adc_channel;
+    adc16ChannelConfigStruct.enableInterruptOnConversionCompleted = true;
+    adc16ChannelConfigStruct.enableDifferentialConversion = false;
+    ADC16_SetChannelConfig(ADC0, 0, &adc16ChannelConfigStruct);
+}
 
-void fw_init();
-void fw_main_task();
+void adc_init()
+{
+	adc16_config_t adc16ConfigStruct;
 
-#endif /* _FW_MAIN_H_ */
+	adc_channel = 0;
+	adc0_dp0 = 0;
+	adc0_dp1 = 0;
+	adc0_dp2 = 0;
+	adc0_dp3 = 0;
+
+    ADC16_GetDefaultConfig(&adc16ConfigStruct);
+    ADC16_Init(ADC0, &adc16ConfigStruct);
+    ADC16_EnableHardwareTrigger(ADC0, false);
+    ADC16_DoAutoCalibration(ADC0);
+
+    EnableIRQ(ADC0_IRQn);
+
+    trigger_adc();
+}
+
+void ADC0_IRQHandler(void)
+{
+    uint32_t result = ADC16_GetChannelConversionValue(ADC0, 0);
+
+    switch (adc_channel)
+    {
+    case 0: adc0_dp0 = result;
+    		break;
+    case 1: adc0_dp1 = result;
+    		break;
+    case 2: adc0_dp2 = result;
+    		break;
+    case 3: adc0_dp3 = result;
+    		break;
+    }
+
+    adc_channel++;
+    if (adc_channel>3)
+    {
+    	adc_channel=0;
+    }
+
+    trigger_adc();
+
+    /* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
+    exception return operation might vector to incorrect interrupt */
+    __DSB();
+}
