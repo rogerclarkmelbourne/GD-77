@@ -82,3 +82,9 @@ V0.0.1e:
 - Simplified frequency system.
 - Store multiple frequencies as array, use right/left to cycle them.
 - Load settings from EEPROM at startup, save settings to EEPROM at shutdown.
+
+V0.0.1f:
+- Added watchdog.
+- Added ADC support.
+- Added battery monitoring.
+- Block startup when low battery, go into safe pre-shutdown mode when running and low battery.
