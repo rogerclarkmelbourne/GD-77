@@ -188,7 +188,9 @@ volatile bool g_TX_SAI_in_use = false;
 
 void init_sound()
 {
+	taskENTER_CRITICAL();
     g_TX_SAI_in_use = false;
+	taskEXIT_CRITICAL();
     SAI_TxSoftwareReset(I2S0, kSAI_ResetAll);
 	SAI_TxEnable(I2S0, true);
 	wavbuffer_read_idx = 0;
