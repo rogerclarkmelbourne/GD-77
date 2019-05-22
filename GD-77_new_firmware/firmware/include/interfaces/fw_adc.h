@@ -27,16 +27,19 @@
 #ifndef _FW_ADC_H_
 #define _FW_ADC_H_
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 #include "fsl_adc16.h"
 
 #define CUTOFF_VOLTAGE_UPPER_HYST 64
 #define CUTOFF_VOLTAGE_LOWER_HYST 62
 
-extern uint32_t adc_channel;
-extern uint32_t adc0_dp0;
-extern uint32_t adc0_dp1;
-extern uint32_t adc0_dp2;
-extern uint32_t adc0_dp3;
+extern volatile uint32_t adc_channel;
+extern volatile uint32_t adc0_dp0;
+extern volatile uint32_t adc0_dp1;
+extern volatile uint32_t adc0_dp2;
+extern volatile uint32_t adc0_dp3;
 
 void trigger_adc();
 void adc_init();

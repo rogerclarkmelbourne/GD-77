@@ -26,11 +26,11 @@
 
 #include "fw_adc.h"
 
-uint32_t adc_channel;
-uint32_t adc0_dp0;
-uint32_t adc0_dp1;
-uint32_t adc0_dp2;
-uint32_t adc0_dp3;
+volatile uint32_t adc_channel;
+volatile uint32_t adc0_dp0;
+volatile uint32_t adc0_dp1;
+volatile uint32_t adc0_dp2;
+volatile uint32_t adc0_dp3;
 
 void trigger_adc()
 {
@@ -46,11 +46,13 @@ void adc_init()
 {
 	adc16_config_t adc16ConfigStruct;
 
+	taskENTER_CRITICAL();
 	adc_channel = 0;
 	adc0_dp0 = 0;
 	adc0_dp1 = 0;
 	adc0_dp2 = 0;
 	adc0_dp3 = 0;
+	taskEXIT_CRITICAL();
 
     ADC16_GetDefaultConfig(&adc16ConfigStruct);
     ADC16_Init(ADC0, &adc16ConfigStruct);
@@ -94,5 +96,8 @@ void ADC0_IRQHandler(void)
 // result of conversion is rounded voltage*10 as integer
 int get_battery_voltage()
 {
-	return adc0_dp1/41.6f+0.5f;
+	taskENTER_CRITICAL();
+	int tmp_voltage = adc0_dp1/41.6f+0.5f;
+	taskEXIT_CRITICAL();
+	return tmp_voltage;
 }
