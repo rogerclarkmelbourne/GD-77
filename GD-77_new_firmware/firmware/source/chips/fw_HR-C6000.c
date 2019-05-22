@@ -30,8 +30,8 @@
 #include <SeggerRTT/RTT/SEGGER_RTT.h>
 #endif
 
-bool int_sys;
-bool int_ts;
+volatile bool int_sys;
+volatile bool int_ts;
 
 int slot_state;
 int tick_cnt;
@@ -295,8 +295,10 @@ void init_HR_C6000_interrupts()
 
 void init_digital_state()
 {
+	taskENTER_CRITICAL();
 	int_sys=false;
 	int_ts=false;
+	taskEXIT_CRITICAL();
 	slot_state=0;
 	tick_cnt=0;
 	skip_count=0;

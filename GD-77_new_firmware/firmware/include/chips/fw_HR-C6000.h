@@ -63,8 +63,8 @@
 #define GPIO_INT_C6000_PWD   GPIOE
 #define Pin_INT_C6000_PWD    1
 
-extern bool int_sys;
-extern bool int_ts;
+extern volatile bool int_sys;
+extern volatile bool int_ts;
 
 extern int slot_state;
 extern int tick_cnt;
