@@ -36,20 +36,22 @@ uint8_t tmp_ram[256];
 uint8_t tmp_ram1[256];
 uint8_t tmp_ram2[256];
 
-uint8_t com_buffer[COM_BUFFER_SIZE];
+volatile uint8_t com_buffer[COM_BUFFER_SIZE];
 int com_buffer_write_idx = 0;
 int com_buffer_read_idx = 0;
-int com_buffer_cnt = 0;
+volatile int com_buffer_cnt = 0;
 
-int com_request = 0;
+volatile int com_request = 0;
 uint8_t com_requestbuffer[COM_REQUESTBUFFER_SIZE];
 USB_DMA_NONINIT_DATA_ALIGN(USB_DATA_ALIGN_SIZE) static uint8_t s_ComBuf[DATA_BUFF_SIZE];
+extern usb_cdc_vcom_struct_t s_cdcVcom;
 
 static uint8_t sectorbuffer[4096];
 int sector = -1;
 
 void tick_com_request()
 {
+	taskENTER_CRITICAL();
 	if (com_request==1)
 	{
 		if (com_requestbuffer[0]=='R') // 'R' read data (com_requestbuffer[1]: 1 => external flash, 2 => EEPROM)
@@ -64,11 +66,15 @@ void tick_com_request()
 			bool result;
 			if (com_requestbuffer[1]==1)
 			{
+				taskEXIT_CRITICAL();
 				result = SPI_Flash_read(address, &s_ComBuf[3], length);
+				taskENTER_CRITICAL();
 			}
 			else if (com_requestbuffer[1]==2)
 			{
+				taskEXIT_CRITICAL();
 				result = EEPROM_Read(address, &s_ComBuf[3], length);
+				taskENTER_CRITICAL();
 			}
 
 			if (result)
@@ -92,7 +98,9 @@ void tick_com_request()
 				if (sector==-1)
 				{
 					sector=(com_requestbuffer[2]<<16)+(com_requestbuffer[3]<<8)+(com_requestbuffer[4]<<0);
+					taskEXIT_CRITICAL();
 					ok = SPI_Flash_read(sector*4096,sectorbuffer,4096);
+					taskENTER_CRITICAL();
 				}
 			}
 			else if (com_requestbuffer[1]==2)
@@ -121,12 +129,16 @@ void tick_com_request()
 			{
 				if (sector>=0)
 				{
+					taskEXIT_CRITICAL();
 					ok = SPI_Flash_eraseSector(sector*4096);
+					taskENTER_CRITICAL();
 					if (ok)
 					{
 						for (int i=0;i<16;i++)
 						{
+							taskEXIT_CRITICAL();
 							ok = SPI_Flash_writePage(sector*4096+i*256,sectorbuffer+i*256);
+							taskENTER_CRITICAL();
 							if (!ok)
 							{
 								break;
@@ -145,7 +157,9 @@ void tick_com_request()
 					length=32;
 				}
 
+				taskEXIT_CRITICAL();
 				ok = EEPROM_Write(address, com_requestbuffer+8, length);
+				taskENTER_CRITICAL();
 			    vTaskDelay(portTICK_PERIOD_MS * 5);
 			}
 
@@ -169,13 +183,14 @@ void tick_com_request()
 		}
 		com_request=0;
 	}
+	taskEXIT_CRITICAL();
 }
 
 void send_packet(uint8_t val_0x82, uint8_t val_0x86, int ram)
 {
+	taskENTER_CRITICAL();
 	if ((HR_C6000_datalogging) && ((com_buffer_cnt+8+(ram+1))<=COM_BUFFER_SIZE))
 	{
-		taskENTER_CRITICAL();
 		add_to_commbuffer((com_buffer_cnt >> 8) & 0xff);
 		add_to_commbuffer((com_buffer_cnt >> 0) & 0xff);
 		add_to_commbuffer(val_0x82);
@@ -188,15 +203,15 @@ void send_packet(uint8_t val_0x82, uint8_t val_0x86, int ram)
 		{
 			add_to_commbuffer(tmp_ram[i]);
 		}
-		taskEXIT_CRITICAL();
 	}
+	taskEXIT_CRITICAL();
 }
 
 void send_packet_big(uint8_t val_0x82, uint8_t val_0x86, int ram1, int ram2)
 {
+	taskENTER_CRITICAL();
 	if ((HR_C6000_datalogging) && ((com_buffer_cnt+8+(ram1+1)+(ram2+1))<=COM_BUFFER_SIZE))
 	{
-		taskENTER_CRITICAL();
 		add_to_commbuffer((com_buffer_cnt >> 8) & 0xff);
 		add_to_commbuffer((com_buffer_cnt >> 0) & 0xff);
 		add_to_commbuffer(val_0x82);
@@ -213,8 +228,8 @@ void send_packet_big(uint8_t val_0x82, uint8_t val_0x86, int ram1, int ram2)
 		{
 			add_to_commbuffer(tmp_ram2[i]);
 		}
-		taskEXIT_CRITICAL();
 	}
+	taskEXIT_CRITICAL();
 }
 
 void add_to_commbuffer(uint8_t value)

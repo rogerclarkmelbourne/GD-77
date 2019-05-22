@@ -49,19 +49,17 @@ extern uint8_t tmp_ram[256];
 extern uint8_t tmp_ram1[256];
 extern uint8_t tmp_ram2[256];
 
-extern uint8_t com_buffer[COM_BUFFER_SIZE];
+extern volatile uint8_t com_buffer[COM_BUFFER_SIZE];
 extern int com_buffer_write_idx;
 extern int com_buffer_read_idx;
-extern int com_buffer_cnt;
+extern volatile int com_buffer_cnt;
 
-extern int com_request;
+extern volatile int com_request;
 extern uint8_t com_requestbuffer[COM_REQUESTBUFFER_SIZE];
-extern usb_cdc_vcom_struct_t s_cdcVcom;
 
 void tick_com_request();
 void send_packet(uint8_t val_0x82, uint8_t val_0x86, int ram);
 void send_packet_big(uint8_t val_0x82, uint8_t val_0x86, int ram1, int ram2);
-
 void add_to_commbuffer(uint8_t value);
 
 #endif /* _FW_USB_COM_H_ */
