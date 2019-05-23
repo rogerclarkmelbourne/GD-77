@@ -24,55 +24,54 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _FW_MAIN_H_
-#define _FW_MAIN_H_
-
-#include <stdint.h>
-#include <stdio.h>
-
-#include "FreeRTOS.h"
-#include "task.h"
-
-#include "virtual_com.h"
-#include "fw_usb_com.h"
-
-#include "fw_common.h"
-#include "fw_buttons.h"
-#include "fw_LEDs.h"
-#include "fw_keyboard.h"
-#include "fw_display.h"
-
-#include "UC1701.h"
-
-#include "fw_i2c.h"
-#include "fw_spi.h"
-#include "fw_i2s.h"
-#include "fw_AT1846S.h"
-#include "fw_HR-C6000.h"
-#include "fw_wdog.h"
-#include "fw_adc.h"
 #include "fw_pit.h"
 
-#include "fw_sound.h"
-#include "fw_menu.h"
-#include "fw_edit.h"
-#include "fw_trx.h"
-#include "fw_SPI_Flash.h"
-#include "fw_EEPROM.h"
+volatile uint32_t timer_maintask;
+volatile uint32_t timer_beeptask;
+volatile uint32_t timer_hrc6000task;
+volatile uint32_t timer_watchdogtask;
 
-extern int Display_light_Timer;
-extern bool Display_light_Touched;
-extern bool Show_SplashScreen;
-extern int SplashScreen_Timer;
-extern bool Shutdown;
-extern int Shutdown_Timer;
+void init_pit()
+{
+	taskENTER_CRITICAL();
+	timer_maintask=0;
+	timer_beeptask=0;
+	timer_hrc6000task=0;
+	timer_watchdogtask=0;
+	taskEXIT_CRITICAL();
 
-void show_splashscreen();
-void show_poweroff();
-void reset_splashscreen();
-void show_lowbattery();
+	pit_config_t pitConfig;
+	PIT_GetDefaultConfig(&pitConfig);
+	PIT_Init(PIT, &pitConfig);
 
-void fw_init();
-void fw_main_task();
+	PIT_SetTimerPeriod(PIT, kPIT_Chnl_0, USEC_TO_COUNT(100U, CLOCK_GetFreq(kCLOCK_BusClk)));
+	PIT_EnableInterrupts(PIT, kPIT_Chnl_0, kPIT_TimerInterruptEnable);
 
-#endif /* _FW_MAIN_H_ */
+	EnableIRQ(PIT0_IRQn);
+
+    PIT_StartTimer(PIT, kPIT_Chnl_0);
+}
+
+void PIT0_IRQHandler(void)
+{
+	if (timer_maintask>0)
+	{
+		timer_maintask--;
+	}
+	if (timer_beeptask>0)
+	{
+		timer_beeptask--;
+	}
+	if (timer_hrc6000task>0)
+	{
+		timer_hrc6000task--;
+	}
+	if (timer_watchdogtask>0)
+	{
+		timer_watchdogtask--;
+	}
+
+    /* Clear interrupt flag.*/
+    PIT_ClearStatusFlags(PIT, kPIT_Chnl_0, kPIT_TimerFlag);
+    __DSB();
+}

@@ -129,6 +129,8 @@ void fw_main_task()
     // Small startup delay after initialization to stabilize system
     vTaskDelay(portTICK_PERIOD_MS * 500);
 
+	init_pit();
+
     fw_init_beep_task();
 
     set_melody(melody_poweron);
