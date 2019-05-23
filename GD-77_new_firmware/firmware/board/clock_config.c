@@ -354,7 +354,7 @@ const sim_clock_config_t simConfig_BOARD_BootClockHSRUN = {
     .clkdiv1 = 0x1340000U,                    /* SIM_CLKDIV1 - OUTDIV1: /1, OUTDIV2: /2, OUTDIV3: /4, OUTDIV4: /5 */
 };
 const osc_config_t oscConfig_BOARD_BootClockHSRUN = {
-    .freq = 8000000U,                 /* Oscillator frequency: 8000000Hz */
+    .freq = BOARD_XTAL0_CLK_HZ,                 /* Oscillator frequency: 8000000Hz */
     .capLoad = (OSC_CAP0P),           /* Oscillator capacity load: 0pF */
     .workMode = kOSC_ModeOscLowPower, /* Oscillator low power */
     .oscerConfig = {
