@@ -35,6 +35,10 @@
 
 #include "fw_edit.h"
 
+extern const uint8_t sine_beep[];
+extern volatile int sine_beep_freq;
+extern volatile int sine_beep_duration;
+
 extern int melody_generic[512];
 extern int melody_poweron[];
 extern int melody_key_beep[];
