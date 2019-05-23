@@ -195,7 +195,9 @@ void init_sound()
 	SAI_TxEnable(I2S0, true);
 	wavbuffer_read_idx = 0;
 	wavbuffer_write_idx = 0;
+	taskENTER_CRITICAL();
 	wavbuffer_count = 0;
+	taskEXIT_CRITICAL();
 }
 
 void terminate_sound()
@@ -211,10 +213,12 @@ void store_soundbuffer()
 
 	if (tmp_wavbuffer_count<WAV_BUFFER_COUNT)
 	{
+		taskENTER_CRITICAL();
 		for (int wav_idx=0;wav_idx<WAV_BUFFER_SIZE;wav_idx++)
 		{
 			wavbuffer[wavbuffer_write_idx][wav_idx]=tmp_wavbuffer[wav_idx];
 		}
+		taskEXIT_CRITICAL();
 		wavbuffer_write_idx++;
 		if (wavbuffer_write_idx>=WAV_BUFFER_COUNT)
 		{
