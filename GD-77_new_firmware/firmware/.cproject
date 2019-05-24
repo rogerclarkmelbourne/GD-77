@@ -98,7 +98,6 @@
 									<listOptionValue builtIn="false" value="../drivers"/>
 									<listOptionValue builtIn="false" value="../device"/>
 									<listOptionValue builtIn="false" value="../CMSIS"/>
-									<listOptionValue builtIn="false" value="../drivers/freertos"/>
 									<listOptionValue builtIn="false" value="../usb/device/class"/>
 									<listOptionValue builtIn="false" value="../usb/device/source"/>
 									<listOptionValue builtIn="false" value="../usb/device/include"/>
@@ -161,7 +160,6 @@
 									<listOptionValue builtIn="false" value="../drivers"/>
 									<listOptionValue builtIn="false" value="../device"/>
 									<listOptionValue builtIn="false" value="../CMSIS"/>
-									<listOptionValue builtIn="false" value="../drivers/freertos"/>
 									<listOptionValue builtIn="false" value="../usb/device/class"/>
 									<listOptionValue builtIn="false" value="../usb/device/source"/>
 									<listOptionValue builtIn="false" value="../usb/device/include"/>
@@ -401,7 +399,6 @@
 									<listOptionValue builtIn="false" value="../drivers"/>
 									<listOptionValue builtIn="false" value="../device"/>
 									<listOptionValue builtIn="false" value="../CMSIS"/>
-									<listOptionValue builtIn="false" value="../drivers/freertos"/>
 									<listOptionValue builtIn="false" value="../usb/device/class"/>
 									<listOptionValue builtIn="false" value="../usb/device/source"/>
 									<listOptionValue builtIn="false" value="../usb/device/include"/>
@@ -462,7 +459,6 @@
 									<listOptionValue builtIn="false" value="../drivers"/>
 									<listOptionValue builtIn="false" value="../device"/>
 									<listOptionValue builtIn="false" value="../CMSIS"/>
-									<listOptionValue builtIn="false" value="../drivers/freertos"/>
 									<listOptionValue builtIn="false" value="../usb/device/class"/>
 									<listOptionValue builtIn="false" value="../usb/device/source"/>
 									<listOptionValue builtIn="false" value="../usb/device/include"/>
