@@ -86,3 +86,9 @@ V0.0.1e:
 - Added ADC support.
 - Added battery monitoring.
 - Block startup when low battery, go into safe pre-shutdown mode when running and low battery.
+- Improved critical sections.
+- Changed clock settings to reflect the GD-77 external oscillators frequency of 12,288 MHz resulting in the MCU having a 122,88 MHz system clock.
+- Added a periodic interrupt timer (PIT) with a tick rate of 100us and some counters to get used by the tasks.
+- I2C/SPI is now blocking and threadsafe.
+- Don't interfere when sound is playing.
+- Don't show flags while startup or shutdown.
