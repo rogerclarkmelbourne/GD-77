@@ -180,7 +180,7 @@ usb_status_t USB_DeviceCdcVcomCallback(class_handle_t handle, uint32_t event, vo
 					{
 						if (com_request==0)
 						{
-							memcpy(com_requestbuffer,s_currRecvBuf,COM_REQUESTBUFFER_SIZE);
+							memcpy((uint8_t*)com_requestbuffer,s_currRecvBuf,COM_REQUESTBUFFER_SIZE);
 							com_request=1;
 						}
 						else

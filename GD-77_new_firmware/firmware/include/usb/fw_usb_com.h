@@ -55,7 +55,7 @@ extern int com_buffer_read_idx;
 extern volatile int com_buffer_cnt;
 
 extern volatile int com_request;
-extern uint8_t com_requestbuffer[COM_REQUESTBUFFER_SIZE];
+extern volatile uint8_t com_requestbuffer[COM_REQUESTBUFFER_SIZE];
 
 void tick_com_request();
 void send_packet(uint8_t val_0x82, uint8_t val_0x86, int ram);

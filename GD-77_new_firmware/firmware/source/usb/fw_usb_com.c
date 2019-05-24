@@ -42,9 +42,8 @@ int com_buffer_read_idx = 0;
 volatile int com_buffer_cnt = 0;
 
 volatile int com_request = 0;
-uint8_t com_requestbuffer[COM_REQUESTBUFFER_SIZE];
+volatile uint8_t com_requestbuffer[COM_REQUESTBUFFER_SIZE];
 USB_DMA_NONINIT_DATA_ALIGN(USB_DATA_ALIGN_SIZE) static uint8_t s_ComBuf[DATA_BUFF_SIZE];
-extern usb_cdc_vcom_struct_t s_cdcVcom;
 
 static uint8_t sectorbuffer[4096];
 int sector = -1;
@@ -158,7 +157,7 @@ void tick_com_request()
 				}
 
 				taskEXIT_CRITICAL();
-				ok = EEPROM_Write(address, com_requestbuffer+8, length);
+				ok = EEPROM_Write(address, (uint8_t*)com_requestbuffer+8, length);
 				taskENTER_CRITICAL();
 			    vTaskDelay(portTICK_PERIOD_MS * 5);
 			}

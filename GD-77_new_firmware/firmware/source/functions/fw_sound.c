@@ -41,8 +41,8 @@ int melody_orange_beep[] = { 440, 100, 494, 100, 440, 100, 494, 100, -1, -1 };
 int melody_ACK_beep[] = { 466, 200, 494, 200, -1, -1 };
 int melody_NACK_beep[] = { 494, 200, 466, 200, -1, -1 };
 int melody_ERROR_beep[] = { 440, 50, 0, 50, 440, 50, 0, 50, 440, 50, -1, -1 };
-int *melody_play = NULL;
-int melody_idx = 0;
+volatile int *melody_play = NULL;
+volatile int melody_idx = 0;
 
 const uint8_t melody1[] = { 21, 4, 21, 2, 26, 10, 26, 2, 26, 4, 26, 2, 26, 6, 21, 6, 18, 4, 19, 2, 21, 10, 18, 2, 16, 4, 19, 2, 18, 6, 0, 6, 18, 4, 18, 2, 26, 10, 26, 2, 26, 4, 25, 2, 25, 6, 23, 6, 25, 4, 26, 2, 28, 10, 25, 2, 25, 4, 23, 2, 21, 6, 0, 6, 21, 4, 21, 2, 26, 10, 26, 2, 26, 4, 26, 2, 26, 6, 23, 6, 23, 4, 23, 2, 28, 10, 28, 2, 28, 4, 23, 2, 25, 6, 0, 6, 21, 4, 21, 2, 30, 10, 30, 2, 30, 4, 30, 2, 30, 6, 28, 6, 26, 4, 23, 2, 21, 10, 22, 2, 23, 4, 19, 2, 18, 6, 0, 6, 21, 4, 21, 2, 30, 10, 30, 2, 30, 4, 30, 2, 33, 6, 31, 6, 23, 4, 22, 2, 21, 10, 26, 2, 28, 4, 26, 2, 26, 12, 0, 0 };
 const uint8_t melody2[] = { 21, 4, 26, 6, 18, 2, 21, 4, 26, 4, 28, 4, 30, 4, 26, 4, 26, 4, 25, 6, 23, 2, 21, 4, 20, 4, 23, 4, 21, 3, 0, 5, 21, 4, 26, 6, 18, 2, 21, 4, 26, 4, 28, 4, 30, 4, 26, 4, 26, 4, 25, 6, 23, 2, 21, 4, 20, 4, 23, 4, 21, 3, 0, 5, 21, 4, 28, 6, 25, 2, 26, 4, 23, 4, 21, 6, 19, 2, 18, 4, 21, 4, 28, 6, 25, 2, 26, 4, 23, 4, 21, 6, 19, 2, 18, 4, 21, 2, 26, 2, 30, 6, 26, 2, 21, 4, 18, 4, 16, 4, 16, 4, 23, 4, 23, 4, 21, 6, 26, 2, 30, 6, 28, 2, 28, 8, 26, 4, 25, 3, 23, 1, 21, 4, 28, 3, 30, 1, 26, 4, 25, 3, 23, 1, 21, 4, 28, 3, 30, 1, 26, 4, 23, 4, 21, 4, 26, 4, 30, 6, 28, 2, 28, 8, 26, 3, 0, 0 };
@@ -54,9 +54,9 @@ void set_melody(int *melody)
 	taskENTER_CRITICAL();
 	sine_beep_freq=0;
 	sine_beep_duration=0;
-	taskEXIT_CRITICAL();
 	melody_play=melody;
 	melody_idx=0;
+	taskEXIT_CRITICAL();
 }
 
 int get_freq(int tone)
@@ -316,6 +316,7 @@ void tick_soundbuffer()
 
 void tick_melody()
 {
+	taskENTER_CRITICAL();
 	if (melody_play!=NULL)
 	{
 		if (sine_beep_duration==0)
@@ -339,14 +340,13 @@ void tick_melody()
 					    GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 0);
 					}
 				}
-				taskENTER_CRITICAL();
 				sine_beep_freq=melody_play[melody_idx];
 				sine_beep_duration=melody_play[melody_idx+1];
-				taskEXIT_CRITICAL();
 				melody_idx=melody_idx+2;
 			}
 		}
 	}
+	taskEXIT_CRITICAL();
 }
 
 void fw_beep_task()
