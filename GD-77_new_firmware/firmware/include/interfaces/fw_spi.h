@@ -27,8 +27,10 @@
 #ifndef _FW_SPI_H_
 #define _FW_SPI_H_
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 #include "fsl_dspi.h"
-#include "fsl_dspi_freertos.h"
 
 #include "fw_common.h"
 
@@ -39,9 +41,6 @@ extern uint8_t spi_masterReceiveBuffer_SPI0[SPI_DATA_LENGTH];
 extern uint8_t SPI_masterSendBuffer_SPI0[SPI_DATA_LENGTH];
 extern uint8_t spi_masterReceiveBuffer_SPI1[SPI_DATA_LENGTH];
 extern uint8_t SPI_masterSendBuffer_SPI1[SPI_DATA_LENGTH];
-
-extern dspi_rtos_handle_t spi_master_rtos_handle_SPI0;
-extern dspi_rtos_handle_t spi_master_rtos_handle_SPI1;
 
 // SPI1 to C6000 (V_SPI)
 // OUT/ON  B10 - SPI /V_CS to C6000
@@ -80,8 +79,8 @@ extern dspi_rtos_handle_t spi_master_rtos_handle_SPI1;
 #define Pin_SPI_DO_C6000_U   3
 
 void init_SPI();
-int setup_SPI0();
-int setup_SPI1();
+void setup_SPI0();
+void setup_SPI1();
 
 void clear_SPI_buffer_SPI0();
 int write_SPI_page_reg_byte_SPI0(uint8_t page, uint8_t reg, uint8_t val);

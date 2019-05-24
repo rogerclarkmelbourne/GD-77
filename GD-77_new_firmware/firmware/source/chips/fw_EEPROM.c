@@ -38,6 +38,7 @@ bool EEPROM_Write(int address,uint8_t *buf, int size)
     i2c_master_transfer_t masterXfer;
     status_t status;
 
+	taskENTER_CRITICAL();
     while(size > 0)
     {
 		transferSize = size>EEPROM_PAGE_SIZE?EEPROM_PAGE_SIZE:size;
@@ -53,9 +54,10 @@ bool EEPROM_Write(int address,uint8_t *buf, int size)
 		masterXfer.dataSize = COMMAND_SIZE;
 		masterXfer.flags = kI2C_TransferNoStopFlag;//kI2C_TransferDefaultFlag;
 
-		status = I2C_RTOS_Transfer(&i2c_master_rtos_handle, &masterXfer);
+		status = I2C_MasterTransferBlocking(I2C0, &masterXfer);
 		if (status != kStatus_Success)
 		{
+	    	taskEXIT_CRITICAL();
 			return false;
 		}
 
@@ -68,9 +70,10 @@ bool EEPROM_Write(int address,uint8_t *buf, int size)
 		masterXfer.dataSize = transferSize;
 		masterXfer.flags = kI2C_TransferNoStartFlag;//kI2C_TransferDefaultFlag;
 
-		status = I2C_RTOS_Transfer(&i2c_master_rtos_handle, &masterXfer);
+		status = I2C_MasterTransferBlocking(I2C0, &masterXfer);
 		if (status != kStatus_Success)
 		{
+	    	taskEXIT_CRITICAL();
 			return status;
 		}
 		address += transferSize;
@@ -80,6 +83,7 @@ bool EEPROM_Write(int address,uint8_t *buf, int size)
 		    vTaskDelay(portTICK_PERIOD_MS * 5);
 		}
     }
+	taskEXIT_CRITICAL();
 	return true;
 }
 
@@ -90,6 +94,7 @@ bool EEPROM_Read(int address,uint8_t *buf, int size)
     i2c_master_transfer_t masterXfer;
     status_t status;
 
+	taskENTER_CRITICAL();
     tmpBuf[0] = address >> 8;
     tmpBuf[1] = address & 0xff;
 
@@ -102,9 +107,10 @@ bool EEPROM_Read(int address,uint8_t *buf, int size)
     masterXfer.dataSize = COMMAND_SIZE;
     masterXfer.flags = kI2C_TransferNoStopFlag;
 
-    status = I2C_RTOS_Transfer(&i2c_master_rtos_handle, &masterXfer);
+    status = I2C_MasterTransferBlocking(I2C0, &masterXfer);
     if (status != kStatus_Success)
     {
+    	taskEXIT_CRITICAL();
     	return false;
     }
 
@@ -117,11 +123,13 @@ bool EEPROM_Read(int address,uint8_t *buf, int size)
     masterXfer.dataSize = size;
     masterXfer.flags = kI2C_TransferRepeatedStartFlag;
 
-    status = I2C_RTOS_Transfer(&i2c_master_rtos_handle, &masterXfer);
+    status = I2C_MasterTransferBlocking(I2C0, &masterXfer);
     if (status != kStatus_Success)
     {
+    	taskEXIT_CRITICAL();
     	return false;
     }
 
+	taskEXIT_CRITICAL();
 	return true;
 }

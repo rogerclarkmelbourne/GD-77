@@ -27,8 +27,10 @@
 #ifndef _FW_I2C_H_
 #define _FW_I2C_H_
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 #include "fsl_i2c.h"
-#include "fsl_i2c_freertos.h"
 
 #include "fw_common.h"
 
@@ -37,8 +39,6 @@
 
 #define I2C_DATA_LENGTH (32)  /* MAX is 256 */
 extern uint8_t i2c_master_buff[I2C_DATA_LENGTH];
-
-extern i2c_rtos_handle_t i2c_master_rtos_handle;
 
 // I2C0a to AT24C512 EEPROM & AT1846S
 // OUT/ON E24 - I2C SCL to AT24C512 EEPROM & AT1846S
@@ -62,7 +62,7 @@ extern i2c_rtos_handle_t i2c_master_rtos_handle;
 
 void init_I2C0a();
 void init_I2C0b();
-int setup_I2C0();
+void setup_I2C0();
 
 void clear_I2C_buffer();
 int write_I2C_reg_2byte(uint8_t addr, uint8_t reg, uint8_t val1, uint8_t val2);

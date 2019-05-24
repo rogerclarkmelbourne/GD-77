@@ -28,8 +28,6 @@
 
 uint8_t i2c_master_buff[I2C_DATA_LENGTH];
 
-i2c_rtos_handle_t i2c_master_rtos_handle;
-
 void init_I2C0a()
 {
     // I2C0a to AT24C512 EEPROM & AT1846S
@@ -106,10 +104,9 @@ void init_I2C0b()
     NVIC_SetPriority(I2C0_IRQn, 3);
 }
 
-int setup_I2C0()
+void setup_I2C0()
 {
     i2c_master_config_t masterConfig;
-    status_t status;
 
 	/*
 	 * masterConfig.baudRate_Bps = 100000U;
@@ -120,13 +117,7 @@ int setup_I2C0()
 	I2C_MasterGetDefaultConfig(&masterConfig);
 	masterConfig.baudRate_Bps = I2C_BAUDRATE;
 
-	status = I2C_RTOS_Init(&i2c_master_rtos_handle, I2C0, &masterConfig, CLOCK_GetFreq(I2C0_CLK_SRC));
-	if (status != kStatus_Success)
-	{
-    	return status;
-    }
-
-	return kStatus_Success;
+	I2C_MasterInit(I2C0, &masterConfig, CLOCK_GetFreq(I2C0_CLK_SRC));
 }
 
 void clear_I2C_buffer()
@@ -142,6 +133,7 @@ int write_I2C_reg_2byte(uint8_t addr, uint8_t reg, uint8_t val1, uint8_t val2)
     i2c_master_transfer_t masterXfer;
     status_t status;
 
+	taskENTER_CRITICAL();
 	clear_I2C_buffer();
 	i2c_master_buff[0] = reg;
 	i2c_master_buff[1] = val1;
@@ -156,12 +148,14 @@ int write_I2C_reg_2byte(uint8_t addr, uint8_t reg, uint8_t val1, uint8_t val2)
     masterXfer.dataSize = 3;
     masterXfer.flags = kI2C_TransferDefaultFlag;
 
-    status = I2C_RTOS_Transfer(&i2c_master_rtos_handle, &masterXfer);
+    status = I2C_MasterTransferBlocking(I2C0, &masterXfer);
     if (status != kStatus_Success)
     {
+    	taskEXIT_CRITICAL();
     	return status;
     }
 
+	taskEXIT_CRITICAL();
 	return kStatus_Success;
 }
 
@@ -170,6 +164,7 @@ int read_I2C_reg_2byte(uint8_t addr, uint8_t reg, uint8_t* val1, uint8_t* val2)
     i2c_master_transfer_t masterXfer;
     status_t status;
 
+	taskENTER_CRITICAL();
 	clear_I2C_buffer();
 	i2c_master_buff[0] = reg;
 
@@ -182,9 +177,10 @@ int read_I2C_reg_2byte(uint8_t addr, uint8_t reg, uint8_t* val1, uint8_t* val2)
     masterXfer.dataSize = 1;
     masterXfer.flags = kI2C_TransferDefaultFlag;
 
-    status = I2C_RTOS_Transfer(&i2c_master_rtos_handle, &masterXfer);
+    status = I2C_MasterTransferBlocking(I2C0, &masterXfer);
     if (status != kStatus_Success)
     {
+    	taskEXIT_CRITICAL();
     	return status;
     }
 
@@ -198,15 +194,17 @@ int read_I2C_reg_2byte(uint8_t addr, uint8_t reg, uint8_t* val1, uint8_t* val2)
     masterXfer.dataSize = 2;
     masterXfer.flags = kI2C_TransferDefaultFlag;
 
-    status = I2C_RTOS_Transfer(&i2c_master_rtos_handle, &masterXfer);
+    status = I2C_MasterTransferBlocking(I2C0, &masterXfer);
     if (status != kStatus_Success)
     {
+    	taskEXIT_CRITICAL();
     	return status;
     }
 
     *val1 = i2c_master_buff[0];
     *val2 = i2c_master_buff[1];
 
+	taskEXIT_CRITICAL();
 	return kStatus_Success;
 }
 
