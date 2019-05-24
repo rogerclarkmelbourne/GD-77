@@ -166,14 +166,17 @@ void fw_main_task()
 
     	tick_com_request();
 
-    	if (current_mode==MODE_DIGITAL)
-    	{
-    		tick_HR_C6000();
-    	}
-    	else if (current_mode==MODE_ANALOG)
-    	{
-    		trx_check_analog_squelch();
-    	}
+		if (melody_play==NULL)
+		{
+	    	if (current_mode==MODE_DIGITAL)
+	    	{
+				tick_HR_C6000();
+	    	}
+	    	else if (current_mode==MODE_ANALOG)
+	    	{
+	    		trx_check_analog_squelch();
+	    	}
+		}
 
     	// Read button state and event
     	fw_check_button_event(&buttons, &button_event);
