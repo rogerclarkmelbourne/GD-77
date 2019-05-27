@@ -65,6 +65,7 @@
 
 extern volatile bool int_sys;
 extern volatile bool int_ts;
+extern volatile int int_timeout;
 
 extern int slot_state;
 extern int tick_cnt;

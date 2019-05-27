@@ -32,6 +32,7 @@
 
 volatile bool int_sys;
 volatile bool int_ts;
+volatile int int_timeout;
 
 int slot_state;
 int tick_cnt;
@@ -278,6 +279,8 @@ void PORTC_IRQHandler(void)
         PORT_ClearPinsInterruptFlags(Port_INT_C6000_TS, (1U << Pin_INT_C6000_TS));
     }
 
+    int_timeout=0;
+
     /* Add for ARM errata 838869, affects Cortex-M4, Cortex-M4F Store immediate overlapping
     exception return operation might vector to incorrect interrupt */
     __DSB();
@@ -298,6 +301,7 @@ void init_digital_state()
 	taskENTER_CRITICAL();
 	int_sys=false;
 	int_ts=false;
+	int_timeout=0;
 	taskEXIT_CRITICAL();
 	slot_state=0;
 	tick_cnt=0;
@@ -362,6 +366,27 @@ void tick_HR_C6000()
 		int_ts=false;
 	}
 	taskEXIT_CRITICAL();
+
+	if (slot_state>0)
+	{
+		if (int_timeout<200)
+		{
+			int_timeout++;
+			if (int_timeout==200)
+			{
+	            	init_digital();
+	            	slot_state=0;
+	            	int_timeout=0;
+#if defined(USE_SEGGER_RTT)
+            	SEGGER_RTT_printf(0, ">>> INTERRUPT TIMEOUT\r\n");
+#endif
+			}
+		}
+	}
+	else
+	{
+		int_timeout=0;
+	}
 
 	if (tmp_int_ts)
 	{
