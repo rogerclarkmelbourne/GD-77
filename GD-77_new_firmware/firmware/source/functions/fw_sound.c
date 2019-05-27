@@ -359,46 +359,54 @@ void fw_beep_task()
     while (1U)
     {
     	taskENTER_CRITICAL();
-		if (sine_beep_duration>0)
-		{
-			if (!beep)
-			{
-				set_clear_SPI_page_reg_byte_with_mask_SPI0(0x04, 0x06, 0xFD, 0x02); // SET
-				beep = true;
-			}
+    	uint32_t tmp_timer_beeptask=timer_beeptask;
+    	taskEXIT_CRITICAL();
+    	if (tmp_timer_beeptask==0)
+    	{
+        	taskENTER_CRITICAL();
+        	timer_beeptask=10;
 
-			read_SPI_page_reg_byte_SPI0(0x04, 0x88, &tmp_val);
-			if ( !(tmp_val & 1) )
-			{
-				uint8_t spi_sound[32];
-				for (int i=0; i<16 ;i++)
-				{
-					spi_sound[2*i+1]=sine_beep[2*beep_idx];
-					spi_sound[2*i]=sine_beep[2*beep_idx+1];
-					if (sine_beep_freq!=0)
-					{
-						beep_idx=beep_idx+(sine_beep_freq/3.915f);
-						if (beep_idx>=0x0800)
-						{
-							beep_idx=beep_idx-0x0800;
-						}
-					}
-				}
-				write_SPI_page_reg_bytearray_SPI0(0x03, 0x00, spi_sound, 0x20);
-			}
+    		if (sine_beep_duration>0)
+    		{
+    			if (!beep)
+    			{
+    				set_clear_SPI_page_reg_byte_with_mask_SPI0(0x04, 0x06, 0xFD, 0x02); // SET
+    				beep = true;
+    			}
 
-			sine_beep_duration--;
-		}
-		else
-		{
-			if (beep)
-			{
-				set_clear_SPI_page_reg_byte_with_mask_SPI0(0x04, 0x06, 0xFD, 0x00); // CLEAR
-				beep = false;
-			}
-		}
-		taskEXIT_CRITICAL();
+    			read_SPI_page_reg_byte_SPI0(0x04, 0x88, &tmp_val);
+    			if ( !(tmp_val & 1) )
+    			{
+    				uint8_t spi_sound[32];
+    				for (int i=0; i<16 ;i++)
+    				{
+    					spi_sound[2*i+1]=sine_beep[2*beep_idx];
+    					spi_sound[2*i]=sine_beep[2*beep_idx+1];
+    					if (sine_beep_freq!=0)
+    					{
+    						beep_idx=beep_idx+(sine_beep_freq/3.915f);
+    						if (beep_idx>=0x0800)
+    						{
+    							beep_idx=beep_idx-0x0800;
+    						}
+    					}
+    				}
+    				write_SPI_page_reg_bytearray_SPI0(0x03, 0x00, spi_sound, 0x20);
+    			}
 
-		vTaskDelay(portTICK_PERIOD_MS);
+    			sine_beep_duration--;
+    		}
+    		else
+    		{
+    			if (beep)
+    			{
+    				set_clear_SPI_page_reg_byte_with_mask_SPI0(0x04, 0x06, 0xFD, 0x00); // CLEAR
+    				beep = false;
+    			}
+    		}
+    		taskEXIT_CRITICAL();
+    	}
+
+		vTaskDelay(0);
     }
 }

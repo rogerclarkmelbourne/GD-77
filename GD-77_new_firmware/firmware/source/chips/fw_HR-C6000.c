@@ -375,6 +375,18 @@ void fw_hrc6000_task()
         	taskENTER_CRITICAL();
         	timer_hrc6000task=10;
         	taskEXIT_CRITICAL();
+
+    		if (melody_play==NULL)
+    		{
+    	    	if (current_mode==MODE_DIGITAL)
+    	    	{
+    				tick_HR_C6000();
+    	    	}
+    	    	else if (current_mode==MODE_ANALOG)
+    	    	{
+    	    		trx_check_analog_squelch();
+    	    	}
+    		}
     	}
 
 		vTaskDelay(0);

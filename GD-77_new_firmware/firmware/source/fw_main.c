@@ -164,161 +164,157 @@ void fw_main_task()
 
     while (1U)
     {
-    	tick_watchdog();
-
-    	tick_com_request();
-
-		if (melody_play==NULL)
-		{
-	    	if (current_mode==MODE_DIGITAL)
-	    	{
-				tick_HR_C6000();
-	    	}
-	    	else if (current_mode==MODE_ANALOG)
-	    	{
-	    		trx_check_analog_squelch();
-	    	}
-		}
-
-    	// Read button state and event
-    	fw_check_button_event(&buttons, &button_event);
-
-    	// Read keyboard state and event
-    	fw_check_key_event(&keys, &key_event);
-
-    	if (key_event==EVENT_KEY_CHANGE)
+    	taskENTER_CRITICAL();
+    	uint32_t tmp_timer_maintask=timer_maintask;
+    	taskEXIT_CRITICAL();
+    	if (tmp_timer_maintask==0)
     	{
-    		if (keys!=0)
-    		{
-        	    set_melody(melody_key_beep);
+        	taskENTER_CRITICAL();
+    		timer_maintask=10;
+        	taskEXIT_CRITICAL();
 
-        	    if (current_menu_level==-1)
-        	    {
-        	    	tick_edit();
-        	    }
-    		}
-    	}
+        	tick_com_request();
 
-    	if (button_event==EVENT_BUTTON_CHANGE)
-    	{
-    		if ((buttons & BUTTON_SK1)!=0)
-    		{
-        	    set_melody(melody_sk1_beep);
-    		}
-    		else if ((buttons & BUTTON_SK2)!=0)
-    		{
-        	    set_melody(melody_sk2_beep);
-    		}
-    		else if ((buttons & BUTTON_ORANGE)!=0)
-    		{
-        	    set_melody(melody_orange_beep);
-    		}
-    	}
+        	// Read button state and event
+        	fw_check_button_event(&buttons, &button_event);
 
-    	if (!Shutdown)
-    	{
-    		tick_menu();
-    	}
+        	// Read keyboard state and event
+        	fw_check_key_event(&keys, &key_event);
 
-    	if (((GPIO_PinRead(GPIO_Power_Switch, Pin_Power_Switch)!=0) || (battery_voltage<CUTOFF_VOLTAGE_LOWER_HYST)) && (!Shutdown))
-    	{
-    		save_settings();
-    		reset_splashscreen();
-    		reset_menu();
-    		if (battery_voltage<CUTOFF_VOLTAGE_LOWER_HYST)
-    		{
-    			show_lowbattery();
-    		}
-    		else
-    		{
-        		show_poweroff();
-    		}
-		    GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 0);
-		    set_melody(NULL);
-    		Shutdown=true;
-			Shutdown_Timer = 2000;
-    	}
-    	else if ((GPIO_PinRead(GPIO_Power_Switch, Pin_Power_Switch)==0) && (battery_voltage>CUTOFF_VOLTAGE_LOWER_HYST) && (Shutdown))
-    	{
-			update_screen();
-			Shutdown=false;
-			Shutdown_Timer = 0;
-    	}
+        	if (key_event==EVENT_KEY_CHANGE)
+        	{
+        		if (keys!=0)
+        		{
+            	    set_melody(melody_key_beep);
 
-    	if (Shutdown)
-    	{
-    		if (Shutdown_Timer>0)
+            	    if (current_menu_level==-1)
+            	    {
+            	    	tick_edit();
+            	    }
+        		}
+        	}
+
+        	if (button_event==EVENT_BUTTON_CHANGE)
+        	{
+        		if ((buttons & BUTTON_SK1)!=0)
+        		{
+            	    set_melody(melody_sk1_beep);
+        		}
+        		else if ((buttons & BUTTON_SK2)!=0)
+        		{
+            	    set_melody(melody_sk2_beep);
+        		}
+        		else if ((buttons & BUTTON_ORANGE)!=0)
+        		{
+            	    set_melody(melody_orange_beep);
+        		}
+        	}
+
+        	if (!Shutdown)
+        	{
+        		tick_menu();
+        	}
+
+        	if (((GPIO_PinRead(GPIO_Power_Switch, Pin_Power_Switch)!=0) || (battery_voltage<CUTOFF_VOLTAGE_LOWER_HYST)) && (!Shutdown))
+        	{
+        		save_settings();
+        		reset_splashscreen();
+        		reset_menu();
+        		if (battery_voltage<CUTOFF_VOLTAGE_LOWER_HYST)
+        		{
+        			show_lowbattery();
+        		}
+        		else
+        		{
+            		show_poweroff();
+        		}
+    		    GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 0);
+    		    set_melody(NULL);
+        		Shutdown=true;
+    			Shutdown_Timer = 2000;
+        	}
+        	else if ((GPIO_PinRead(GPIO_Power_Switch, Pin_Power_Switch)==0) && (battery_voltage>CUTOFF_VOLTAGE_LOWER_HYST) && (Shutdown))
+        	{
+    			update_screen();
+    			Shutdown=false;
+    			Shutdown_Timer = 0;
+        	}
+
+        	if (Shutdown)
+        	{
+        		if (Shutdown_Timer>0)
+        		{
+        			Shutdown_Timer--;
+        			if (Shutdown_Timer==0)
+        			{
+        				GPIO_PinWrite(GPIO_Keep_Power_On, Pin_Keep_Power_On, 0);
+        			}
+        		}
+        	}
+
+    		if (Show_SplashScreen)
     		{
-    			Shutdown_Timer--;
-    			if (Shutdown_Timer==0)
+    			if ((keys==KEY_1) || (keys==KEY_2) || (keys==KEY_3) || (keys==KEY_STAR))
     			{
-    				GPIO_PinWrite(GPIO_Keep_Power_On, Pin_Keep_Power_On, 0);
+    				if (keys==KEY_1)
+    				{
+    					create_song(melody1);
+    				}
+    				else if (keys==KEY_2)
+    				{
+    					create_song(melody2);
+    				}
+    				else if (keys==KEY_3)
+    				{
+    					create_song(melody3);
+    				}
+    				else if (keys==KEY_STAR)
+    				{
+    					create_song(melody4);
+    				}
+    				set_melody(melody_generic);
+    				key_event=EVENT_KEY_NONE;
+    				update_screen();
+    			}
+    			else if (key_event!=EVENT_KEY_CHANGE)
+    			{
+    				show_splashscreen();
+    				SplashScreen_Timer = 4000;
+    			}
+    			Show_SplashScreen = false;
+    		}
+
+    		if (SplashScreen_Timer>0)
+    		{
+    			SplashScreen_Timer--;
+    			if (SplashScreen_Timer==0)
+    			{
+    				update_screen();
     			}
     		}
+
+    		if (Display_light_Touched)
+    		{
+    			if (Display_light_Timer==0)
+    			{
+    				GPIO_PinWrite(GPIO_Display_Light, Pin_Display_Light, 1);
+    			}
+    			Display_light_Timer = 4000;
+    			Display_light_Touched = false;
+    		}
+
+    		if (Display_light_Timer>0)
+    		{
+    			Display_light_Timer--;
+    			if (Display_light_Timer==0)
+    			{
+    				GPIO_PinWrite(GPIO_Display_Light, Pin_Display_Light, 0);
+    			}
+    		}
+
+    		tick_melody();
     	}
 
-		if (Show_SplashScreen)
-		{
-			if ((keys==KEY_1) || (keys==KEY_2) || (keys==KEY_3) || (keys==KEY_STAR))
-			{
-				if (keys==KEY_1)
-				{
-					create_song(melody1);
-				}
-				else if (keys==KEY_2)
-				{
-					create_song(melody2);
-				}
-				else if (keys==KEY_3)
-				{
-					create_song(melody3);
-				}
-				else if (keys==KEY_STAR)
-				{
-					create_song(melody4);
-				}
-				set_melody(melody_generic);
-				key_event=EVENT_KEY_NONE;
-				update_screen();
-			}
-			else if (key_event!=EVENT_KEY_CHANGE)
-			{
-				show_splashscreen();
-				SplashScreen_Timer = 4000;
-			}
-			Show_SplashScreen = false;
-		}
-
-		if (SplashScreen_Timer>0)
-		{
-			SplashScreen_Timer--;
-			if (SplashScreen_Timer==0)
-			{
-				update_screen();
-			}
-		}
-
-		if (Display_light_Touched)
-		{
-			if (Display_light_Timer==0)
-			{
-				GPIO_PinWrite(GPIO_Display_Light, Pin_Display_Light, 1);
-			}
-			Display_light_Timer = 4000;
-			Display_light_Touched = false;
-		}
-
-		if (Display_light_Timer>0)
-		{
-			Display_light_Timer--;
-			if (Display_light_Timer==0)
-			{
-				GPIO_PinWrite(GPIO_Display_Light, Pin_Display_Light, 0);
-			}
-		}
-
-		tick_melody();
-
-		vTaskDelay(portTICK_PERIOD_MS);
+		vTaskDelay(0);
     }
 }

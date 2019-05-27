@@ -71,6 +71,8 @@ void fw_watchdog_task()
         	taskENTER_CRITICAL();
         	timer_watchdogtask=10;
         	taskEXIT_CRITICAL();
+
+        	tick_watchdog();
     	}
 
 		vTaskDelay(0);
