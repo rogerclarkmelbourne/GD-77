@@ -131,10 +131,6 @@ void fw_main_task()
 
 	init_pit();
 
-    fw_init_beep_task();
-
-    set_melody(melody_poweron);
-
 	Show_SplashScreen = true;
 
 	reset_menu();
@@ -156,6 +152,10 @@ void fw_main_task()
 	init_hrc6000_task();
 
 	init_watchdog();
+
+    fw_init_beep_task();
+
+    set_melody(melody_poweron);
 
 #if defined(USE_SEGGER_RTT)
     SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_NO_BLOCK_TRIM);
