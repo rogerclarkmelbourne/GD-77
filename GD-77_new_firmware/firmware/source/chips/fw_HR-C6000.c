@@ -343,7 +343,7 @@ void store_qsodata()
 {
 	int tmp_last_TG=(tmp_ram[3]<<16)+(tmp_ram[4]<<8)+(tmp_ram[5]<<0);
 	int tmp_last_DMRID=(tmp_ram[6]<<16)+(tmp_ram[7]<<8)+(tmp_ram[8]<<0);
-	qsodata_timer=4000;
+	qsodata_timer=2400;
 	if ((tmp_last_TG!=last_TG) || (tmp_last_DMRID!=last_DMRID))
 	{
 		last_TG=tmp_last_TG;

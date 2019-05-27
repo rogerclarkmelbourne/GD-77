@@ -231,7 +231,7 @@ void fw_main_task()
     		    GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 0);
     		    set_melody(NULL);
         		Shutdown=true;
-    			Shutdown_Timer = 2000;
+    			Shutdown_Timer = 1200;
         	}
         	else if ((GPIO_PinRead(GPIO_Power_Switch, Pin_Power_Switch)==0) && (battery_voltage>CUTOFF_VOLTAGE_LOWER_HYST) && (Shutdown))
         	{
@@ -279,7 +279,7 @@ void fw_main_task()
     			else if (key_event!=EVENT_KEY_CHANGE)
     			{
     				show_splashscreen();
-    				SplashScreen_Timer = 4000;
+    				SplashScreen_Timer = 2400;
     			}
     			Show_SplashScreen = false;
     		}
@@ -299,7 +299,7 @@ void fw_main_task()
     			{
     				GPIO_PinWrite(GPIO_Display_Light, Pin_Display_Light, 1);
     			}
-    			Display_light_Timer = 4000;
+    			Display_light_Timer = 2400;
     			Display_light_Touched = false;
     		}
 

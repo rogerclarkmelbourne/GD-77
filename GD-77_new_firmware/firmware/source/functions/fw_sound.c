@@ -33,14 +33,14 @@ volatile int sine_beep_freq;
 volatile int sine_beep_duration;
 
 int melody_generic[512];
-int melody_poweron[] = { 440, 500, 466, 500, 494, 500, -1, -1 };
-int melody_key_beep[] = { 880, 100, -1, -1 };
-int melody_sk1_beep[] = { 466, 100, 0, 100, 466, 100, -1, -1 };
-int melody_sk2_beep[] = { 494, 100, 0, 100, 494, 100, -1, -1 };
-int melody_orange_beep[] = { 440, 100, 494, 100, 440, 100, 494, 100, -1, -1 };
-int melody_ACK_beep[] = { 466, 200, 494, 200, -1, -1 };
-int melody_NACK_beep[] = { 494, 200, 466, 200, -1, -1 };
-int melody_ERROR_beep[] = { 440, 50, 0, 50, 440, 50, 0, 50, 440, 50, -1, -1 };
+int melody_poweron[] = { 440, 300, 466, 300, 494, 300, -1, -1 };
+int melody_key_beep[] = { 880, 60, -1, -1 };
+int melody_sk1_beep[] = { 466, 60, 0, 60, 466, 60, -1, -1 };
+int melody_sk2_beep[] = { 494, 60, 0, 60, 494, 60, -1, -1 };
+int melody_orange_beep[] = { 440, 60, 494, 60, 440, 60, 494, 60, -1, -1 };
+int melody_ACK_beep[] = { 466, 120, 494, 120, -1, -1 };
+int melody_NACK_beep[] = { 494, 120, 466, 120, -1, -1 };
+int melody_ERROR_beep[] = { 440, 30, 0, 30, 440, 30, 0, 30, 440, 30, -1, -1 };
 volatile int *melody_play = NULL;
 volatile int melody_idx = 0;
 
@@ -146,9 +146,9 @@ void create_song(const uint8_t *melody)
 		if (melody[2*i+1]!=0)
 		{
 			melody_generic[song_idx]=get_freq(melody[2*i]);
-			melody_generic[song_idx+1]=melody[2*i+1]*180;
+			melody_generic[song_idx+1]=melody[2*i+1]*108;
 			melody_generic[song_idx+2]=0;
-			melody_generic[song_idx+3]=melody[2*i+1]*20;
+			melody_generic[song_idx+3]=melody[2*i+1]*12;
 			song_idx=song_idx+4;
 		}
 		else
