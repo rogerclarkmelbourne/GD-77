@@ -358,6 +358,7 @@ void fw_beep_task()
 
     while (1U)
     {
+    	taskENTER_CRITICAL();
 		if (sine_beep_duration>0)
 		{
 			if (!beep)
@@ -396,6 +397,7 @@ void fw_beep_task()
 				beep = false;
 			}
 		}
+		taskEXIT_CRITICAL();
 
 		vTaskDelay(portTICK_PERIOD_MS);
     }
