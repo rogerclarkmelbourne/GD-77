@@ -153,6 +153,8 @@ void fw_main_task()
 		while(1U) {};
 	}
 
+	init_hrc6000_task();
+
 	init_watchdog();
 
 #if defined(USE_SEGGER_RTT)

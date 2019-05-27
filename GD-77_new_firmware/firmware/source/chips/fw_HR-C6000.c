@@ -30,6 +30,8 @@
 #include <SeggerRTT/RTT/SEGGER_RTT.h>
 #endif
 
+TaskHandle_t fwhrc6000TaskHandle;
+
 volatile bool int_sys;
 volatile bool int_ts;
 volatile int int_timeout;
@@ -348,6 +350,35 @@ void store_qsodata()
 		last_DMRID=tmp_last_DMRID;
 		update_screen();
 	}
+}
+
+void init_hrc6000_task()
+{
+	xTaskCreate(fw_hrc6000_task,                        /* pointer to the task */
+				"fw hrc6000 task",                      /* task name for kernel awareness debugging */
+				5000L / sizeof(portSTACK_TYPE),      /* task stack size */
+				NULL,                      			 /* optional task startup argument */
+				5U,                                  /* initial priority */
+				fwhrc6000TaskHandle					 /* optional task handle to create */
+				);
+}
+
+void fw_hrc6000_task()
+{
+    while (1U)
+    {
+    	taskENTER_CRITICAL();
+    	uint32_t tmp_timer_hrc6000task=timer_hrc6000task;
+    	taskEXIT_CRITICAL();
+    	if (tmp_timer_hrc6000task==0)
+    	{
+        	taskENTER_CRITICAL();
+        	timer_hrc6000task=10;
+        	taskEXIT_CRITICAL();
+    	}
+
+		vTaskDelay(0);
+    }
 }
 
 void tick_HR_C6000()

@@ -26,6 +26,8 @@
 
 #include "fw_wdog.h"
 
+TaskHandle_t fwwatchdogTaskHandle;
+
 static WDOG_Type *wdog_base = WDOG;
 int watchdog_refresh_tick=0;
 
@@ -47,6 +49,32 @@ void init_watchdog()
 
 	battery_voltage=get_battery_voltage();
 	battery_voltage_tick=0;
+
+	xTaskCreate(fw_watchdog_task,                        /* pointer to the task */
+				"fw watchdog task",                      /* task name for kernel awareness debugging */
+				1000L / sizeof(portSTACK_TYPE),      /* task stack size */
+				NULL,                      			 /* optional task startup argument */
+				5U,                                  /* initial priority */
+				fwwatchdogTaskHandle					 /* optional task handle to create */
+				);
+}
+
+void fw_watchdog_task()
+{
+    while (1U)
+    {
+    	taskENTER_CRITICAL();
+    	uint32_t tmp_timer_watchdogtask=timer_watchdogtask;
+    	taskEXIT_CRITICAL();
+    	if (tmp_timer_watchdogtask==0)
+    	{
+        	taskENTER_CRITICAL();
+        	timer_watchdogtask=10;
+        	taskEXIT_CRITICAL();
+    	}
+
+		vTaskDelay(0);
+    }
 }
 
 void tick_watchdog()

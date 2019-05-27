@@ -36,6 +36,7 @@ extern int battery_voltage;
 extern int battery_voltage_tick;
 
 void init_watchdog();
+void fw_watchdog_task();
 void tick_watchdog();
 
 #endif /* _FW_WDOG_H_ */
