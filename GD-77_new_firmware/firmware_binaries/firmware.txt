@@ -92,3 +92,5 @@ V0.0.1e:
 - I2C/SPI is now blocking and threadsafe.
 - Don't interfere when sound is playing.
 - Don't show flags while startup or shutdown.
+- Added critical section to remove race condition.
+- Added HR-C6000 interrupt timeout to avoid interrupt hangup due to missed packets.
