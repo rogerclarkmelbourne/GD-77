@@ -94,3 +94,5 @@ V0.0.1e:
 - Don't show flags while startup or shutdown.
 - Added critical section to remove race condition.
 - Added HR-C6000 interrupt timeout to avoid interrupt hangup due to missed packets.
+- Added new tasks for HR-C6000 and watchdog, tasks timing is controlled by the periodic interrupt timer (PIT).
+- Reorganized tasks to fit into the new PIT controlled task structure, adjusted timings.
