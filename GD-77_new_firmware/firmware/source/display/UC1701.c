@@ -1,29 +1,9 @@
 /*
- * UC7101 - Interface with UC7101 (or compatible) LCDs.
+ * Copyright (C)2019 Roger Clark, VK3KYY / G4KYF
  *
- * Copyright (c) 2014 Rustem Iskuzhin
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
-
-/*
- * Additional work for port to MK22FN512xxx12 Copyright (C)2019 Kai Ludwig, DG4KLU
+ * Development informed by work from  Rustem Iskuzhin (in 2014)
+ * and https://github.com/bitbank2/uc1701/
+ * and https://os.mbed.com/users/Anaesthetix/code/UC1701/file/7494bdca926b/
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -47,263 +27,336 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 #include "fw_display.h"
-
 #include "UC1701.h"
 #include "UC1701_charset.h"
 
-// The size of the display, in pixels...
-uint8_t UC1701_width;
-uint8_t UC1701_height;
+static uint8_t screenBuf[1024];
+int activeBufNum=0;
 
-// Current cursor position...
-uint8_t UC1701_column;
-uint8_t UC1701_line;
-
-// User-defined glyphs (below the ASCII space character)...
-const uint8_t *UC1701_custom[' '];
-
-void UC1701_transfer(uint8_t mode, int data1)
+void UC1701_setCommandMode(bool isCommand)
 {
-   GPIO_PinWrite(GPIO_Display_RS, Pin_Display_RS, mode);
-   for (int i=0; i<8; i++)
-   {
-	 GPIO_PinWrite(GPIO_Display_SCK, Pin_Display_SCK, 0);
-	 GPIO_PinWrite(GPIO_Display_SDA, Pin_Display_SDA, data1&0x80);
-	 GPIO_PinWrite(GPIO_Display_SCK, Pin_Display_SCK, 1);
-	 data1=data1<<1;
-   }
+	GPIO_PinWrite(GPIO_Display_RS, Pin_Display_RS, !isCommand);
 }
 
-void UC1701_begin()
+void UC1701_transfer(register uint8_t data1)
 {
-	UC1701_width = 128;
-	UC1701_height = 64;
-
-	UC1701_column = 0;
-	UC1701_line = 0;
-
-	GPIO_PinWrite(GPIO_Display_CS, Pin_Display_CS, 0);// Enable CS permanently
-
-    // Set the LCD parameters...
-    UC1701_transfer(UC1701_COMMAND, 0xE2); // System Reset
-    UC1701_transfer(UC1701_COMMAND, 0x2F); // Voltage Follower On
-    UC1701_transfer(UC1701_COMMAND, 0x81); // Set Electronic Volume = 15
-    UC1701_transfer(UC1701_COMMAND, 0x0E); //
-    UC1701_transfer(UC1701_COMMAND, 0xA2); // Set Bias = 1/9
-    UC1701_transfer(UC1701_COMMAND, 0xA1); // Set SEG Direction
-    UC1701_transfer(UC1701_COMMAND, 0xC0); // Set COM Direction
-    UC1701_transfer(UC1701_COMMAND, 0xA4); // Normal display
-    UC1701_clear();
-    UC1701_transfer(UC1701_COMMAND, 0xAF); // Set Display Enable
-}
-
-void UC1701_clear()
-{
-	for  (uint8_t j = 0; j < 8; j++)
+	for (register int i=0; i<8; i++)
 	{
-		UC1701_setCursor(0, j);
-		for (uint8_t i = 0; i < 132 ; i++)
+		GPIO_Display_SCK->PCOR = 1U << Pin_Display_SCK;
+
+		if ((data1&0x80) == 0U)
 		{
-			UC1701_transfer(UC1701_DATA, 0x00);
+			GPIO_Display_SDA->PCOR = 1U << Pin_Display_SDA;// Hopefully the compiler will otimise this to a value rather than using a shift
+		}
+		else
+		{
+			GPIO_Display_SDA->PSOR = 1U << Pin_Display_SDA;// Hopefully the compiler will otimise this to a value rather than using a shift
+		}
+		GPIO_Display_SCK->PSOR = 1U << Pin_Display_SCK;// Hopefully the compiler will otimise this to a value rather than using a shift
+
+		data1=data1<<1;
+	}
+}
+
+int UC1701_setPixel(int x, int y, bool color)
+{
+int i;
+
+  i = ((y >> 3) << 7) + x;
+  if (i < 0 || i > 1023)
+  {
+    return -1;// off the screen
+  }
+
+  if (color)
+  {
+	  screenBuf[i] |= (0x1 << (y & 7));
+  }
+  else
+  {
+	  screenBuf[i] &= ~(0x1 << (y & 7));
+  }
+  return 0;
+}
+
+void UC1701_render()
+{
+	uint8_t *rowPos = screenBuf;
+	for(int row=0;row<8;row++)
+	{
+		UC1701_setCommandMode(true);
+		UC1701_transfer(0xb0 | row); // set Y
+		UC1701_transfer(0x10 | 0); // set X (high MSB)
+
+// Note there are 4 pixels at the left which are no in the hardware of the LCD panel, but are in the RAM buffer of the controller
+		UC1701_transfer(0x00 | 4); // set X (low MSB).
+
+		UC1701_setCommandMode(false);
+		uint8_t data1;
+		for(int line=0;line<128;line++)
+		{
+			//UC1701_transfer(*rowPos++);
+			data1= *rowPos;
+			for (register int i=0; i<8; i++)
+			{
+				GPIO_Display_SCK->PCOR = 1U << Pin_Display_SCK;
+
+				if ((data1&0x80) == 0U)
+				{
+					GPIO_Display_SDA->PCOR = 1U << Pin_Display_SDA;// Hopefully the compiler will otimise this to a value rather than using a shift
+				}
+				else
+				{
+					GPIO_Display_SDA->PSOR = 1U << Pin_Display_SDA;// Hopefully the compiler will otimise this to a value rather than using a shift
+				}
+				GPIO_Display_SCK->PSOR = 1U << Pin_Display_SCK;// Hopefully the compiler will otimise this to a value rather than using a shift
+
+				data1=data1<<1;
+			}
+			rowPos++;
 		}
 	}
-
-	UC1701_setCursor(0, 0);
 }
 
-void UC1701_setCursor(uint8_t column, uint8_t line)
+int UC1701_printCore(int x, int y, char *szMsg, int iSize, int alignment, bool isInverted)
 {
-       int i, j;
-       column = column+4;
-       UC1701_column = column;
-       UC1701_line = line;
+int i, sLen;
+uint8_t *currentCharData;
+int charWidthPixels;
+int charHeightPixels;
+int bytesPerChar;
+int startCode;
+uint8_t *currentFont;
+uint8_t *writePos;
+uint8_t *readPos;
 
-       i=(column&0xF0)>>4;
-       j=column&0x0F;
-       UC1701_transfer(UC1701_COMMAND, 0xb0+line);
-       UC1701_transfer(UC1701_COMMAND, 0x10+i);
-       UC1701_transfer(UC1701_COMMAND, j);
-}
+    sLen = strlen(szMsg);
 
-void UC1701_printCentered(uint8_t y, char *text)
-{
-	UC1701_setCursor(66-3*strlen(text),y);
-	UC1701_print(text);
-}
+    switch(iSize)
+    {
+    	case UC1701_FONT_6X8:
+    		currentFont = (uint8_t *) font_6x8;
+    		break;
+    	case UC1701_FONT_6X8_bold:
+			currentFont = (uint8_t *) font_6x8_bold;
+    		break;
+    	case UC1701_FONT_8X8:
+    		currentFont = (uint8_t *) font_8x8;
+    		break;
+    	case UC1701_FONT_GD77_8x16:
+    		currentFont = (uint8_t *) font_gd77_8x16;
+			break;
+    	case UC1701_FONT_16x32:
+    		currentFont = (uint8_t *) font_16x32;
+			break;
 
-void UC1701_printAt(uint8_t x, uint8_t y, char *text)
-{
-	UC1701_setCursor(x,y);
-	UC1701_print(text);
-}
+    	default:
+    		return -2;// Invalid font selected
+    		break;
+    }
 
-void UC1701_print(char *text)
-{
-	int i=0;
-	while (text[i]!=0)
+    startCode   		= currentFont[2];  // get first defined character
+    charWidthPixels   	= currentFont[4];  // width in pixel of one char
+    charHeightPixels  	= currentFont[5];  // page count per char
+    bytesPerChar 		= currentFont[7];  // bytes per char
+
+    if ((charWidthPixels*sLen) + x > 128)
 	{
-		UC1701_write(text[i]);
-		i++;
+    	sLen = (128-x)/charWidthPixels;
 	}
+
+	if (sLen < 0)
+	{
+		return -1;
+	}
+
+	switch(alignment)
+	{
+		case 0:
+			// left aligned, do nothing.
+			break;
+		case 1:// Align centre
+			x = (128 - (charWidthPixels * sLen))/2;
+			break;
+		case 2:// align right
+			x = 128 - (charWidthPixels * sLen);
+			break;
+	}
+
+	for (i=0; i<sLen; i++)
+	{
+		currentCharData = (unsigned char *)&currentFont[8 + ((szMsg[i] - startCode) * bytesPerChar)];
+
+		for(int row=0;row < charHeightPixels / 8 ;row++)
+		{
+			readPos = (currentCharData + row*charWidthPixels);
+			writePos = (screenBuf + x + (i*charWidthPixels) + ((y>>3) + row)*128) ;
+
+			if ((y&0x07)==0)
+			{
+				// y position is aligned to a row
+				for(int p=0;p<charWidthPixels;p++)
+				{
+					if (isInverted)
+					{
+						*writePos++ &= ~(*readPos++);
+					}
+					else
+					{
+						*writePos++ |= *readPos++;
+					}
+				}
+			}
+			else
+			{
+				int shiftNum = y & 0x07;
+				// y position is NOT aligned to a row
+
+				for(int p=0;p<charWidthPixels;p++)
+				{
+					if (isInverted)
+					{
+						*writePos++ &= ~((*readPos++) << shiftNum);
+					}
+					else
+					{
+						*writePos++ |= ((*readPos++) << shiftNum);
+					}
+				}
+
+				readPos = (currentCharData + row*charWidthPixels);
+				writePos = (screenBuf + x + (i*charWidthPixels) + ((y>>3) + row + 1)*128) ;
+
+				for(int p=0;p<charWidthPixels;p++)
+				{
+					if (isInverted)
+					{
+						*writePos++ &= ~((*readPos++) >> (8 - shiftNum));
+					}
+					else
+					{
+						*writePos++ |= ((*readPos++) >> (8 - shiftNum));
+					}
+				}
+			}
+		}
+	}
+	return 0;
 }
 
-int UC1701_write(uint8_t chr)
+void UC1701_begin(bool isInverted)
 {
-    const uint8_t *glyph;
-    uint8_t pgm_buffer[5];
+	GPIO_PinWrite(GPIO_Display_CS, Pin_Display_CS, 0);// Enable CS permanently
+    // Set the LCD parameters...
+	UC1701_setCommandMode(true);
+	UC1701_transfer(0xE2); // System Reset
+	UC1701_transfer(0x2F); // Voltage Follower On
+	UC1701_transfer(0x81); // Set Electronic Volume = 15
+	UC1701_transfer(0x10); //
+	UC1701_transfer(0xA2); // Set Bias = 1/9
+	UC1701_transfer(0xA1); // A0 Set SEG Direction
+	UC1701_transfer(0xC0); // Set COM Direction
+	if (isInverted)
+	{
+		UC1701_transfer(0xA7); // Black background, white pixels
+	}
+	else
+	{
+		UC1701_transfer(0xA4); // White background, black pixels
+	}
 
-    // ASCII 7-bit only...
-    if (chr >= 0x80)
-    {
-        return 0;
-    }
+    UC1701_setCommandMode(true);
+    UC1701_transfer(0xAF); // Set Display Enable
+    UC1701_clearBuf();
+    UC1701_render();
 
-    if (chr == '\r')
-    {
-    	UC1701_setCursor(0, UC1701_line);
-        return 1;
-    }
-    else
-    {
-    	if (chr == '\n')
-    	{
-        	UC1701_setCursor(UC1701_column, UC1701_line + 1);
-            return 1;
-    	}
-    }
-
-    if (chr >= ' ')
-    {
-        // Regular ASCII characters are kept in flash to save RAM...
-        memcpy(pgm_buffer, &UC1701_charset[chr - ' '], sizeof(pgm_buffer));
-        glyph = pgm_buffer;
-    }
-    else
-    {
-        // Custom glyphs, on the other hand, are stored in RAM...
-        if (UC1701_custom[chr])
-        {
-            glyph = UC1701_custom[chr];
-        }
-        else
-        {
-            // Default to a space character if unset...
-            memcpy(pgm_buffer, &UC1701_charset[0], sizeof(pgm_buffer));
-            glyph = pgm_buffer;
-        }
-    }
-
-    // Output one column at a time...
-    for (uint8_t i = 0; i < 5; i++)
-    {
-    	UC1701_transfer(UC1701_DATA, glyph[i]);
-    }
-
-    // One column between characters...
-    UC1701_transfer(UC1701_DATA, 0x00);
-
-    // Update the cursor position...
-    UC1701_column = (UC1701_column + 6) % UC1701_width;
-
-    if (UC1701_column == 0)
-    {
-    	UC1701_line = (UC1701_line + 1) % (UC1701_height/9 + 1);
-    }
-
-    return 1;
 }
 
-void UC1701_createChar(uint8_t chr, const uint8_t *glyph)
+void UC1701_setContrast(uint8_t contrast)
 {
-    // ASCII 0-31 only...
-    if (chr >= ' ')
-    {
-        return;
-    }
-    
-    UC1701_custom[chr] = glyph;
+	UC1701_setCommandMode(true);
+	UC1701_transfer(0x81);              // command to set contrast
+	UC1701_transfer(contrast);          // set contrast
+	UC1701_setCommandMode(false);
 }
 
-void UC1701_clearLine()
+void UC1701_clearBuf()
 {
-	UC1701_setCursor(0, UC1701_line);
-
-    for (uint8_t i = 4; i < 132; i++)
-    {
-    	UC1701_transfer(UC1701_DATA, 0x00);
-    }
-
-    UC1701_setCursor(0, UC1701_line);
+	memset(screenBuf,0x00,1024);
 }
 
-void UC1701_home()
+void UC1701_printCentered(uint8_t y, char *text, int fontSize)
 {
-	UC1701_setCursor(0, UC1701_line);
+	UC1701_printCore(0, y, text, fontSize, 1, false);
 }
 
-void UC1701_drawBitmap(const uint8_t *data, uint8_t columns, uint8_t lines)
+void UC1701_printAt(uint8_t x, uint8_t y, char *text,int fontSize)
 {
-	uint8_t scolumn = UC1701_column;
-	uint8_t sline = UC1701_line;
-
-    // The bitmap will be clipped at the right/bottom edge of the display...
-	uint8_t mx = (scolumn + columns > UC1701_width) ? (UC1701_width - scolumn) : columns;
-	uint8_t my = (sline + lines > UC1701_height/8) ? (UC1701_height/8 - sline) : lines;
-
-    for (uint8_t y = 0; y < my; y++)
-    {
-    	UC1701_setCursor(scolumn, sline + y);
-
-        for (uint8_t x = 0; x < mx; x++)
-        {
-        	UC1701_transfer(UC1701_DATA, data[y * columns + x]);
-        }
-    }
-
-    // Leave the cursor in a consistent position...
-    UC1701_setCursor(scolumn + columns, sline);
+	UC1701_printCore(x, y, text, fontSize, 0, false);
 }
 
-void UC1701_drawColumn(uint8_t lines, uint8_t value)
+void UC1701_fillRect(int x,int y,int width,int height,bool isInverted)
 {
-	uint8_t scolumn = UC1701_column;
-	uint8_t sline = UC1701_line;
+uint8_t *addPtr;
+int endStripe 	= x+width;
+int startRow 	= y>>3;
+int endRow 		= ((y+height)>>3);
+uint8_t bitPatten;
+int shiftNum;
 
-    // Keep "value" within range...
-    if (value > lines*8)
-    {
-        value = lines*8;
-    }
+	if (startRow==endRow)
+	{
+		addPtr = screenBuf + (startRow << 7);
+		bitPatten = (0xff >> (8-(height&0x07))) << (y&0x07);
+		//bitPatten = bitPatten ;
+		for(int stripe=x;stripe < endStripe;stripe++)
+		{
+			if (isInverted)
+			{
+				*(addPtr + stripe) &= ~ bitPatten;
+			}
+			else
+			{
+				*(addPtr + stripe) |= bitPatten;
+			}
+		}
+	}
+	else
+	{
+		for(int row=startRow;row<=endRow;row++)
+		{
+			if (row==startRow)
+			{
+				shiftNum = y & 0x07;
+				bitPatten = (0xff << shiftNum);
+			}
+			else
+			{
+				if (row == endRow)
+				{
+					shiftNum = (y+height) & 0x07;
+					bitPatten = (0xff >> (8 - shiftNum));
+				}
+				else
+				{
+					// middle rows
+					bitPatten = 0xff;
+				}
+			}
+			addPtr = screenBuf + (row << 7);
+			for(int stripe=x;stripe < endStripe;stripe++)
+			{
+				if (isInverted)
+				{
+					*(addPtr + stripe) &= ~ bitPatten;
+				}
+				else
+				{
+					*(addPtr + stripe) |= bitPatten;
+				}
 
-    // Find the line where "value" resides...
-    uint8_t mark = (lines*8 - 1 - value)/8;
-    
-    // Clear the lines above the mark...
-    for (uint8_t line = 0; line < mark; line++)
-    {
-    	UC1701_setCursor(scolumn, sline + line);
-    	UC1701_transfer(UC1701_DATA, 0x00);
-    }
-
-    // Compute the byte to draw at the "mark" line...
-    uint8_t b = 0xff;
-    for (uint8_t i = 0; i < lines*8 - mark*8 - value; i++)
-    {
-        b <<= 1;
-    }
-
-    UC1701_setCursor(scolumn, sline + mark);
-    UC1701_transfer(UC1701_DATA, b);
-
-    // Fill the lines below the mark...
-    for (uint8_t line = mark + 1; line < lines; line++)
-    {
-    	UC1701_setCursor(scolumn, sline + line);
-    	UC1701_transfer(UC1701_DATA, 0xff);
-    }
-  
-    // Leave the cursor in a consistent position...
-    UC1701_setCursor(scolumn + 1, sline);
+			}
+		}
+	}
 }

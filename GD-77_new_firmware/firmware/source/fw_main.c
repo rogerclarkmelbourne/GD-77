@@ -54,19 +54,21 @@ int Shutdown_Timer = 0;
 
 void show_splashscreen()
 {
-	UC1701_clear();
-	UC1701_printCentered(1, "Experimental");
-	UC1701_printCentered(2, "firmware V0.0.1e");
-	UC1701_printCentered(4, "by");
-	UC1701_printCentered(6, "DG4KLU");
+	UC1701_clearBuf();
+	UC1701_printCentered(1*8, "Experimental", UC1701_FONT_6X8);
+	UC1701_printCentered(2*8, "firmware V0.0.1e", UC1701_FONT_6X8);
+	UC1701_printCentered(4*8, "by", UC1701_FONT_6X8);
+	UC1701_printCentered(6*8, "DG4KLU", UC1701_FONT_6X8);
+	UC1701_render();
 	Display_light_Touched = true;
 }
 
 void show_poweroff()
 {
-	UC1701_clear();
-	UC1701_printCentered(2, "Power off ...");
-	UC1701_printCentered(4, "73 de DG4KLU");
+	UC1701_clearBuf();
+	UC1701_printCentered(2*8, "Power off ...", UC1701_FONT_6X8);
+	UC1701_printCentered(4*8, "73 de DG4KLU", UC1701_FONT_6X8);
+	UC1701_render();
 	Display_light_Touched = true;
 }
 
@@ -78,8 +80,9 @@ void reset_splashscreen()
 
 void show_lowbattery()
 {
-	UC1701_clear();
-	UC1701_printCentered(4, "LOW BATTERY !!!");
+	UC1701_clearBuf();
+	UC1701_printCentered(4*8, "LOW BATTERY !!!", UC1701_FONT_6X8);
+	UC1701_render();
 }
 
 void fw_main_task()

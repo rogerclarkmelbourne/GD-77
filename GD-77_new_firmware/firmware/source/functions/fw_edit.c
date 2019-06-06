@@ -81,25 +81,25 @@ void update_flags()
 {
 	if (open_squelch)
 	{
-		UC1701_printAt(1*6, 0, "SQ:OFF");
+		UC1701_printAt(1*6, 0*8, "SQ:OFF", UC1701_FONT_6X8);
 	}
 	else
 	{
-		UC1701_printAt(1*6, 0, "SQ:ON ");
+		UC1701_printAt(1*6, 0*8, "SQ:ON ", UC1701_FONT_6X8);
 	}
 	if (HR_C6000_datalogging)
 	{
-		UC1701_printAt(14*6, 0, "LOG:ON ");
+		UC1701_printAt(14*6, 0*8, "LOG:ON ", UC1701_FONT_6X8);
 	}
 	else
 	{
-		UC1701_printAt(14*6, 0, "LOG:OFF");
+		UC1701_printAt(14*6, 0*8, "LOG:OFF", UC1701_FONT_6X8);
 	}
 	int val_before_dp = battery_voltage/10;
 	int val_after_dp = battery_voltage-val_before_dp*10;
 	char buffer[32];
 	sprintf(buffer,"%d.%dV", val_before_dp, val_after_dp);
-	UC1701_printCentered(0, buffer);
+	UC1701_printCentered(0*8, buffer, UC1701_FONT_6X8);
 }
 
 typedef struct dmrIdData
@@ -181,7 +181,7 @@ void update_qsodata()
 		dmrIdRecord currentRec;
 
 		sprintf(buffer,"TG %d", last_TG);
-		UC1701_printCentered(5, buffer);
+		UC1701_printCentered(5*8, buffer, UC1701_FONT_6X8);
 		if (!dmrIDLookup(last_DMRID,&currentRec))
 		{
 			sprintf(buffer,"DMRID %d", last_DMRID);
@@ -190,27 +190,27 @@ void update_qsodata()
 		{
 			sprintf(buffer,"%s", currentRec.text);
 		}
-		UC1701_printCentered(6, buffer);
+		UC1701_printCentered(6*8, buffer, UC1701_FONT_6X8);
 	}
 	else
 	{
-		UC1701_printCentered(5, "                    ");
-		UC1701_printCentered(6, "                    ");
+		UC1701_printCentered(5*8, "                    ", UC1701_FONT_6X8);
+		UC1701_printCentered(6*8, "                    ", UC1701_FONT_6X8);
 	}
 }
 
 void update_screen()
 {
-	UC1701_clear();
+	UC1701_clearBuf();
 	update_flags();
 	update_qsodata();
 	if (current_mode==MODE_ANALOG)
 	{
-		UC1701_printCentered(2, "analog");
+		UC1701_printCentered(2*8, "analog", UC1701_FONT_6X8);
 	}
 	else if (current_mode==MODE_DIGITAL)
 	{
-		UC1701_printCentered(2, "DMR");
+		UC1701_printCentered(2*8, "DMR", UC1701_FONT_6X8);
 	}
 	char buffer[32];
 	if (freq_enter_idx==0)
@@ -223,7 +223,8 @@ void update_screen()
 	{
 		sprintf(buffer,"#%d %c%c%c.%c%c%c%c MHz", current_frequency_idx+1, freq_enter_digits[0], freq_enter_digits[1], freq_enter_digits[2], freq_enter_digits[3], freq_enter_digits[4], freq_enter_digits[5], freq_enter_digits[6] );
 	}
-	UC1701_printCentered(3, buffer);
+	UC1701_printCentered(3*8, buffer, UC1701_FONT_6X8);
+	UC1701_render();
 	Display_light_Touched = true;
 }
 

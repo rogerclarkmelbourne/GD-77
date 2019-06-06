@@ -60,5 +60,5 @@ void fw_init_display()
     vTaskDelay(portTICK_PERIOD_MS * 100);
 	GPIO_PinWrite(GPIO_Display_RST, Pin_Display_RST, 1);
 
-    UC1701_begin();
+    UC1701_begin(false);
 }

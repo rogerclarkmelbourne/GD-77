@@ -1,29 +1,10 @@
 /*
- * UC7101 - Interface with UC7101 (or compatible) LCDs.
+ * Initial work for port to MK22FN512xxx12 Copyright (C)2019 Kai Ludwig, DG4KLU
  *
- * Copyright (c) 2014 Rustem Iskuzhin
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE.
- */
-
-/*
- * Additional work for port to MK22FN512xxx12 Copyright (C)2019 Kai Ludwig, DG4KLU
+ * Code mainly re-written by Roger Clark. VK3KYY / G4KYF
+ * based on information and code references from various sources, including
+ * https://github.com/bitbank2/uc1701 and
+ * https://os.mbed.com/users/Anaesthetix/code/UC1701/file/7494bdca926b/
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -50,45 +31,24 @@
 
 #ifndef __UC1701_H__
 #define __UC1701_H__
+#include "FreeRTOS.h"
+#include "task.h"
+#include "fw_common.h"
 
-#define UC1701_COMMAND 0
-#define UC1701_DATA    1
+#define UC1701_FONT_6X8 				0
+#define UC1701_FONT_6X8_bold			1
+#define UC1701_FONT_8X8 				2
+#define UC1701_FONT_GD77_8x16 			3
+#define UC1701_FONT_16x32 				4
 
-// Send a command or data to the display...
-void UC1701_transfer(uint8_t mode, int data1);
-
-// Display initialization (dimensions in pixels)...
-void UC1701_begin();
-
-// Erase everything on the display...
-void UC1701_clear();
-void UC1701_clearLine();  // ...or just the current line
-
-// Place the cursor at the start of the current line...
-void UC1701_home();
-
-// Place the cursor at position (column, line)...
-void UC1701_setCursor(uint8_t column, uint8_t line);
-
-// Assign a user-defined glyph (5x8) to an ASCII character (0-31)...
-void UC1701_createChar(uint8_t chr, const uint8_t *glyph);
-
-// Print an ASCII string centered at line y (7-bit)...
-void UC1701_printCentered(uint8_t y, char *text);
-
-// Print an ASCII string at cursor position x,y (7-bit)...
-void UC1701_printAt(uint8_t x, uint8_t y, char *text);
-
-// Print an ASCII string at the current cursor position (7-bit)...
-void UC1701_print(char *text);
-
-// Write an ASCII character at the current cursor position (7-bit)...
-int UC1701_write(uint8_t chr);
-
-// Draw a bitmap at the current cursor position...
-void UC1701_drawBitmap(const uint8_t *data, uint8_t columns, uint8_t lines);
-
-// Draw a chart element at the current cursor position...
-void UC1701_drawColumn(uint8_t lines, uint8_t value);
+void UC1701_begin(bool isInverted);
+void UC1701_clearBuf();
+void UC1701_render();
+void UC1701_printCentered(uint8_t y, char *text,int fontSize);
+void UC1701_printAt(uint8_t x, uint8_t y, char *text,int fontSize);
+int UC1701_printCore(int x, int y, char *szMsg, int iSize, int alignment, bool isInverted);
+int UC1701_setPixel(int x, int y, bool color);
+void UC1701_fillRect(int x,int y,int width,int height,bool isInverted);
+void UC1701_setContrast(uint8_t contrast);
 
 #endif /* __UC1701_H__ */
