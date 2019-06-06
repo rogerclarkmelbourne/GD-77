@@ -378,11 +378,11 @@ void fw_hrc6000_task()
 
     		if (melody_play==NULL)
     		{
-    	    	if (current_mode==MODE_DIGITAL)
+    	    	if (trxGetMode() == RADIO_MODE_DIGITAL)
     	    	{
     				tick_HR_C6000();
     	    	}
-    	    	else if (current_mode==MODE_ANALOG)
+    	    	else if (trxGetMode() == RADIO_MODE_ANALOG)
     	    	{
     	    		trx_check_analog_squelch();
     	    	}

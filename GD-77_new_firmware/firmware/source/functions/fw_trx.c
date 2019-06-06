@@ -31,6 +31,29 @@ bool HR_C6000_datalogging=false;
 
 int trx_measure_count = 0;
 
+const int RADIO_VHF_MIN			=	1340000;
+const int RADIO_VHF_MAX			=	1740000;
+const int RADIO_UHF_MIN			=	4000000;
+const int RADIO_UHF_MAX			=	5200000;
+
+static int currentMode = RADIO_MODE_NONE;
+static int currentFrequency =1440000;
+
+int	trxGetMode()
+{
+	return currentMode;
+}
+
+static bool check_frequency_is_VHF(int frequency)
+{
+	return ((frequency >= RADIO_VHF_MIN) && (frequency < RADIO_VHF_MAX));
+}
+
+static bool check_frequency_is_UHF(int frequency)
+{
+	return ((frequency >= RADIO_UHF_MIN) && (frequency < RADIO_UHF_MAX));
+}
+
 void trx_check_analog_squelch()
 {
 	trx_measure_count++;
@@ -55,14 +78,14 @@ void trx_check_analog_squelch()
 
 void trx_set_mode_band_freq_and_others()
 {
-	uint32_t f = current_frequency[current_frequency_idx]*1.6f;
+	uint32_t f = currentFrequency * 1.6f;
 	uint8_t fl_l = (f & 0x000000ff) >> 0;
 	uint8_t fl_h = (f & 0x0000ff00) >> 8;
 	uint8_t fh_l = (f & 0x00ff0000) >> 16;
 	uint8_t fh_h = (f & 0xff000000) >> 24;
 
 	uint8_t squelch = 0x00;
-	if ((current_mode == MODE_ANALOG) && (!open_squelch))
+	if ((currentMode == RADIO_MODE_ANALOG) && (!open_squelch))
 	{
 		squelch = 0x08;
 	}
@@ -74,26 +97,26 @@ void trx_set_mode_band_freq_and_others()
 	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x49, 0x0C, 0x15); // setting SQ open and shut threshold
 	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x30, 0x40, 0x26 | squelch); // RX on
 
-	if (current_mode == MODE_ANALOG)
+	if (currentMode == RADIO_MODE_ANALOG)
 	{
 		write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x44, 0x06, 0x80); // set internal volume to 50%
 		GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 1); // connect AT1846S audio to speaker
 		terminate_sound();
 		terminate_digital();
 	}
-	else if (current_mode == MODE_DIGITAL)
+	else if (currentMode == RADIO_MODE_DIGITAL)
 	{
 		write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x44, 0x06, 0xCC); // set internal volume to 80%
 		GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 0); // connect AT1846S audio to HR_C6000
 		init_sound();
 		init_digital();
 	}
-	if (check_frequency_is_VHF())
+	if (check_frequency_is_VHF(currentFrequency))
 	{
 		GPIO_PinWrite(GPIO_VHF_RX_amp_power, Pin_VHF_RX_amp_power, 1);
 		GPIO_PinWrite(GPIO_UHF_RX_amp_power, Pin_UHF_RX_amp_power, 0);
 	}
-	else if (check_frequency_is_UHF())
+	else if (check_frequency_is_UHF(currentFrequency))
 	{
 		GPIO_PinWrite(GPIO_VHF_RX_amp_power, Pin_VHF_RX_amp_power, 0);
 		GPIO_PinWrite(GPIO_UHF_RX_amp_power, Pin_UHF_RX_amp_power, 1);

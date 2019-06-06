@@ -1,5 +1,5 @@
 /*
- * Copyright (C)2019 Kai Ludwig, DG4KLU
+ * Copyright (C)2019 Roger Clark. VK3KYY / G4KYF
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -23,55 +23,33 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#ifndef _FW_MAIN_H_
-#define _FW_MAIN_H_
-
-#include <stdint.h>
-#include <stdio.h>
-
-#include "FreeRTOS.h"
-#include "task.h"
-
-#include "virtual_com.h"
-#include "fw_usb_com.h"
-
+#ifndef _MENU_UTILITY_QSO_DATA_H_
+#define _MENU_UTILITY_QSO_DATA_H_                    /**< Symbol preventing repeated inclusion */
 #include "fw_common.h"
-#include "fw_buttons.h"
-#include "fw_LEDs.h"
-#include "fw_keyboard.h"
-#include "fw_display.h"
 
-#include "UC1701.h"
+#define NUM_LASTHEARD_STORED 16
 
-#include "fw_i2c.h"
-#include "fw_spi.h"
-#include "fw_i2s.h"
-#include "fw_AT1846S.h"
-#include "fw_HR-C6000.h"
-#include "fw_wdog.h"
-#include "fw_adc.h"
-#include "fw_pit.h"
+typedef struct dmrIdDataStruct
+{
+	int id;
+	char text[16];
+} dmrIdDataStruct_t;
 
-#include "fw_sound.h"
-#include "fw_trx.h"
-#include "fw_SPI_Flash.h"
-#include "fw_EEPROM.h"
 
-extern int Display_light_Timer;
-extern bool Display_light_Touched;
-extern const char *FIRMWARE_VERSION_STRING;
-extern bool Show_SplashScreen;
-extern int SplashScreen_Timer;
-extern bool Shutdown;
-extern int Shutdown_Timer;
+typedef struct LinkItem
+{
+    struct LinkItem *prev;
+    int id;
+    int talkGroup;
+    struct LinkItem *next;
+} LinkItem_t;
 
-void show_splashscreen();
-void show_poweroff();
-void reset_splashscreen();
-void show_lowbattery();
+extern bool menuIsDisplayingQSOData;
+extern LinkItem_t *LinkHead;
 
-void fw_init();
-void fw_main_task();
-
-#endif /* _FW_MAIN_H_ */
+bool dmrIDLookup( int targetId,dmrIdDataStruct_t *foundRecord);
+void menuUtilityRenderQSOData();
+void menuUtilityRenderHeader();
+void lastheardInitList();
+void lastHeardListUpdate(int id,int talkGroup);
+#endif

@@ -1,5 +1,5 @@
 /*
- * Copyright (C)2019 Kai Ludwig, DG4KLU
+ * Copyright (C)2019 Roger Clark. VK3KYY / G4KYF
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -23,55 +23,44 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "menu/menuSystem.h"
+#include "fw_settings.h"
 
-#ifndef _FW_MAIN_H_
-#define _FW_MAIN_H_
 
-#include <stdint.h>
-#include <stdio.h>
+static void updateScreen();
+static void handleEvent(int buttons, int keys, int events);
 
-#include "FreeRTOS.h"
-#include "task.h"
+int menuTxScreen(int buttons, int keys, int events, bool isFirstRun)
+{
+	if (isFirstRun)
+	{
+		updateScreen();
+	    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
+	    GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 1);
+	}
+	else
+	{
+		handleEvent(buttons, keys, events);
+	}
+	return 0;
+}
 
-#include "virtual_com.h"
-#include "fw_usb_com.h"
+static void updateScreen()
+{
+	UC1701_clearBuf();
+	UC1701_printCentered(20, "Tx",UC1701_FONT_16x32);
 
-#include "fw_common.h"
-#include "fw_buttons.h"
-#include "fw_LEDs.h"
-#include "fw_keyboard.h"
-#include "fw_display.h"
+	UC1701_render();
+	displayLightOverrideTimeout(-1);
+}
 
-#include "UC1701.h"
 
-#include "fw_i2c.h"
-#include "fw_spi.h"
-#include "fw_i2s.h"
-#include "fw_AT1846S.h"
-#include "fw_HR-C6000.h"
-#include "fw_wdog.h"
-#include "fw_adc.h"
-#include "fw_pit.h"
+static void handleEvent(int buttons, int keys, int events)
+{
+	if ((buttons & BUTTON_PTT)==0)
+	{
+	    GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 0);
+		menuSystemPopPreviousMenu();
+	}
+}
 
-#include "fw_sound.h"
-#include "fw_trx.h"
-#include "fw_SPI_Flash.h"
-#include "fw_EEPROM.h"
-
-extern int Display_light_Timer;
-extern bool Display_light_Touched;
-extern const char *FIRMWARE_VERSION_STRING;
-extern bool Show_SplashScreen;
-extern int SplashScreen_Timer;
-extern bool Shutdown;
-extern int Shutdown_Timer;
-
-void show_splashscreen();
-void show_poweroff();
-void reset_splashscreen();
-void show_lowbattery();
-
-void fw_init();
-void fw_main_task();
-
-#endif /* _FW_MAIN_H_ */

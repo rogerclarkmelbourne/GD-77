@@ -1,5 +1,6 @@
 /*
- * Copyright (C)2019 Kai Ludwig, DG4KLU
+ * Copyright (C)2019 	Roger Clark, VK3KYY / G4KYF
+ * 				and		Kai Ludwig, DG4KLU
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,29 +30,30 @@
 
 #include "fw_common.h"
 
-#include "fw_main.h"
+extern const int BAND_VHF_MIN;
+extern const int BAND_VHF_MAX;
+extern const int BAND_UHF_MIN;
+extern const int BAND_UHF_MAX;
+#define VFO_COUNT 4
 
-#define MODE_ANALOG 1
-#define MODE_DIGITAL 2
+typedef struct settingsStruct
+{
+	int 			magicNumber;
+	int				vfoFrequenciesArray[VFO_COUNT];
+	int16_t			currentChannelIndexInZone;
+	int16_t			currentZone;
+	uint8_t			vfoFrequencyStepKhz;// step in Khz times 10
+	int8_t			currentVFOIndex;
+	uint8_t			backLightTimeout;//0 = never timeout. 1 - 255 time in seconds
+	uint8_t			displayContrast;
+	uint8_t			vfoTrxMode;
+	uint8_t			initialMenuNumber;
+} settingsStruct_t;
 
-#define VHF_MIN 1440000
-#define VHF_MAX 1479999
-#define UHF_MIN 4300000
-#define UHF_MAX 4499999
+extern settingsStruct_t nonVolatileSettings;
 
-#define FREQ_STEP 125
-#define FREQ_COUNT 4
-
-#define STORAGE_BASE_ADDRESS 0xFF00
-#define STORAGE_MAGIC_NUMBER 0x4711
-
-extern int current_mode;
-extern int current_frequency[FREQ_COUNT];
-extern int current_frequency_idx;
-
-void save_value(int idx, int value);
-int load_value(int idx);
-void save_settings();
-void load_settings();
+void settingsSaveSettings();
+void settingsLoadSettings();
+void settingsRestoreDefaultSettings();
 
 #endif

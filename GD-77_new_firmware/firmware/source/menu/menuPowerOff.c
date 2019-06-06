@@ -1,5 +1,5 @@
 /*
- * Copyright (C)2019 Kai Ludwig, DG4KLU
+ * Copyright (C)2019 Roger Clark. VK3KYY / G4KYF
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -23,55 +23,49 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "menu/menuSystem.h"
 
-#ifndef _FW_MAIN_H_
-#define _FW_MAIN_H_
+static void updateScreen();
+static void handleEvent(int buttons, int keys, int events);
 
-#include <stdint.h>
-#include <stdio.h>
 
-#include "FreeRTOS.h"
-#include "task.h"
+int menuPowerOff(int buttons, int keys, int events, bool isFirstRun)
+{
+	if (isFirstRun)
+	{
+		menuTimer = 1200;// Not sure why its this value. But never mind ;-)
+		updateScreen();
+	}
+	else
+	{
+		handleEvent(buttons, keys, events);
+	}
+	return 0;
+}
 
-#include "virtual_com.h"
-#include "fw_usb_com.h"
+static void updateScreen()
+{
+	UC1701_clearBuf();
+	UC1701_printCentered(8, "Power off ..",3);
+	UC1701_printCentered(32, "73 de DG4KLU",3);
+	UC1701_render();
+	displayLightTrigger();
+}
 
-#include "fw_common.h"
-#include "fw_buttons.h"
-#include "fw_LEDs.h"
-#include "fw_keyboard.h"
-#include "fw_display.h"
+static void handleEvent(int buttons, int keys, int events)
+{
+	if ((GPIO_PinRead(GPIO_Power_Switch, Pin_Power_Switch)==0) && (battery_voltage>CUTOFF_VOLTAGE_LOWER_HYST))
+	{
+		// I think this is to handle if the power button is turned back on during shutdown
+		menuSystemPopPreviousMenu();
+		return;
+	}
 
-#include "UC1701.h"
+	menuTimer--;
 
-#include "fw_i2c.h"
-#include "fw_spi.h"
-#include "fw_i2s.h"
-#include "fw_AT1846S.h"
-#include "fw_HR-C6000.h"
-#include "fw_wdog.h"
-#include "fw_adc.h"
-#include "fw_pit.h"
-
-#include "fw_sound.h"
-#include "fw_trx.h"
-#include "fw_SPI_Flash.h"
-#include "fw_EEPROM.h"
-
-extern int Display_light_Timer;
-extern bool Display_light_Touched;
-extern const char *FIRMWARE_VERSION_STRING;
-extern bool Show_SplashScreen;
-extern int SplashScreen_Timer;
-extern bool Shutdown;
-extern int Shutdown_Timer;
-
-void show_splashscreen();
-void show_poweroff();
-void reset_splashscreen();
-void show_lowbattery();
-
-void fw_init();
-void fw_main_task();
-
-#endif /* _FW_MAIN_H_ */
+	if (menuTimer == 0)
+	{
+		// This turns the power off to the CPU.
+		GPIO_PinWrite(GPIO_Keep_Power_On, Pin_Keep_Power_On, 0);
+	}
+}

@@ -29,12 +29,20 @@
 
 #include "fw_sound.h"
 
+extern const int RADIO_VHF_MIN;
+extern const int RADIO_VHF_MAX;
+extern const int RADIO_UHF_MIN;
+extern const int RADIO_UHF_MAX;
+
+enum RADIO_MODE { RADIO_MODE_NONE,RADIO_MODE_ANALOG,RADIO_MODE_DIGITAL};
+
 extern bool open_squelch;
 extern bool HR_C6000_datalogging;
 
 extern int trx_measure_count;
 
 void trx_check_analog_squelch();
+int	trxGetMode();
 void trx_set_mode_band_freq_and_others();
 
 #endif /* _FW_TRX_H_ */

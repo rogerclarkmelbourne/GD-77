@@ -1,5 +1,5 @@
 /*
- * Copyright (C)2019 Kai Ludwig, DG4KLU
+ * Copyright (C)2019 Roger Clark. VK3KYY / G4KYF
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -23,55 +23,68 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include "menu/menuSystem.h"
 
-#ifndef _FW_MAIN_H_
-#define _FW_MAIN_H_
+static void updateScreen();
+static void handleEvent(int buttons, int keys, int events);
 
-#include <stdint.h>
-#include <stdio.h>
+int menuBattery(int buttons, int keys, int events, bool isFirstRun)
+{
+	if (isFirstRun)
+	{
+		updateScreen();
+	}
+	else
+	{
+		if (events!=0 && keys!=0)
+		{
+			handleEvent(buttons, keys, events);
+		}
+	}
+	return 0;
+}
 
-#include "FreeRTOS.h"
-#include "task.h"
+static void updateScreen()
+{
+	const int BATTERY_MIN_VOLTAGE = 7;
+	const float BATTERY_MAX_VOLTAGE = 8.4;
+	char buffer[8];
 
-#include "virtual_com.h"
-#include "fw_usb_com.h"
+	UC1701_clearBuf();
+	UC1701_printCentered(0, "Battery",UC1701_FONT_GD77_8x16);
 
-#include "fw_common.h"
-#include "fw_buttons.h"
-#include "fw_LEDs.h"
-#include "fw_keyboard.h"
-#include "fw_display.h"
+	int val1 = battery_voltage/10;
+	int val2 = battery_voltage - (val1 * 10);
 
-#include "UC1701.h"
+	sprintf(buffer,"%d.%dV", val1,val2);
+	UC1701_printAt(24,16, buffer,UC1701_FONT_16x32);
+	uint32_t h = (uint32_t)(((battery_voltage - BATTERY_MIN_VOLTAGE) * 50)/(BATTERY_MAX_VOLTAGE-BATTERY_MIN_VOLTAGE));
 
-#include "fw_i2c.h"
-#include "fw_spi.h"
-#include "fw_i2s.h"
-#include "fw_AT1846S.h"
-#include "fw_HR-C6000.h"
-#include "fw_wdog.h"
-#include "fw_adc.h"
-#include "fw_pit.h"
+	if (h>50)
+	{
+		h=50;
+	}
+	// draw frame
+	UC1701_fillRect(100,10,24,52,false);
+	UC1701_fillRect(101,11,22,50,true);
 
-#include "fw_sound.h"
-#include "fw_trx.h"
-#include "fw_SPI_Flash.h"
-#include "fw_EEPROM.h"
+	UC1701_fillRect(101, 11 + 50 - h ,22,h,false);// fill battery
 
-extern int Display_light_Timer;
-extern bool Display_light_Touched;
-extern const char *FIRMWARE_VERSION_STRING;
-extern bool Show_SplashScreen;
-extern int SplashScreen_Timer;
-extern bool Shutdown;
-extern int Shutdown_Timer;
+	for(int y=56; y > 11;y-=5)
+	{
+		UC1701_fillRect(101,y,22,1,true);
+	}
 
-void show_splashscreen();
-void show_poweroff();
-void reset_splashscreen();
-void show_lowbattery();
+	UC1701_render();
+	displayLightTrigger();
+}
 
-void fw_init();
-void fw_main_task();
 
-#endif /* _FW_MAIN_H_ */
+static void handleEvent(int buttons, int keys, int events)
+{
+	if ((keys & KEY_RED)!=0)
+	{
+		menuSystemPopPreviousMenu();
+		return;
+	}
+}

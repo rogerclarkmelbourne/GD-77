@@ -1,5 +1,6 @@
 /*
- * Copyright (C)2019 Kai Ludwig, DG4KLU
+ * Copyright (C)2019 	Kai Ludwig, DG4KLU
+ * 				and		Roger Clark, VK3KYY / G4KYF
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -25,57 +26,50 @@
  */
 
 #include "fw_settings.h"
+#include "fw_EEPROM.h"
+#include "fw_trx.h"
+#include "menu/menuSystem.h"
 
-int current_mode = 0;
-int current_frequency[FREQ_COUNT];
-int current_frequency_idx;
+const int BAND_VHF_MIN 	= 1440000;
+const int BAND_VHF_MAX 	= 1480000;
+const int BAND_UHF_MIN 	= 4300000;
+const int BAND_UHF_MAX 	= 4500000;
 
-void save_value(int idx, int value)
+static const int STORAGE_BASE_ADDRESS = 0xFF00;
+static const int STORAGE_MAGIC_NUMBER = 0x4713;
+
+settingsStruct_t nonVolatileSettings;
+
+void settingsSaveSettings()
 {
-	int tmp_value=load_value(idx);
-	if (tmp_value!=value)
+	EEPROM_Write(STORAGE_BASE_ADDRESS, (uint8_t*)&nonVolatileSettings, sizeof(settingsStruct_t));
+    vTaskDelay(portTICK_PERIOD_MS * 5);
+}
+
+void settingsLoadSettings()
+{
+	EEPROM_Read(STORAGE_BASE_ADDRESS, (uint8_t*)&nonVolatileSettings, sizeof(settingsStruct_t));
+	if (nonVolatileSettings.magicNumber != STORAGE_MAGIC_NUMBER)
 	{
-		EEPROM_Write(STORAGE_BASE_ADDRESS+idx*sizeof(int), (uint8_t*)&value, sizeof(int));
-	    vTaskDelay(portTICK_PERIOD_MS * 5);
+    	settingsRestoreDefaultSettings();
+    	settingsSaveSettings();
 	}
 }
 
-int load_value(int idx)
+void settingsRestoreDefaultSettings()
 {
-	int tmp_value=0;
-	EEPROM_Read(STORAGE_BASE_ADDRESS+idx*sizeof(int), (uint8_t*)&tmp_value, sizeof(int));
-	return tmp_value;
-}
+	nonVolatileSettings.magicNumber=STORAGE_MAGIC_NUMBER;
+	for(int i=0;i<4;i++)
+	{
+		nonVolatileSettings.vfoFrequenciesArray[i]=	BAND_VHF_MIN;// Note. Need to change this hard coded frequency
+	}
 
-void save_settings()
-{
-	save_value(0, STORAGE_MAGIC_NUMBER);
-	save_value(1, current_mode);
-	save_value(2, current_frequency_idx);
-	for (int i=0;i<FREQ_COUNT;i++)
-	{
-		save_value(3+i, current_frequency[i]);
-	}
-}
-
-void load_settings()
-{
-	if (load_value(0)==STORAGE_MAGIC_NUMBER)
-	{
-		current_mode = load_value(1);
-		current_frequency_idx = load_value(2);
-		for (int i=0;i<FREQ_COUNT;i++)
-		{
-			current_frequency[i] = load_value(3+i);
-		}
-	}
-	else
-	{
-		current_mode = MODE_DIGITAL;
-		for (int i=0;i<FREQ_COUNT;i++)
-		{
-			current_frequency[i] = VHF_MIN;
-		}
-		current_frequency_idx=0;
-	}
+	nonVolatileSettings.currentChannelIndexInZone = 0;
+	nonVolatileSettings.currentZone = 0;
+	nonVolatileSettings.vfoFrequencyStepKhz = 125;// 12.5 step in Khz times 10
+	nonVolatileSettings.currentVFOIndex = 0 ;
+	nonVolatileSettings.backLightTimeout = 5;//0 = never timeout. 1 - 255 time in seconds
+	nonVolatileSettings.displayContrast = 0x0E;
+	nonVolatileSettings.vfoTrxMode = RADIO_MODE_DIGITAL;
+	nonVolatileSettings.initialMenuNumber=MENU_VFO_MODE;
 }

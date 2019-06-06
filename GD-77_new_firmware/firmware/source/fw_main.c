@@ -30,6 +30,7 @@
 #include <SeggerRTT/RTT/SEGGER_RTT.h>
 #endif
 
+const char *FIRMWARE_VERSION_STRING = "V0.0.1e";
 TaskHandle_t fwMainTaskHandle;
 
 void fw_init()
@@ -207,7 +208,6 @@ void fw_main_task()
 
         	if (((GPIO_PinRead(GPIO_Power_Switch, Pin_Power_Switch)!=0) || (battery_voltage<CUTOFF_VOLTAGE_LOWER_HYST)) && (!Shutdown))
         	{
-        		save_settings();
         		reset_splashscreen();
         		if (battery_voltage<CUTOFF_VOLTAGE_LOWER_HYST)
         		{
