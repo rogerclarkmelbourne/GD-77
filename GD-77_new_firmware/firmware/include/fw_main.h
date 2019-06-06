@@ -54,7 +54,6 @@
 #include "fw_pit.h"
 
 #include "fw_sound.h"
-#include "fw_menu.h"
 #include "fw_edit.h"
 #include "fw_trx.h"
 #include "fw_SPI_Flash.h"

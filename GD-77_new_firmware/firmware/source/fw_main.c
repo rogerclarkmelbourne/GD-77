@@ -136,8 +136,6 @@ void fw_main_task()
 
 	Show_SplashScreen = true;
 
-	reset_menu();
-
 	init_edit();
 
 	open_squelch=false;
@@ -191,10 +189,7 @@ void fw_main_task()
         		{
             	    set_melody(melody_key_beep);
 
-            	    if (current_menu_level==-1)
-            	    {
-            	    	tick_edit();
-            	    }
+					tick_edit();
         		}
         	}
 
@@ -214,16 +209,10 @@ void fw_main_task()
         		}
         	}
 
-        	if (!Shutdown)
-        	{
-        		tick_menu();
-        	}
-
         	if (((GPIO_PinRead(GPIO_Power_Switch, Pin_Power_Switch)!=0) || (battery_voltage<CUTOFF_VOLTAGE_LOWER_HYST)) && (!Shutdown))
         	{
         		save_settings();
         		reset_splashscreen();
-        		reset_menu();
         		if (battery_voltage<CUTOFF_VOLTAGE_LOWER_HYST)
         		{
         			show_lowbattery();
