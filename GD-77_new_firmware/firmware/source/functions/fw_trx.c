@@ -44,6 +44,29 @@ int	trxGetMode()
 	return currentMode;
 }
 
+void trxSetMode(int theMode)
+{
+	if (theMode != currentMode)
+	{
+		currentMode=theMode;
+
+		if (currentMode == RADIO_MODE_ANALOG)
+		{
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x44, 0x06, 0x80); // set internal volume to 50%
+			GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 1); // connect AT1846S audio to speaker
+			terminate_sound();
+			terminate_digital();
+		}
+		else if (currentMode == RADIO_MODE_DIGITAL)
+		{
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x44, 0x06, 0xCC); // set internal volume to 80%
+			GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 0); // connect AT1846S audio to HR_C6000
+			init_sound();
+			init_digital();
+		}
+	}
+}
+
 static bool check_frequency_is_VHF(int frequency)
 {
 	return ((frequency >= RADIO_VHF_MIN) && (frequency < RADIO_VHF_MAX));
@@ -76,50 +99,51 @@ void trx_check_analog_squelch()
 	}
 }
 
-void trx_set_mode_band_freq_and_others()
+void trxSetFrequency(int frequency)
 {
-	uint32_t f = currentFrequency * 1.6f;
-	uint8_t fl_l = (f & 0x000000ff) >> 0;
-	uint8_t fl_h = (f & 0x0000ff00) >> 8;
-	uint8_t fh_l = (f & 0x00ff0000) >> 16;
-	uint8_t fh_h = (f & 0xff000000) >> 24;
+	if (currentFrequency!=frequency)
+	{
+		currentFrequency=frequency;
 
-	uint8_t squelch = 0x00;
-	if ((currentMode == RADIO_MODE_ANALOG) && (!open_squelch))
-	{
-		squelch = 0x08;
-	}
+		uint32_t f = currentFrequency * 1.6f;
+		uint8_t fl_l = (f & 0x000000ff) >> 0;
+		uint8_t fl_h = (f & 0x0000ff00) >> 8;
+		uint8_t fh_l = (f & 0x00ff0000) >> 16;
+		uint8_t fh_h = (f & 0xff000000) >> 24;
 
-	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x30, 0x40, 0x06 | squelch); // RX off
-	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x05, 0x87, 0x63); // select 'normal' frequency mode
-	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x29, fh_h, fh_l);
-	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x2a, fl_h, fl_l);
-	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x49, 0x0C, 0x15); // setting SQ open and shut threshold
-	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x30, 0x40, 0x26 | squelch); // RX on
+		uint8_t squelch = 0x00;
+		if ((currentMode == RADIO_MODE_ANALOG) && (!open_squelch))
+		{
+			squelch = 0x08;
+		}
 
-	if (currentMode == RADIO_MODE_ANALOG)
-	{
-		write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x44, 0x06, 0x80); // set internal volume to 50%
-		GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 1); // connect AT1846S audio to speaker
-		terminate_sound();
-		terminate_digital();
-	}
-	else if (currentMode == RADIO_MODE_DIGITAL)
-	{
-		write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x44, 0x06, 0xCC); // set internal volume to 80%
-		GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 0); // connect AT1846S audio to HR_C6000
-		init_sound();
-		init_digital();
-	}
-	if (check_frequency_is_VHF(currentFrequency))
-	{
-		GPIO_PinWrite(GPIO_VHF_RX_amp_power, Pin_VHF_RX_amp_power, 1);
-		GPIO_PinWrite(GPIO_UHF_RX_amp_power, Pin_UHF_RX_amp_power, 0);
-	}
-	else if (check_frequency_is_UHF(currentFrequency))
-	{
-		GPIO_PinWrite(GPIO_VHF_RX_amp_power, Pin_VHF_RX_amp_power, 0);
-		GPIO_PinWrite(GPIO_UHF_RX_amp_power, Pin_UHF_RX_amp_power, 1);
+		write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x30, 0x40, 0x06 | squelch); // RX off
+		write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x05, 0x87, 0x63); // select 'normal' frequency mode
+		write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x29, fh_h, fh_l);
+		write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x2a, fl_h, fl_l);
+		write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x49, 0x0C, 0x15); // setting SQ open and shut threshold
+		write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x30, 0x40, 0x26 | squelch); // RX on
+
+		if (check_frequency_is_VHF(currentFrequency))
+		{
+			GPIO_PinWrite(GPIO_VHF_RX_amp_power, Pin_VHF_RX_amp_power, 1);
+			GPIO_PinWrite(GPIO_UHF_RX_amp_power, Pin_UHF_RX_amp_power, 0);
+		}
+		else if (check_frequency_is_UHF(currentFrequency))
+		{
+			GPIO_PinWrite(GPIO_VHF_RX_amp_power, Pin_VHF_RX_amp_power, 0);
+			GPIO_PinWrite(GPIO_UHF_RX_amp_power, Pin_UHF_RX_amp_power, 1);
+		}
 	}
 }
 
+int trxGetFrequency()
+{
+	return currentFrequency;
+}
+
+void trxSetFrequencyAndMode(int frequency,int mode)
+{
+	trxSetMode(mode);
+	trxSetFrequency(frequency);
+}

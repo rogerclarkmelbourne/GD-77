@@ -43,6 +43,8 @@ extern int trx_measure_count;
 
 void trx_check_analog_squelch();
 int	trxGetMode();
-void trx_set_mode_band_freq_and_others();
+int	trxGetFrequency();
+void trxSetMode(int mode);
+void trxSetFrequency(int frequency);
 
 #endif /* _FW_TRX_H_ */
