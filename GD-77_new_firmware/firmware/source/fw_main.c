@@ -171,6 +171,7 @@ void fw_main_task()
     	{
         	taskENTER_CRITICAL();
     		timer_maintask=10;
+    	    alive_maintask=true;
         	taskEXIT_CRITICAL();
 
         	tick_com_request();

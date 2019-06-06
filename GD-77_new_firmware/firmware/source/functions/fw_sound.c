@@ -365,6 +365,7 @@ void fw_beep_task()
     	{
         	taskENTER_CRITICAL();
         	timer_beeptask=10;
+        	alive_beeptask=true;
 
     		if (sine_beep_duration>0)
     		{

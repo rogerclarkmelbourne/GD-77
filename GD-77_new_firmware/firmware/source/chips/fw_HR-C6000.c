@@ -374,6 +374,7 @@ void fw_hrc6000_task()
     	{
         	taskENTER_CRITICAL();
         	timer_hrc6000task=10;
+        	alive_hrc6000task=true;
         	taskEXIT_CRITICAL();
 
     		if (melody_play==NULL)

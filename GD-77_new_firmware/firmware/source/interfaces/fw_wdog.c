@@ -31,6 +31,10 @@ TaskHandle_t fwwatchdogTaskHandle;
 static WDOG_Type *wdog_base = WDOG;
 int watchdog_refresh_tick=0;
 
+volatile bool alive_maintask;
+volatile bool alive_beeptask;
+volatile bool alive_hrc6000task;
+
 int battery_voltage = 0;
 int battery_voltage_tick = 0;
 
@@ -46,6 +50,10 @@ void init_watchdog()
     }
 
     watchdog_refresh_tick=0;
+
+    alive_maintask = false;
+    alive_beeptask = false;
+    alive_hrc6000task = false;
 
 	battery_voltage=get_battery_voltage();
 	battery_voltage_tick=0;
@@ -84,7 +92,13 @@ void tick_watchdog()
 	watchdog_refresh_tick++;
 	if (watchdog_refresh_tick==200)
 	{
-    	WDOG_Refresh(wdog_base);
+		if (alive_maintask && alive_beeptask && alive_hrc6000task)
+		{
+	    	WDOG_Refresh(wdog_base);
+		}
+	    alive_maintask = false;
+	    alive_beeptask = false;
+	    alive_hrc6000task = false;
     	watchdog_refresh_tick=0;
 	}
 

@@ -32,6 +32,10 @@
 #include "fw_adc.h"
 #include "fw_edit.h"
 
+extern volatile bool alive_maintask;
+extern volatile bool alive_beeptask;
+extern volatile bool alive_hrc6000task;
+
 extern int battery_voltage;
 extern int battery_voltage_tick;
 
