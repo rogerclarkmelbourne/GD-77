@@ -25,6 +25,7 @@
  */
 
 #include "fw_main.h"
+#include "menu/menuSystem.h"
 
 #if defined(USE_SEGGER_RTT)
 #include <SeggerRTT/RTT/SEGGER_RTT.h>
@@ -46,43 +47,10 @@ void fw_init()
     vTaskStartScheduler();
 }
 
-int Display_light_Timer = 0;
-bool Display_light_Touched = false;
-bool Show_SplashScreen = false;
-int SplashScreen_Timer = 0;
-bool Shutdown = false;
-int Shutdown_Timer = 0;
-
-void show_splashscreen()
-{
-	UC1701_clearBuf();
-	UC1701_printCentered(1*8, "Experimental", UC1701_FONT_6X8);
-	UC1701_printCentered(2*8, "firmware V0.0.1e", UC1701_FONT_6X8);
-	UC1701_printCentered(4*8, "by", UC1701_FONT_6X8);
-	UC1701_printCentered(6*8, "DG4KLU", UC1701_FONT_6X8);
-	UC1701_render();
-	Display_light_Touched = true;
-}
-
-void show_poweroff()
-{
-	UC1701_clearBuf();
-	UC1701_printCentered(2*8, "Power off ...", UC1701_FONT_6X8);
-	UC1701_printCentered(4*8, "73 de DG4KLU", UC1701_FONT_6X8);
-	UC1701_render();
-	Display_light_Touched = true;
-}
-
-void reset_splashscreen()
-{
-	Show_SplashScreen=false;
-	SplashScreen_Timer=0;
-}
-
 void show_lowbattery()
 {
 	UC1701_clearBuf();
-	UC1701_printCentered(4*8, "LOW BATTERY !!!", UC1701_FONT_6X8);
+	UC1701_printCentered(32, "LOW BATTERY !!!", UC1701_FONT_GD77_8x16);
 	UC1701_render();
 }
 
@@ -135,8 +103,6 @@ void fw_main_task()
 
 	init_pit();
 
-	Show_SplashScreen = true;
-
 	open_squelch=false;
 	HR_C6000_datalogging=false;
 
@@ -161,6 +127,10 @@ void fw_main_task()
     SEGGER_RTT_ConfigUpBuffer(0, NULL, NULL, 0, SEGGER_RTT_MODE_NO_BLOCK_TRIM);
     SEGGER_RTT_printf(0,"Segger RTT initialised\n");
 #endif
+
+    settingsLoadSettings();
+    lastheardInitList();
+    menuInitMenuSystem();
 
     while (1U)
     {
@@ -204,92 +174,37 @@ void fw_main_task()
         		{
             	    set_melody(melody_orange_beep);
         		}
+
+        		if ((buttons & BUTTON_PTT)!=0)
+        		{
+        			menuSystemPushNewMenu(MENU_TX_SCREEN);
+        		}
         	}
 
-        	if (((GPIO_PinRead(GPIO_Power_Switch, Pin_Power_Switch)!=0) || (battery_voltage<CUTOFF_VOLTAGE_LOWER_HYST)) && (!Shutdown))
+        	menuSystemCallCurrentMenuTick(buttons,keys,(button_event<<1) | key_event);
+
+        	if (((GPIO_PinRead(GPIO_Power_Switch, Pin_Power_Switch)!=0)
+        			|| (battery_voltage<CUTOFF_VOLTAGE_LOWER_HYST))
+        			&& (menuSystemGetCurrentMenuNumber() != MENU_POWER_OFF))
         	{
-        		reset_splashscreen();
+				settingsSaveSettings();
+
         		if (battery_voltage<CUTOFF_VOLTAGE_LOWER_HYST)
         		{
         			show_lowbattery();
         		}
         		else
         		{
-            		show_poweroff();
+					menuSystemPushNewMenu(MENU_POWER_OFF);
         		}
     		    GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 0);
     		    set_melody(NULL);
-        		Shutdown=true;
-    			Shutdown_Timer = 1200;
-        	}
-        	else if ((GPIO_PinRead(GPIO_Power_Switch, Pin_Power_Switch)==0) && (battery_voltage>CUTOFF_VOLTAGE_LOWER_HYST) && (Shutdown))
-        	{
-    			Shutdown=false;
-    			Shutdown_Timer = 0;
         	}
 
-        	if (Shutdown)
-        	{
-        		if (Shutdown_Timer>0)
-        		{
-        			Shutdown_Timer--;
-        			if (Shutdown_Timer==0)
-        			{
-        				GPIO_PinWrite(GPIO_Keep_Power_On, Pin_Keep_Power_On, 0);
-        			}
-        		}
-        	}
-
-    		if (Show_SplashScreen)
+    		if (menuDisplayLightTimer > 0)
     		{
-    			if ((keys==KEY_1) || (keys==KEY_2) || (keys==KEY_3) || (keys==KEY_STAR))
-    			{
-    				if (keys==KEY_1)
-    				{
-    					create_song(melody1);
-    				}
-    				else if (keys==KEY_2)
-    				{
-    					create_song(melody2);
-    				}
-    				else if (keys==KEY_3)
-    				{
-    					create_song(melody3);
-    				}
-    				else if (keys==KEY_STAR)
-    				{
-    					create_song(melody4);
-    				}
-    				set_melody(melody_generic);
-    				key_event=EVENT_KEY_NONE;
-    			}
-    			else if (key_event!=EVENT_KEY_CHANGE)
-    			{
-    				show_splashscreen();
-    				SplashScreen_Timer = 2400;
-    			}
-    			Show_SplashScreen = false;
-    		}
-
-    		if (SplashScreen_Timer>0)
-    		{
-    			SplashScreen_Timer--;
-    		}
-
-    		if (Display_light_Touched)
-    		{
-    			if (Display_light_Timer==0)
-    			{
-    				GPIO_PinWrite(GPIO_Display_Light, Pin_Display_Light, 1);
-    			}
-    			Display_light_Timer = 2400;
-    			Display_light_Touched = false;
-    		}
-
-    		if (Display_light_Timer>0)
-    		{
-    			Display_light_Timer--;
-    			if (Display_light_Timer==0)
+    			menuDisplayLightTimer--;
+    			if (menuDisplayLightTimer==0)
     			{
     				GPIO_PinWrite(GPIO_Display_Light, Pin_Display_Light, 0);
     			}

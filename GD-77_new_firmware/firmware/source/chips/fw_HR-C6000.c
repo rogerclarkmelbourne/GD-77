@@ -615,6 +615,5 @@ void tick_HR_C6000()
 			last_TG = 0;
 			last_DMRID = 0;
 		}
-		Display_light_Touched = true;
 	}
 }
