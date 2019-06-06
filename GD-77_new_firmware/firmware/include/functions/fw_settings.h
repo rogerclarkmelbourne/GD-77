@@ -24,37 +24,26 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef _FW_EDIT_H_
-#define _FW_EDIT_H_
+#ifndef _FW_SETTINGS_H_
+#define _FW_SETTINGS_H_
 
 #include "fw_common.h"
-#include "fw_keyboard.h"
-#include "fw_display.h"
-
-#include "UC1701.h"
 
 #include "fw_main.h"
-#include "fw_sound.h"
-#include "fw_settings.h"
 
-#define MODE_ANALOG 1
-#define MODE_DIGITAL 2
+#define FREQ_STEP 125
+#define FREQ_COUNT 4
 
-#define VHF_MIN 1440000
-#define VHF_MAX 1479999
-#define UHF_MIN 4300000
-#define UHF_MAX 4499999
+#define STORAGE_BASE_ADDRESS 0xFF00
+#define STORAGE_MAGIC_NUMBER 0x4711
 
-void reset_freq_enter_digits();
-int read_freq_enter_digits();
-bool check_frequency(int tmp_frequency);
-bool check_frequency_is_VHF();
-bool check_frequency_is_UHF();
-void update_frequency(int tmp_frequency);
-void update_flags();
-void update_qsodata();
-void update_screen();
-void init_edit();
-void tick_edit();
+extern int current_mode;
+extern int current_frequency[FREQ_COUNT];
+extern int current_frequency_idx;
 
-#endif /* _FW_EDIT_H_ */
+void save_value(int idx, int value);
+int load_value(int idx);
+void save_settings();
+void load_settings();
+
+#endif

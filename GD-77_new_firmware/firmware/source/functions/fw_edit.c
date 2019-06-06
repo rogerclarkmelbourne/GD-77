@@ -26,10 +26,6 @@
 
 #include "fw_edit.h"
 
-int current_mode = 0;
-int current_frequency[FREQ_COUNT];
-int current_frequency_idx;
-
 char freq_enter_digits[7] = { '-', '-', '-', '-', '-', '-', '-' };
 int freq_enter_idx = 0;
 
@@ -226,56 +222,6 @@ void update_screen()
 	UC1701_printCentered(3*8, buffer, UC1701_FONT_6X8);
 	UC1701_render();
 	Display_light_Touched = true;
-}
-
-void save_value(int idx, int value)
-{
-	int tmp_value=load_value(idx);
-	if (tmp_value!=value)
-	{
-		EEPROM_Write(STORAGE_BASE_ADDRESS+idx*sizeof(int), (uint8_t*)&value, sizeof(int));
-	    vTaskDelay(portTICK_PERIOD_MS * 5);
-	}
-}
-
-int load_value(int idx)
-{
-	int tmp_value=0;
-	EEPROM_Read(STORAGE_BASE_ADDRESS+idx*sizeof(int), (uint8_t*)&tmp_value, sizeof(int));
-	return tmp_value;
-}
-
-void save_settings()
-{
-	save_value(0, STORAGE_MAGIC_NUMBER);
-	save_value(1, current_mode);
-	save_value(2, current_frequency_idx);
-	for (int i=0;i<FREQ_COUNT;i++)
-	{
-		save_value(3+i, current_frequency[i]);
-	}
-}
-
-void load_settings()
-{
-	if (load_value(0)==STORAGE_MAGIC_NUMBER)
-	{
-		current_mode = load_value(1);
-		current_frequency_idx = load_value(2);
-		for (int i=0;i<FREQ_COUNT;i++)
-		{
-			current_frequency[i] = load_value(3+i);
-		}
-	}
-	else
-	{
-		current_mode = MODE_DIGITAL;
-		for (int i=0;i<FREQ_COUNT;i++)
-		{
-			current_frequency[i] = VHF_MIN;
-		}
-		current_frequency_idx=0;
-	}
 }
 
 void init_edit()
