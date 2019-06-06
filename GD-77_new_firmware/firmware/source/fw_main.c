@@ -136,8 +136,6 @@ void fw_main_task()
 
 	Show_SplashScreen = true;
 
-	init_edit();
-
 	open_squelch=false;
 	HR_C6000_datalogging=false;
 
@@ -188,8 +186,6 @@ void fw_main_task()
         		if (keys!=0)
         		{
             	    set_melody(melody_key_beep);
-
-					tick_edit();
         		}
         	}
 
@@ -228,7 +224,6 @@ void fw_main_task()
         	}
         	else if ((GPIO_PinRead(GPIO_Power_Switch, Pin_Power_Switch)==0) && (battery_voltage>CUTOFF_VOLTAGE_LOWER_HYST) && (Shutdown))
         	{
-    			update_screen();
     			Shutdown=false;
     			Shutdown_Timer = 0;
         	}
@@ -267,7 +262,6 @@ void fw_main_task()
     				}
     				set_melody(melody_generic);
     				key_event=EVENT_KEY_NONE;
-    				update_screen();
     			}
     			else if (key_event!=EVENT_KEY_CHANGE)
     			{
@@ -280,10 +274,6 @@ void fw_main_task()
     		if (SplashScreen_Timer>0)
     		{
     			SplashScreen_Timer--;
-    			if (SplashScreen_Timer==0)
-    			{
-    				update_screen();
-    			}
     		}
 
     		if (Display_light_Touched)

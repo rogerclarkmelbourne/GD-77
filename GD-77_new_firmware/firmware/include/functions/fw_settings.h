@@ -31,6 +31,14 @@
 
 #include "fw_main.h"
 
+#define MODE_ANALOG 1
+#define MODE_DIGITAL 2
+
+#define VHF_MIN 1440000
+#define VHF_MAX 1479999
+#define UHF_MIN 4300000
+#define UHF_MAX 4499999
+
 #define FREQ_STEP 125
 #define FREQ_COUNT 4
 

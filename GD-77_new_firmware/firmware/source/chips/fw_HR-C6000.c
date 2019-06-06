@@ -348,7 +348,6 @@ void store_qsodata()
 	{
 		last_TG=tmp_last_TG;
 		last_DMRID=tmp_last_DMRID;
-		update_screen();
 	}
 }
 
@@ -615,7 +614,6 @@ void tick_HR_C6000()
 		{
 			last_TG = 0;
 			last_DMRID = 0;
-			update_screen();
 		}
 		Display_light_Touched = true;
 	}

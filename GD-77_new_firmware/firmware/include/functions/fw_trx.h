@@ -27,7 +27,6 @@
 #ifndef _FW_TRX_H_
 #define _FW_TRX_H_
 
-#include "fw_edit.h"
 #include "fw_sound.h"
 
 extern bool open_squelch;

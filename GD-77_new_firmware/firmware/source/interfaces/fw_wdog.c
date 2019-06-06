@@ -109,10 +109,6 @@ void tick_watchdog()
 		if (battery_voltage!=tmp_battery_voltage)
 		{
 			battery_voltage=tmp_battery_voltage;
-			if ((Shutdown_Timer==0) && (SplashScreen_Timer==0))
-			{
-				update_flags();
-			}
 		}
 		battery_voltage_tick=0;
 	}

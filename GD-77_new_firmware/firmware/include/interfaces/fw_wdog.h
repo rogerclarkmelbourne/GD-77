@@ -30,7 +30,7 @@
 #include "fsl_wdog.h"
 
 #include "fw_adc.h"
-#include "fw_edit.h"
+#include "fw_pit.h"
 
 extern volatile bool alive_maintask;
 extern volatile bool alive_beeptask;
