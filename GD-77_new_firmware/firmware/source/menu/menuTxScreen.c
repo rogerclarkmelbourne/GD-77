@@ -34,12 +34,23 @@ int menuTxScreen(int buttons, int keys, int events, bool isFirstRun)
 {
 	if (isFirstRun)
 	{
+		gMenusCurrentItemIndex=180000;
 		updateScreen();
 	    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
 	    GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 1);
 	}
 	else
 	{
+		if ((gMenusCurrentItemIndex%1000)==0)
+		{
+			updateScreen();
+		}
+		gMenusCurrentItemIndex--;
+		if (gMenusCurrentItemIndex<0)
+		{
+			gMenusCurrentItemIndex=0;
+		}
+
 		handleEvent(buttons, keys, events);
 	}
 	return 0;
@@ -47,8 +58,10 @@ int menuTxScreen(int buttons, int keys, int events, bool isFirstRun)
 
 static void updateScreen()
 {
+	char buf[8];
 	UC1701_clearBuf();
-	UC1701_printCentered(20, "Tx",UC1701_FONT_16x32);
+	sprintf(buf,"%d",gMenusCurrentItemIndex/1000);
+	UC1701_printCentered(20, buf,UC1701_FONT_16x32);
 
 	UC1701_render();
 	displayLightOverrideTimeout(-1);
