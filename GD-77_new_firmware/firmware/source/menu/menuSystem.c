@@ -45,6 +45,7 @@ int menuNumericalEntry(int buttons, int keys, int events, bool isFirstRun);
 int menuTxScreen(int buttons, int keys, int events, bool isFirstRun);
 int menuRSSIScreen(int buttons, int keys, int events, bool isFirstRun);
 int menuLastHeard(int buttons, int keys, int events, bool isFirstRun);
+int menuDebug(int buttons, int keys, int events, bool isFirstRun);
 
 
 /*
@@ -56,17 +57,20 @@ int menuLastHeard(int buttons, int keys, int events, bool isFirstRun);
  *
  * ---------------------- IMPORTANT ----------------------------
  */
-const menuItemNew_t * menusData[] = { 	NULL,
-										NULL,
-										NULL,
-										NULL,
+const menuItemNew_t * menusData[] = { 	NULL,// splash
+										NULL,// power off
+										NULL,// vfo mode
+										NULL,// channel mode
 										menuDataMainMenu,
 										menuDataContact,
-										menuDataContactContact,
-										NULL,
-										NULL,
+										NULL,// zone
+										NULL,// Battery
+										NULL,// Firmwareinfo
+										NULL,// Numerical entry
 										NULL,// Tx
-										NULL // RSSI
+										NULL,// RSSI
+										NULL,// LastHeard
+										NULL,// Debug
 								};
 
 const MenuFunctionPointer_t menuFunctions[] = { menuSplashScreen,
@@ -81,7 +85,8 @@ const MenuFunctionPointer_t menuFunctions[] = { menuSplashScreen,
 												menuNumericalEntry,
 												menuTxScreen,
 												menuRSSIScreen,
-												menuLastHeard};
+												menuLastHeard,
+												menuDebug};
 
 void menuSystemPushNewMenu(int menuNumber)
 {
@@ -159,15 +164,17 @@ const char menuStringTable[32][16] = { "",//0
 										 "Firmware info",//16
 										 "RSSI",//17
 										 "Last heard",//18
+										 "Debug",//19
 };
 
 const menuItemNew_t menuDataMainMenu[] = {
-	{4,4},
+	{6,6},// number of enties i
 	{ 6, MENU_ZONE_LIST },
 	{ 17, MENU_RSSI_SCREEN },
 	{ 15, MENU_BATTERY },
 	{ 18, MENU_LAST_HEARD },
 	{ 16, MENU_FIRMWARE_INFO },
+	{ 19, MENU_DEBUG }
 };
 const menuItemNew_t menuDataContact[] = {
 	{ 3, 3 } ,// length
