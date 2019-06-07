@@ -26,9 +26,6 @@
 
 #include "fw_keyboard.h"
 
-uint32_t keys;
-int key_event;
-
 uint32_t old_keyboard_state;
 
 void fw_init_keyboard()

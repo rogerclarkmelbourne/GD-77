@@ -57,6 +57,11 @@ void show_lowbattery()
 
 void fw_main_task()
 {
+	uint32_t keys;
+	int key_event;
+	uint32_t buttons;
+	int button_event;
+	
     USB_DeviceApplicationInit();
 
 	fw_init_common();
@@ -147,11 +152,8 @@ void fw_main_task()
 
         	tick_com_request();
 
-        	// Read button state and event
-        	fw_check_button_event(&buttons, &button_event);
-
-        	// Read keyboard state and event
-        	fw_check_key_event(&keys, &key_event);
+        	fw_check_button_event(&buttons, &button_event);// Read button state and event
+        	fw_check_key_event(&keys, &key_event);// Read keyboard state and event
 
         	if (key_event==EVENT_KEY_CHANGE)
         	{

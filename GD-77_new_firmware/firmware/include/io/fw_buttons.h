@@ -50,9 +50,6 @@
 #define EVENT_BUTTON_NONE   0
 #define EVENT_BUTTON_CHANGE 1
 
-extern uint32_t buttons;
-extern int button_event;
-
 void fw_init_buttons();
 uint32_t fw_read_buttons();
 void fw_check_button_event(uint32_t *buttons, int *event);
