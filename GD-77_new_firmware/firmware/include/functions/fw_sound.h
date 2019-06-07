@@ -40,14 +40,14 @@ extern volatile int sine_beep_freq;
 extern volatile int sine_beep_duration;
 
 extern int melody_generic[512];
-extern int melody_poweron[];
-extern int melody_key_beep[];
-extern int melody_sk1_beep[];
-extern int melody_sk2_beep[];
-extern int melody_orange_beep[];
-extern int melody_ACK_beep[];
-extern int melody_NACK_beep[];
-extern int melody_ERROR_beep[];
+extern const int melody_poweron[];
+extern const int melody_key_beep[];
+extern const int melody_sk1_beep[];
+extern const int melody_sk2_beep[];
+extern const int melody_orange_beep[];
+extern const int melody_ACK_beep[];
+extern const int melody_NACK_beep[];
+extern const int melody_ERROR_beep[];
 extern volatile int *melody_play;
 extern volatile int melody_idx;
 
@@ -74,7 +74,7 @@ extern volatile bool g_TX_SAI_in_use;
 
 void init_sound();
 void terminate_sound();
-void set_melody(int *melody);
+void set_melody(const int *melody);
 int get_freq(int tone);
 void create_song(const uint8_t *melody);
 void fw_init_beep_task();

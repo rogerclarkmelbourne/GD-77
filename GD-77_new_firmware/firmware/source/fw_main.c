@@ -50,7 +50,7 @@ void fw_init()
     vTaskStartScheduler();
 }
 
-void show_lowbattery()
+static void show_lowbattery()
 {
 	UC1701_clearBuf();
 	UC1701_printCentered(32, "LOW BATTERY !!!", UC1701_FONT_GD77_8x16);
