@@ -51,5 +51,6 @@ int UC1701_printCore(int x, int y, char *szMsg, int iSize, int alignment, bool i
 int UC1701_setPixel(int x, int y, bool color);
 void UC1701_fillRect(int x,int y,int width,int height,bool isInverted);
 void UC1701_setContrast(uint8_t contrast);
+void UC1701_setInverseVideo(bool isInverted);
 
 #endif /* __UC1701_H__ */

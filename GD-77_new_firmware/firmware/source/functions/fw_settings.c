@@ -36,7 +36,7 @@ const int BAND_UHF_MIN 	= 4300000;
 const int BAND_UHF_MAX 	= 4500000;
 
 static const int STORAGE_BASE_ADDRESS = 0xFF00;
-static const int STORAGE_MAGIC_NUMBER = 0x4713;
+static const int STORAGE_MAGIC_NUMBER = 0x4714;
 
 settingsStruct_t nonVolatileSettings;
 
@@ -72,4 +72,6 @@ void settingsRestoreDefaultSettings()
 	nonVolatileSettings.displayContrast = 0x0E;
 	nonVolatileSettings.vfoTrxMode = RADIO_MODE_DIGITAL;
 	nonVolatileSettings.initialMenuNumber=MENU_VFO_MODE;
+	nonVolatileSettings.displayBacklightPercentage=100U;// 100% brightness
+	nonVolatileSettings.displayInverseVideo=0;// Not inverse video
 }

@@ -46,6 +46,7 @@ int menuTxScreen(int buttons, int keys, int events, bool isFirstRun);
 int menuRSSIScreen(int buttons, int keys, int events, bool isFirstRun);
 int menuLastHeard(int buttons, int keys, int events, bool isFirstRun);
 int menuDebug(int buttons, int keys, int events, bool isFirstRun);
+int menuDisplay(int buttons, int keys, int events, bool isFirstRun);
 
 
 /*
@@ -86,7 +87,8 @@ const MenuFunctionPointer_t menuFunctions[] = { menuSplashScreen,
 												menuTxScreen,
 												menuRSSIScreen,
 												menuLastHeard,
-												menuDebug};
+												menuDebug,
+												menuDisplay};
 
 void menuSystemPushNewMenu(int menuNumber)
 {
@@ -122,14 +124,14 @@ void menuSystemCallCurrentMenuTick(int buttons, int keys, int events)
 void displayLightTrigger()
 {
 	menuDisplayLightTimer = nonVolatileSettings.backLightTimeout * 1000;
-	GPIO_PinWrite(GPIO_Display_Light, Pin_Display_Light, 1);
+	fw_displayEnableBacklight(true);
 }
 
 // use -1 to force LED on all the time
 void displayLightOverrideTimeout(int timeout)
 {
 	menuDisplayLightTimer = timeout;
-	GPIO_PinWrite(GPIO_Display_Light, Pin_Display_Light, 1);
+	fw_displayEnableBacklight(true);
 }
 
 const int MENU_EVENT_SAVE_SETTINGS = -1;
@@ -165,16 +167,18 @@ const char menuStringTable[32][16] = { "",//0
 										 "RSSI",//17
 										 "Last heard",//18
 										 "Debug",//19
+										 "Display options",//20
 };
 
 const menuItemNew_t menuDataMainMenu[] = {
-	{6,6},// number of enties i
+	{7,7},// number of enties i
 	{ 6, MENU_ZONE_LIST },
 	{ 17, MENU_RSSI_SCREEN },
 	{ 15, MENU_BATTERY },
 	{ 18, MENU_LAST_HEARD },
 	{ 16, MENU_FIRMWARE_INFO },
-	{ 19, MENU_DEBUG }
+	{ 19, MENU_DEBUG },
+	{ 20, MENU_DISPLAY},
 };
 const menuItemNew_t menuDataContact[] = {
 	{ 3, 3 } ,// length

@@ -67,15 +67,18 @@ void fw_main_task()
 	
     USB_DeviceApplicationInit();
 
+    // Init I2C
+    init_I2C0a();
+    setup_I2C0();
+    settingsLoadSettings();
+
 	fw_init_common();
 	fw_init_buttons();
 	fw_init_LEDs();
 	fw_init_keyboard();
 	fw_init_display();
 
-    // Init I2C
-    init_I2C0a();
-    setup_I2C0();
+
 
     // Init SPI
     init_SPI();
@@ -137,7 +140,6 @@ void fw_main_task()
     SEGGER_RTT_printf(0,"Segger RTT initialised\n");
 #endif
 
-    settingsLoadSettings();
     lastheardInitList();
     menuInitMenuSystem();
 
@@ -212,7 +214,7 @@ void fw_main_task()
     			menuDisplayLightTimer--;
     			if (menuDisplayLightTimer==0)
     			{
-    				GPIO_PinWrite(GPIO_Display_Light, Pin_Display_Light, 0);
+    				fw_displayEnableBacklight(false);
     			}
     		}
 

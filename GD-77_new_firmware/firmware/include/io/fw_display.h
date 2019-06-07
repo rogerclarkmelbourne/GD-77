@@ -1,6 +1,8 @@
 /*
  * Copyright (C)2019 Kai Ludwig, DG4KLU
  *
+ * PWM modifications by Roger Clark VK3KYY / G4KYF
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
@@ -28,6 +30,7 @@
 #define _FW_DISPLAY_H_
 
 #include "fw_common.h"
+#define DISPLAY_LED_PWM
 
 #define Port_Display_Light	PORTC
 #define GPIO_Display_Light	GPIOC
@@ -49,5 +52,17 @@
 #define Pin_Display_SDA		12
 
 void fw_init_display();
+
+void fw_displayEnableBacklight(bool onof);
+
+#ifdef DISPLAY_LED_PWM
+
+#define BOARD_FTM_BASEADDR FTM0
+#define BOARD_FTM_CHANNEL kFTM_Chnl_3
+
+void fw_displaySetBacklightIntensityPercentage(uint8_t intensityPercentage);
+
+#endif
+
 
 #endif /* _FW_DISPLAY_H_ */

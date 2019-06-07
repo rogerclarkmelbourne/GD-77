@@ -45,9 +45,11 @@ typedef struct settingsStruct
 	uint8_t			vfoFrequencyStepKhz;// step in Khz times 10
 	int8_t			currentVFOIndex;
 	uint8_t			backLightTimeout;//0 = never timeout. 1 - 255 time in seconds
-	uint8_t			displayContrast;
+	int8_t			displayContrast;
 	uint8_t			vfoTrxMode;
 	uint8_t			initialMenuNumber;
+	int8_t			displayBacklightPercentage;
+	uint8_t			displayInverseVideo;
 } settingsStruct_t;
 
 extern settingsStruct_t nonVolatileSettings;

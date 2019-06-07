@@ -31,6 +31,7 @@
 #include "fw_display.h"
 #include "UC1701.h"
 #include "UC1701_charset.h"
+#include "fw_settings.h"
 
 static uint8_t screenBuf[1024];
 int activeBufNum=0;
@@ -246,6 +247,22 @@ uint8_t *readPos;
 	return 0;
 }
 
+void UC1701_setInverseVideo(bool isInverted)
+{
+	UC1701_setCommandMode(true);
+	if (isInverted)
+	{
+		UC1701_transfer(0xA7); // Black background, white pixels
+	}
+	else
+	{
+		UC1701_transfer(0xA4); // White background, black pixels
+	}
+
+    UC1701_transfer(0xAF); // Set Display Enable
+    UC1701_setCommandMode(false);
+}
+
 void UC1701_begin(bool isInverted)
 {
 	GPIO_PinWrite(GPIO_Display_CS, Pin_Display_CS, 0);// Enable CS permanently
@@ -254,7 +271,7 @@ void UC1701_begin(bool isInverted)
 	UC1701_transfer(0xE2); // System Reset
 	UC1701_transfer(0x2F); // Voltage Follower On
 	UC1701_transfer(0x81); // Set Electronic Volume = 15
-	UC1701_transfer(0x10); //
+	UC1701_transfer(nonVolatileSettings.displayContrast); //
 	UC1701_transfer(0xA2); // Set Bias = 1/9
 	UC1701_transfer(0xA1); // A0 Set SEG Direction
 	UC1701_transfer(0xC0); // Set COM Direction
