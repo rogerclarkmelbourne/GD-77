@@ -209,14 +209,25 @@ static uint8_t spi_flash_transfer(uint8_t c)
 {
 	for (uint8_t bit = 0; bit < 8; bit++)
 	{
-		GPIO_PinWrite(GPIO_SPI_FLASH_DO_U, Pin_SPI_FLASH_DO_U, (c & 0x80));// PinWrite treats all non zero values as a 1
+		GPIO_SPI_FLASH_CLK_U->PCOR = 1U << Pin_SPI_FLASH_CLK_U;
+		__asm volatile( "nop" );
+		if ((c&0x80) == 0U)
+		{
+			GPIO_SPI_FLASH_DO_U->PCOR = 1U << Pin_SPI_FLASH_DO_U;// Hopefully the compiler will otimise this to a value rather than using a shift
+		}
+		else
+		{
+			GPIO_SPI_FLASH_DO_U->PSOR = 1U << Pin_SPI_FLASH_DO_U;// Hopefully the compiler will otimise this to a value rather than using a shift
+		}
+		__asm volatile( "nop" );
 		c <<= 1;
-		c |= (GPIO_PinRead(GPIO_SPI_FLASH_DI_U, Pin_SPI_FLASH_DI_U) != 0);// read MISO
+		c |= (GPIO_SPI_FLASH_DI_U->PDIR >> Pin_SPI_FLASH_DI_U) & 0x01U;
 		// toggle the clock
-		GPIO_PinWrite(GPIO_SPI_FLASH_CLK_U, Pin_SPI_FLASH_CLK_U, 1);
-		GPIO_PinWrite(GPIO_SPI_FLASH_CLK_U, Pin_SPI_FLASH_CLK_U, 0);
+		GPIO_SPI_FLASH_CLK_U->PSOR = 1U << Pin_SPI_FLASH_CLK_U;
+		__asm volatile( "nop" );
+
 	}
-  return c;
+	return c;
 }
 
 static void spi_flash_transfer_buf(uint8_t *inBuf,uint8_t *outBuf,int size)
