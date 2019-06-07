@@ -61,17 +61,7 @@
 extern int Display_light_Timer;
 extern bool Display_light_Touched;
 extern const char *FIRMWARE_VERSION_STRING;
-extern bool Show_SplashScreen;
-extern int SplashScreen_Timer;
-extern bool Shutdown;
-extern int Shutdown_Timer;
-
-void show_splashscreen();
-void show_poweroff();
-void reset_splashscreen();
-void show_lowbattery();
 
 void fw_init();
-void fw_main_task();
 
 #endif /* _FW_MAIN_H_ */
