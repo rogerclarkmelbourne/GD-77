@@ -96,3 +96,22 @@ V0.0.1e:
 - Added HR-C6000 interrupt timeout to avoid interrupt hangup due to missed packets.
 - Added new tasks for HR-C6000 and watchdog, tasks timing is controlled by the periodic interrupt timer (PIT).
 - Reorganized tasks to fit into the new PIT controlled task structure, adjusted timings.
+
+V0.1:
+- Extended watchdog to look for all tasks.
+- Removed old menu system.
+- Removed old edit system.
+- Cosmetic / cleanup / refactoring / optimization.
+- Additional stuff by Roger Clark, VK3KYY / G4KYF:
+  - New display library.
+  - New menu/edit system.
+  - PIT counter.
+  - Modified startup sound.
+  - Squelch optimization.
+  - Better FM filter handling.
+  - SPI flash optimization.
+  - Some compilation optimization.
+  - Store qsodata seems to report DMR ID of 0x4ED1E7 when it miss interprets a late start.
+  - Added debug options control screen for Sq and log.
+  - Added basic countdown timer to Tx screen, as proof of concept.
+  - Added PWM control of LED backlight + menu screen for Display Options.
