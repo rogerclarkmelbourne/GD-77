@@ -25,6 +25,7 @@
  */
 
 #include "fw_wdog.h"
+#include "fw_pit.h"
 
 TaskHandle_t fwwatchdogTaskHandle;
 
