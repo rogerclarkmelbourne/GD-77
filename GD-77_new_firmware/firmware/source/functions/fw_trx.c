@@ -38,6 +38,8 @@ const int RADIO_UHF_MAX			=	5200000;
 
 static int currentMode = RADIO_MODE_NONE;
 static int currentFrequency =1440000;
+static uint8_t squelch = 0x00;
+static const uint8_t SQUELCH_SETTINGS[] = {45,45,45};
 
 int	trxGetMode()
 {
@@ -84,9 +86,9 @@ void trx_check_analog_squelch()
 	{
 		uint8_t RX_signal;
 		uint8_t RX_noise;
-		read_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x1b, &RX_noise, &RX_signal);
+		read_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x1b,&RX_signal,&RX_noise);
 
-		if ((RX_signal<45) || (open_squelch))
+		if ((RX_noise < SQUELCH_SETTINGS[0]) || (open_squelch))
 		{
 			GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 1); // speaker on
 		}
@@ -105,17 +107,20 @@ void trxSetFrequency(int frequency)
 	{
 		currentFrequency=frequency;
 
+		if ((currentMode == RADIO_MODE_ANALOG) && (!open_squelch))
+		{
+			squelch = 0x08;
+		}
+		else
+		{
+			squelch = 0x00;
+		}
+
 		uint32_t f = currentFrequency * 1.6f;
 		uint8_t fl_l = (f & 0x000000ff) >> 0;
 		uint8_t fl_h = (f & 0x0000ff00) >> 8;
 		uint8_t fh_l = (f & 0x00ff0000) >> 16;
 		uint8_t fh_h = (f & 0xff000000) >> 24;
-
-		uint8_t squelch = 0x00;
-		if ((currentMode == RADIO_MODE_ANALOG) && (!open_squelch))
-		{
-			squelch = 0x08;
-		}
 
 		write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x30, 0x40, 0x06 | squelch); // RX off
 		write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x05, 0x87, 0x63); // select 'normal' frequency mode
