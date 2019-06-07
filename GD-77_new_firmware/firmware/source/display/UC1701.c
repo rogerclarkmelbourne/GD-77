@@ -27,6 +27,7 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 #include "fw_display.h"
 #include "UC1701.h"
 #include "UC1701_charset.h"
@@ -270,7 +271,6 @@ void UC1701_begin(bool isInverted)
     UC1701_transfer(0xAF); // Set Display Enable
     UC1701_clearBuf();
     UC1701_render();
-
 }
 
 void UC1701_setContrast(uint8_t contrast)
@@ -355,7 +355,6 @@ int shiftNum;
 				{
 					*(addPtr + stripe) |= bitPatten;
 				}
-
 			}
 		}
 	}
