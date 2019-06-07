@@ -25,6 +25,13 @@
  */
 
 #include "fw_sound.h"
+#include "fw_trx.h"
+#include "fsl_sai.h"
+#include "fsl_sai_edma.h"
+#include "fw_i2s.h"
+#include "fw_pit.h"
+#include "fw_wdog.h"
+
 
 TaskHandle_t fwBeepTaskHandle;
 
@@ -33,7 +40,19 @@ volatile int sine_beep_freq;
 volatile int sine_beep_duration;
 
 int melody_generic[512];
-const int melody_poweron[] = { 440, 300, 466, 300, 494, 300, -1, -1 };
+#define DIT_LENGTH  60
+#define DAH_LENGTH  3 * DIT_LENGTH
+//const int melody_poweron[] = { 440, 300, 466, 300, 494, 300, -1, -1 };
+const int melody_poweron[] = { 880, DAH_LENGTH,
+								0, DIT_LENGTH,
+								880, DIT_LENGTH,
+								0, DIT_LENGTH,
+								880, DAH_LENGTH,
+								0, DIT_LENGTH,
+								880, DIT_LENGTH,
+								0, DIT_LENGTH,
+								880, DAH_LENGTH,
+								-1, -1 };
 const int melody_key_beep[] = { 880, 60, -1, -1 };
 const int melody_sk1_beep[] = { 466, 60, 0, 60, 466, 60, -1, -1 };
 const int melody_sk2_beep[] = { 494, 60, 0, 60, 494, 60, -1, -1 };

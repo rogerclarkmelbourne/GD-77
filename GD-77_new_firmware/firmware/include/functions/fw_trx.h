@@ -28,6 +28,7 @@
 #define _FW_TRX_H_
 
 #include "fw_sound.h"
+#include "fw_i2c.h"
 
 extern const int RADIO_VHF_MIN;
 extern const int RADIO_VHF_MAX;

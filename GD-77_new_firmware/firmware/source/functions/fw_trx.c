@@ -25,6 +25,7 @@
  */
 
 #include "fw_trx.h"
+#include "fw_HR-C6000.h"
 
 bool open_squelch=false;
 bool HR_C6000_datalogging=false;

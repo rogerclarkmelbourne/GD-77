@@ -27,6 +27,7 @@
 #include "fw_main.h"
 #include "menu/menuSystem.h"
 #include "menu/menuUtilityQSOData.h"
+#include "fw_settings.h"
 
 #if defined(USE_SEGGER_RTT)
 #include <SeggerRTT/RTT/SEGGER_RTT.h>

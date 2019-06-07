@@ -31,9 +31,7 @@
 #include "task.h"
 
 #include "fw_common.h"
-#include "fw_settings.h"
 #include "fw_spi.h"
-#include "fw_HR-C6000.h"
 
 extern const uint8_t sine_beep[];
 extern volatile int sine_beep_freq;
