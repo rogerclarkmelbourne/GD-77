@@ -25,6 +25,7 @@
  */
 
 #include "fw_HR-C6000.h"
+#include "menu/menuUtilityQSOData.h"
 
 #if defined(USE_SEGGER_RTT)
 #include <SeggerRTT/RTT/SEGGER_RTT.h>
@@ -346,8 +347,18 @@ void store_qsodata()
 	qsodata_timer=2400;
 	if ((tmp_last_TG!=last_TG) || (tmp_last_DMRID!=last_DMRID))
 	{
-		last_TG=tmp_last_TG;
-		last_DMRID=tmp_last_DMRID;
+
+#warning HACK ALERT. store qsodata seems to report DMR ID of 0x4ED1E7 when it miss interprets a late start
+
+		//I suspect the C6000 is returning an error code or something similar in these cases in place of the DMR ID,
+		// because the value is always the same no matter what the incoming ID actually is
+		if (tmp_last_DMRID!=0x4ED1E7)
+		{
+
+			last_TG=tmp_last_TG;
+			last_DMRID=tmp_last_DMRID;
+			lastHeardListUpdate(last_DMRID,last_TG);
+		}
 	}
 }
 
