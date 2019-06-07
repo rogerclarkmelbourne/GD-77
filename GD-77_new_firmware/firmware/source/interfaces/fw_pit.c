@@ -30,6 +30,7 @@ volatile uint32_t timer_maintask;
 volatile uint32_t timer_beeptask;
 volatile uint32_t timer_hrc6000task;
 volatile uint32_t timer_watchdogtask;
+volatile uint32_t PITCounter;
 
 void init_pit()
 {
@@ -54,6 +55,8 @@ void init_pit()
 
 void PIT0_IRQHandler(void)
 {
+	PITCounter++;// is unsigned so will wrap around
+
 	if (timer_maintask>0)
 	{
 		timer_maintask--;
