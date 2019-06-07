@@ -54,7 +54,7 @@ void set_melody(const int *melody)
 	taskENTER_CRITICAL();
 	sine_beep_freq=0;
 	sine_beep_duration=0;
-	melody_play=melody;
+	melody_play=(int *)melody;
 	melody_idx=0;
 	taskEXIT_CRITICAL();
 }
@@ -355,6 +355,7 @@ void fw_beep_task()
 	uint8_t tmp_val;
 	int beep_idx = 0;
 	bool beep = false;
+	uint8_t spi_sound[32];
 
     while (1U)
     {
@@ -378,14 +379,13 @@ void fw_beep_task()
     			read_SPI_page_reg_byte_SPI0(0x04, 0x88, &tmp_val);
     			if ( !(tmp_val & 1) )
     			{
-    				uint8_t spi_sound[32];
     				for (int i=0; i<16 ;i++)
     				{
     					spi_sound[2*i+1]=sine_beep[2*beep_idx];
     					spi_sound[2*i]=sine_beep[2*beep_idx+1];
     					if (sine_beep_freq!=0)
     					{
-    						beep_idx=beep_idx+(sine_beep_freq/3.915f);
+							beep_idx = beep_idx + (int)(sine_beep_freq/3.915f);
     						if (beep_idx>=0x0800)
     						{
     							beep_idx=beep_idx-0x0800;
