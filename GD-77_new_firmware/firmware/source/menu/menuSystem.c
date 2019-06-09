@@ -46,7 +46,7 @@ int menuTxScreen(int buttons, int keys, int events, bool isFirstRun);
 int menuRSSIScreen(int buttons, int keys, int events, bool isFirstRun);
 int menuLastHeard(int buttons, int keys, int events, bool isFirstRun);
 int menuDebug(int buttons, int keys, int events, bool isFirstRun);
-int menuDisplay(int buttons, int keys, int events, bool isFirstRun);
+int menuDisplayOptions(int buttons, int keys, int events, bool isFirstRun);
 
 
 /*
@@ -88,7 +88,7 @@ const MenuFunctionPointer_t menuFunctions[] = { menuSplashScreen,
 												menuRSSIScreen,
 												menuLastHeard,
 												menuDebug,
-												menuDisplay};
+												menuDisplayOptions};
 
 void menuSystemPushNewMenu(int menuNumber)
 {

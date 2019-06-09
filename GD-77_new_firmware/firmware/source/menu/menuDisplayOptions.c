@@ -34,7 +34,7 @@ static uint8_t originalBrightness;
 static uint8_t contrast;
 static uint8_t inverseVideo;
 
-int menuDisplay(int buttons, int keys, int events, bool isFirstRun)
+int menuDisplayOptions(int buttons, int keys, int events, bool isFirstRun)
 {
 	if (isFirstRun)
 	{
