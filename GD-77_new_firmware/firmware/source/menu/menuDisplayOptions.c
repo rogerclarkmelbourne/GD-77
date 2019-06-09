@@ -64,7 +64,7 @@ static void updateScreen()
 	{
 		UC1701_fillRect(0,16,128,16,false);
 	}
-	sprintf(buf,"Brightness %d",nonVolatileSettings.displayBacklightPercentage);
+	sprintf(buf,"Brightness %d%%",nonVolatileSettings.displayBacklightPercentage);
 	UC1701_printCore(0,16,buf,UC1701_FONT_GD77_8x16,0,(gMenusCurrentItemIndex==0));
 
 
@@ -113,7 +113,15 @@ static void handleEvent(int buttons, int keys, int events)
 		switch(gMenusCurrentItemIndex)
 		{
 			case 0:
-				nonVolatileSettings.displayBacklightPercentage += 10;
+				if (nonVolatileSettings.displayBacklightPercentage<10)
+				{
+					nonVolatileSettings.displayBacklightPercentage += 1;
+				}
+				else
+				{
+					nonVolatileSettings.displayBacklightPercentage += 10;
+				}
+
 				if (nonVolatileSettings.displayBacklightPercentage>100)
 				{
 					nonVolatileSettings.displayBacklightPercentage=100;
@@ -141,7 +149,15 @@ static void handleEvent(int buttons, int keys, int events)
 		switch(gMenusCurrentItemIndex)
 		{
 			case 0:
-				nonVolatileSettings.displayBacklightPercentage -= 10;
+				if (nonVolatileSettings.displayBacklightPercentage <= 10)
+				{
+					nonVolatileSettings.displayBacklightPercentage -= 1;
+				}
+				else
+				{
+					nonVolatileSettings.displayBacklightPercentage -= 10;
+				}
+
 				if (nonVolatileSettings.displayBacklightPercentage<0)
 				{
 					nonVolatileSettings.displayBacklightPercentage=0;
