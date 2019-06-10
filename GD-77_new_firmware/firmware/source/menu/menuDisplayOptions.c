@@ -33,6 +33,11 @@ static void handleEvent(int buttons, int keys, int events);
 static uint8_t originalBrightness;
 static uint8_t contrast;
 static uint8_t inverseVideo;
+static int8_t 	backLightTimeout;// used int_8 to save space
+
+const int BACKLIGHT_MAX_TIMEOUT = 30;
+const int CONTRAST_MAX_VALUE = 30;// Maximum value which still seems to be readable
+const int CONTRAST_MIN_VALUE = 12;// Minimum value which still seems to be readable
 
 int menuDisplayOptions(int buttons, int keys, int events, bool isFirstRun)
 {
@@ -42,6 +47,7 @@ int menuDisplayOptions(int buttons, int keys, int events, bool isFirstRun)
 		originalBrightness = nonVolatileSettings.displayBacklightPercentage;
 		contrast = nonVolatileSettings.displayContrast;
 		inverseVideo = nonVolatileSettings.displayInverseVideo;
+		backLightTimeout = 	nonVolatileSettings.backLightTimeout;
 		updateScreen();
 	}
 	else
@@ -67,37 +73,32 @@ static void updateScreen()
 	sprintf(buf,"Brightness %d%%",nonVolatileSettings.displayBacklightPercentage);
 	UC1701_printCore(0,16,buf,UC1701_FONT_GD77_8x16,0,(gMenusCurrentItemIndex==0));
 
-
-
 	if (gMenusCurrentItemIndex==1)
 	{
 		UC1701_fillRect(0,32,128,16,false);
 	}
 	sprintf(buf,"Contrast %d",contrast);
 	UC1701_printCore(0,32,buf,UC1701_FONT_GD77_8x16,0,(gMenusCurrentItemIndex==1));
-/*
- * Display video inversion not currently working :-(
+
 	if (gMenusCurrentItemIndex==2)
 	{
 		UC1701_fillRect(0,48,128,16,false);
 	}
-	sprintf(buf,"Inverse %s",(inverseVideo==1?"On":"Off"));
+	sprintf(buf,"Timeout %d",backLightTimeout);
 	UC1701_printCore(0,48,buf,UC1701_FONT_GD77_8x16,0,(gMenusCurrentItemIndex==2));
-*/
+
 	UC1701_render();
 	displayLightTrigger();
-
 }
-
 
 static void handleEvent(int buttons, int keys, int events)
 {
 	if ((keys & KEY_DOWN)!=0 && gMenusEndIndex!=0)
 	{
 		gMenusCurrentItemIndex++;
-		if (gMenusCurrentItemIndex>1)
+		if (gMenusCurrentItemIndex > 2)
 		{
-			gMenusCurrentItemIndex=0;
+			gMenusCurrentItemIndex = 0;
 		}
 	}
 	else if ((keys & KEY_UP)!=0)
@@ -105,7 +106,7 @@ static void handleEvent(int buttons, int keys, int events)
 		gMenusCurrentItemIndex--;
 		if (gMenusCurrentItemIndex < 0)
 		{
-			gMenusCurrentItemIndex=1;
+			gMenusCurrentItemIndex=2;
 		}
 	}
 	else if ((keys & KEY_RIGHT)!=0)
@@ -129,18 +130,18 @@ static void handleEvent(int buttons, int keys, int events)
 				break;
 			case 1:
 				contrast++;
-				if (contrast>30)
+				if (contrast > CONTRAST_MAX_VALUE)
 				{
-					contrast=30;
+					contrast = CONTRAST_MAX_VALUE;
 				}
 				UC1701_setContrast(contrast);
 				break;
 			case 2:
-				/* Cant seem to leave inverse video
-				inverseVideo=1-inverseVideo;
-				UC1701_begin(inverseVideo==1);
-				UC1701_setContrast(contrast);
-				*/
+				backLightTimeout += 5;
+				if (backLightTimeout > BACKLIGHT_MAX_TIMEOUT)
+				{
+					backLightTimeout=0;
+				}
 				break;
 		}
 	}
@@ -165,19 +166,18 @@ static void handleEvent(int buttons, int keys, int events)
 				break;
 			case 1:
 				contrast--;
-				// 12 seems to be the lowest usable value
-				if (contrast < 12)
+				if (contrast < CONTRAST_MIN_VALUE)
 				{
-					contrast = 12;
+					contrast = CONTRAST_MIN_VALUE;
 				}
 				UC1701_setContrast(contrast);
 				break;
 			case 2:
-				/* Cant seem to leave inverse video
-				inverseVideo=1-inverseVideo;
-				UC1701_begin(inverseVideo==1);
-				UC1701_setContrast(contrast);
-				*/
+				backLightTimeout -= 5;
+				if (backLightTimeout < 0)
+				{
+					backLightTimeout = BACKLIGHT_MAX_TIMEOUT;
+				}
 				break;
 		}
 	}
@@ -185,6 +185,7 @@ static void handleEvent(int buttons, int keys, int events)
 	{
 		nonVolatileSettings.displayInverseVideo = inverseVideo;
 		nonVolatileSettings.displayContrast = contrast;
+		nonVolatileSettings.backLightTimeout = backLightTimeout;
 		menuSystemPopAllAndDisplayRootMenu();
 	}
 	else if ((keys & KEY_RED)!=0)
@@ -194,6 +195,7 @@ static void handleEvent(int buttons, int keys, int events)
 			UC1701_begin(nonVolatileSettings.displayInverseVideo);
 		}
 		nonVolatileSettings.displayBacklightPercentage = originalBrightness;
+
 		menuSystemPopPreviousMenu();
 		return;
 	}
