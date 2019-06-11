@@ -242,6 +242,7 @@ dmrIdDataStruct_t currentRec;
 
 void menuUtilityRenderHeader()
 {
+	char buffer[16];
 	if (open_squelch)
 	{
 		UC1701_printAt(0, 8, "SQ:OFF",1);
@@ -258,9 +259,8 @@ void menuUtilityRenderHeader()
 	{
 		UC1701_printAt(14*6, 8, "LOG:OFF",1);
 	}
-	int val_before_dp = battery_voltage/10;
-	int val_after_dp = battery_voltage-val_before_dp*10;
-	char buffer[32];
-	sprintf(buffer,"%d.%dV", val_before_dp, val_after_dp);
+
+
+	sprintf(buffer,"%s", trxGetMode() == RADIO_MODE_ANALOG?"FM":"DMR");
 	UC1701_printCentered(8, buffer,1);
 }
