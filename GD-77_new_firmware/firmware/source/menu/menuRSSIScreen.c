@@ -32,14 +32,16 @@ static void handleEvent(int buttons, int keys, int events);
 static void sampleRSSIAndNoise();
 
 static const int NUM_SAMPLES = 256;
-
+static int sampleCount;
+static int RSSI_totalVal;
+static int Noise_totalVal;
 int menuRSSIScreen(int buttons, int keys, int events, bool isFirstRun)
 {
 	if (isFirstRun)
 	{
-		gMenusCurrentItemIndex=0;
-		gMenusStartIndex=0;
-		gMenusEndIndex=0;
+		sampleCount=0;
+		RSSI_totalVal=0;
+		Noise_totalVal=0;
 		//updateScreen(); // Don't draw screen until we've collected enough samples
 	}
 	else
@@ -48,16 +50,19 @@ int menuRSSIScreen(int buttons, int keys, int events, bool isFirstRun)
 		{
 			handleEvent(buttons, keys, events);
 		}
-		if (gMenusCurrentItemIndex++ < NUM_SAMPLES)
+
+		sampleCount++;
+
+		if (sampleCount < NUM_SAMPLES)
 		{
 			sampleRSSIAndNoise();
 		}
-		if (gMenusCurrentItemIndex >= NUM_SAMPLES)
+		else
 		{
 			updateScreen();
-			gMenusCurrentItemIndex=0;
-			gMenusStartIndex=0;
-			gMenusEndIndex=0;
+			sampleCount=0;
+			RSSI_totalVal=0;
+			Noise_totalVal=0;
 		}
 	}
 	return 0;
@@ -69,30 +74,30 @@ static void updateScreen()
 
 	char buffer[17];
 
-	    gMenusStartIndex /= NUM_SAMPLES;
-	    gMenusEndIndex /= NUM_SAMPLES;
+		RSSI_totalVal /= NUM_SAMPLES;
+		Noise_totalVal /= NUM_SAMPLES;
 
 		UC1701_clearBuf();
 		UC1701_printCentered(0, "RSSI",UC1701_FONT_GD77_8x16);
 
-		sprintf(buffer,"Noise %d", gMenusStartIndex);
+		sprintf(buffer,"Noise %d", Noise_totalVal);
 		UC1701_printAt(10,16, buffer,UC1701_FONT_GD77_8x16);
-		gMenusStartIndex *= 2;
-		if (gMenusStartIndex>128)
+		Noise_totalVal *= 2;
+		if (Noise_totalVal>128)
 		{
-			gMenusStartIndex=128;
+			Noise_totalVal=128;
 		}
-		UC1701_fillRect(0, 32,gMenusStartIndex,8,false);
+		UC1701_fillRect(0, 32,Noise_totalVal,8,false);
 
-		sprintf(buffer,"RSSI %d", gMenusEndIndex);
+		sprintf(buffer,"RSSI %d", RSSI_totalVal);
 		UC1701_printAt(10,40, buffer,UC1701_FONT_GD77_8x16);
 
-		gMenusEndIndex *= 1.8;
-		if (gMenusEndIndex>128)
+		RSSI_totalVal *= 1.8;
+		if (RSSI_totalVal>128)
 		{
-			gMenusEndIndex=128;
+			RSSI_totalVal=128;
 		}
-		UC1701_fillRect(0, 56,gMenusEndIndex,8,false);
+		UC1701_fillRect(0, 56,RSSI_totalVal,8,false);
 
 		UC1701_render();
 		displayLightTrigger();
@@ -115,6 +120,6 @@ static void sampleRSSIAndNoise()
     uint8_t RX_noise;
 
     read_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x1b, &RX_signal, &RX_noise);
-    gMenusStartIndex += RX_noise;
-    gMenusEndIndex += RX_signal;
+    Noise_totalVal += RX_noise;
+    RSSI_totalVal += RX_signal;
 }

@@ -361,6 +361,36 @@
 							<inputType id="com.crt.advproject.compiler.input.1804200020" superClass="com.crt.advproject.compiler.input"/>
 						</tool>
 					</fileInfo>
+					<fileInfo id="com.crt.advproject.config.exe.debug.1021312312.754095106" name="menuNumericalEntry.c" rcbsApplicability="disable" resourcePath="source/menu/menuNumericalEntry.c" toolsToInvoke="com.crt.advproject.gcc.exe.debug.475830819.192259068">
+						<tool id="com.crt.advproject.gcc.exe.debug.475830819.192259068" name="MCU C Compiler" superClass="com.crt.advproject.gcc.exe.debug.475830819">
+							<option id="com.crt.advproject.gcc.exe.debug.option.optimization.level.304439125" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.size" valueType="enumerated"/>
+							<inputType id="com.crt.advproject.compiler.input.722635363" superClass="com.crt.advproject.compiler.input"/>
+						</tool>
+					</fileInfo>
+					<fileInfo id="com.crt.advproject.config.exe.debug.1021312312.949181987" name="menuDebug.c" rcbsApplicability="disable" resourcePath="source/menu/menuDebug.c" toolsToInvoke="com.crt.advproject.gcc.exe.debug.475830819.1933388539">
+						<tool id="com.crt.advproject.gcc.exe.debug.475830819.1933388539" name="MCU C Compiler" superClass="com.crt.advproject.gcc.exe.debug.475830819">
+							<option id="com.crt.advproject.gcc.exe.debug.option.optimization.level.1100513008" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.size" valueType="enumerated"/>
+							<inputType id="com.crt.advproject.compiler.input.1939002642" superClass="com.crt.advproject.compiler.input"/>
+						</tool>
+					</fileInfo>
+					<fileInfo id="com.crt.advproject.config.exe.debug.1021312312.1054745683" name="menuSplashScreen.c" rcbsApplicability="disable" resourcePath="source/menu/menuSplashScreen.c" toolsToInvoke="com.crt.advproject.gcc.exe.debug.475830819.929612731">
+						<tool id="com.crt.advproject.gcc.exe.debug.475830819.929612731" name="MCU C Compiler" superClass="com.crt.advproject.gcc.exe.debug.475830819">
+							<option id="com.crt.advproject.gcc.exe.debug.option.optimization.level.1677073123" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.size" valueType="enumerated"/>
+							<inputType id="com.crt.advproject.compiler.input.484452025" superClass="com.crt.advproject.compiler.input"/>
+						</tool>
+					</fileInfo>
+					<fileInfo id="com.crt.advproject.config.exe.debug.1021312312.1096255070" name="menuFirmwareInfoScreen.c" rcbsApplicability="disable" resourcePath="source/menu/menuFirmwareInfoScreen.c" toolsToInvoke="com.crt.advproject.gcc.exe.debug.475830819.2070463443">
+						<tool id="com.crt.advproject.gcc.exe.debug.475830819.2070463443" name="MCU C Compiler" superClass="com.crt.advproject.gcc.exe.debug.475830819">
+							<option id="com.crt.advproject.gcc.exe.debug.option.optimization.level.889142564" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.size" valueType="enumerated"/>
+							<inputType id="com.crt.advproject.compiler.input.1599087731" superClass="com.crt.advproject.compiler.input"/>
+						</tool>
+					</fileInfo>
+					<fileInfo id="com.crt.advproject.config.exe.debug.1021312312.149113600" name="menuPowerOff.c" rcbsApplicability="disable" resourcePath="source/menu/menuPowerOff.c" toolsToInvoke="com.crt.advproject.gcc.exe.debug.475830819.1329460018">
+						<tool id="com.crt.advproject.gcc.exe.debug.475830819.1329460018" name="MCU C Compiler" superClass="com.crt.advproject.gcc.exe.debug.475830819">
+							<option id="com.crt.advproject.gcc.exe.debug.option.optimization.level.1048673861" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.size" valueType="enumerated"/>
+							<inputType id="com.crt.advproject.compiler.input.1638343505" superClass="com.crt.advproject.compiler.input"/>
+						</tool>
+					</fileInfo>
 					<fileInfo id="com.crt.advproject.config.exe.debug.1021312312.578275122" name="menuUtilityQSOData.c" rcbsApplicability="disable" resourcePath="source/menu/menuUtilityQSOData.c" toolsToInvoke="com.crt.advproject.gcc.exe.debug.475830819.253859411">
 						<tool id="com.crt.advproject.gcc.exe.debug.475830819.253859411" name="MCU C Compiler" superClass="com.crt.advproject.gcc.exe.debug.475830819">
 							<option id="com.crt.advproject.gcc.exe.debug.option.optimization.level.737080431" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.size" valueType="enumerated"/>
@@ -379,6 +409,12 @@
 							<inputType id="com.crt.advproject.compiler.input.1220606778" superClass="com.crt.advproject.compiler.input"/>
 						</tool>
 					</fileInfo>
+					<fileInfo id="com.crt.advproject.config.exe.debug.1021312312.1307672475" name="menuDisplayOptions.c" rcbsApplicability="disable" resourcePath="source/menu/menuDisplayOptions.c" toolsToInvoke="com.crt.advproject.gcc.exe.debug.475830819.1276201080">
+						<tool id="com.crt.advproject.gcc.exe.debug.475830819.1276201080" name="MCU C Compiler" superClass="com.crt.advproject.gcc.exe.debug.475830819">
+							<option id="com.crt.advproject.gcc.exe.debug.option.optimization.level.1192308681" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.size" valueType="enumerated"/>
+							<inputType id="com.crt.advproject.compiler.input.880923530" superClass="com.crt.advproject.compiler.input"/>
+						</tool>
+					</fileInfo>
 					<fileInfo id="com.crt.advproject.config.exe.debug.1021312312.1751897159" name="menuVFOMode.c" rcbsApplicability="disable" resourcePath="source/menu/menuVFOMode.c" toolsToInvoke="com.crt.advproject.gcc.exe.debug.475830819.1649000094">
 						<tool id="com.crt.advproject.gcc.exe.debug.475830819.1649000094" name="MCU C Compiler" superClass="com.crt.advproject.gcc.exe.debug.475830819">
 							<option id="com.crt.advproject.gcc.exe.debug.option.optimization.level.797753631" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.size" valueType="enumerated"/>
@@ -389,6 +425,12 @@
 						<tool id="com.crt.advproject.gcc.exe.debug.475830819.101372111" name="MCU C Compiler" superClass="com.crt.advproject.gcc.exe.debug.475830819">
 							<option id="com.crt.advproject.gcc.exe.debug.option.optimization.level.1333271958" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.size" valueType="enumerated"/>
 							<inputType id="com.crt.advproject.compiler.input.1853236687" superClass="com.crt.advproject.compiler.input"/>
+						</tool>
+					</fileInfo>
+					<fileInfo id="com.crt.advproject.config.exe.debug.1021312312.431295014" name="menuRSSIScreen.c" rcbsApplicability="disable" resourcePath="source/menu/menuRSSIScreen.c" toolsToInvoke="com.crt.advproject.gcc.exe.debug.475830819.2102516381">
+						<tool id="com.crt.advproject.gcc.exe.debug.475830819.2102516381" name="MCU C Compiler" superClass="com.crt.advproject.gcc.exe.debug.475830819">
+							<option id="com.crt.advproject.gcc.exe.debug.option.optimization.level.1582055720" name="Optimization Level" superClass="com.crt.advproject.gcc.exe.debug.option.optimization.level" useByScannerDiscovery="false" value="gnu.c.optimization.level.size" valueType="enumerated"/>
+							<inputType id="com.crt.advproject.compiler.input.2095031218" superClass="com.crt.advproject.compiler.input"/>
 						</tool>
 					</fileInfo>
 					<fileInfo id="com.crt.advproject.config.exe.debug.1021312312.1574099411" name="menuChannelMode.c" rcbsApplicability="disable" resourcePath="source/menu/menuChannelMode.c" toolsToInvoke="com.crt.advproject.gcc.exe.debug.475830819.1489487918">
