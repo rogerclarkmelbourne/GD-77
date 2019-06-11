@@ -32,7 +32,7 @@
 typedef struct dmrIdDataStruct
 {
 	int id;
-	char text[16];
+	char text[20];
 } dmrIdDataStruct_t;
 
 
