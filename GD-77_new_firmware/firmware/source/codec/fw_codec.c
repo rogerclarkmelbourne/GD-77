@@ -34,6 +34,7 @@ char ambe_d[49];
 void init_codec()
 {
 	memcpy(ambebuffer,ambebuffer_init,0x7ec);
+	init_sound();
 }
 
 void tick_codec(uint8_t *indata_ptr)

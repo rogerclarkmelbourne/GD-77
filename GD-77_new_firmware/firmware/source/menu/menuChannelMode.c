@@ -182,6 +182,30 @@ static void handleEvent(int buttons, int keys, int events)
 		}
 		loadChannelData();
 	}
+	else if ((keys & KEY_1)!=0)
+	{
+		GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 0);
+	    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
+		init_digital_DMR_RX();
+		init_digital_state();
+	    NVIC_EnableIRQ(PORTC_IRQn);
+		init_codec();
+	}
+	else if ((keys & KEY_2)!=0)
+	{
+		init_digital_DMR_RX();
+	}
+	else if ((keys & KEY_3)!=0)
+	{
+		init_digital_state();
+	}
+	else if ((keys & KEY_4)!=0)
+	{
+		init_sound();
+	//	init_digital();
+	}
+
+
 
 	updateScreen();
 }
