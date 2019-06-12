@@ -115,3 +115,5 @@ V0.1:
   - Added debug options control screen for Sq and log.
   - Added basic countdown timer to Tx screen, as proof of concept.
   - Added PWM control of LED backlight + menu screen for Display Options.
+
+V0.1.1:
