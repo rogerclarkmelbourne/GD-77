@@ -253,7 +253,8 @@ void store_soundbuffer()
 		taskEXIT_CRITICAL();
 	}
 }
-
+#define DAC_LEFTCHANNEL
+//#define DAC_RIGHTCHANNEL
 void send_sound_data()
 {
 	if (wavbuffer_count>0)
@@ -263,28 +264,44 @@ void send_sound_data()
 			switch(g_SAI_TX_Handle.queueUser)
 			{
 			case 0:
+#ifdef DAC_LEFTCHANNEL
 				spi_sound1[4*i+3]=wavbuffer[wavbuffer_read_idx][2*i+1];
 				spi_sound1[4*i+2]=wavbuffer[wavbuffer_read_idx][2*i];
+#endif
+#ifdef DAC_RIGHTCHANNEL
 				spi_sound1[4*i+1]=wavbuffer[wavbuffer_read_idx][2*i+1];
 				spi_sound1[4*i]=wavbuffer[wavbuffer_read_idx][2*i];
+#endif
 				break;
 			case 1:
+#ifdef DAC_LEFTCHANNEL
 				spi_sound2[4*i+3]=wavbuffer[wavbuffer_read_idx][2*i+1];
 				spi_sound2[4*i+2]=wavbuffer[wavbuffer_read_idx][2*i];
+#endif
+#ifdef DAC_RIGHTCHANNEL
 				spi_sound2[4*i+1]=wavbuffer[wavbuffer_read_idx][2*i+1];
 				spi_sound2[4*i]=wavbuffer[wavbuffer_read_idx][2*i];
+#endif
 				break;
 			case 2:
+#ifdef DAC_LEFTCHANNEL
 				spi_sound3[4*i+3]=wavbuffer[wavbuffer_read_idx][2*i+1];
 				spi_sound3[4*i+2]=wavbuffer[wavbuffer_read_idx][2*i];
+#endif
+#ifdef DAC_RIGHTCHANNEL
 				spi_sound3[4*i+1]=wavbuffer[wavbuffer_read_idx][2*i+1];
 				spi_sound3[4*i]=wavbuffer[wavbuffer_read_idx][2*i];
+#endif
 				break;
 			case 3:
+#ifdef DAC_LEFTCHANNEL
 				spi_sound4[4*i+3]=wavbuffer[wavbuffer_read_idx][2*i+1];
 				spi_sound4[4*i+2]=wavbuffer[wavbuffer_read_idx][2*i];
+#endif
+#ifdef RIGHTCHANNEL
 				spi_sound4[4*i+1]=wavbuffer[wavbuffer_read_idx][2*i+1];
 				spi_sound4[4*i]=wavbuffer[wavbuffer_read_idx][2*i];
+#endif
 				break;
 			}
 		}
