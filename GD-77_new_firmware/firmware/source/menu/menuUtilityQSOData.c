@@ -179,6 +179,7 @@ bool dmrIDLookup( int targetId,dmrIdDataStruct_t *foundRecord)
 	uint32_t m;
 	uint32_t recordLenth;//15+4;
 	uint8_t headerBuf[32];
+	memset(foundRecord,0,sizeof(dmrIdDataStruct_t));
 
 	int targetIdBCD=int2bcd(targetId);
 
