@@ -32,6 +32,7 @@
 
 static void updateScreen();
 static void handleEvent(int buttons, int keys, int events);
+static void loadChannelData();
 struct_codeplugZone_t currentZone;
 struct_codeplugChannel_t channelData;
 struct_codeplugRxGroup_t rxGroupData;
@@ -45,6 +46,7 @@ int menuChannelMode(int buttons, int keys, int events, bool isFirstRun)
 		nonVolatileSettings.initialMenuNumber = MENU_CHANNEL_MODE;// This menu.
 		codeplugZoneGetDataForIndex(nonVolatileSettings.currentZone,&currentZone);
 		gMenusCurrentItemIndex=0;
+		loadChannelData();
 		updateScreen();
 		menuIsDisplayingQSOData=(qsodata_timer!=0);
 	}
@@ -71,6 +73,12 @@ uint16_t byteSwap16(uint16_t in)
 	return ((in &0xff << 8) | (in >>8));
 }
 
+static void loadChannelData()
+{
+	codeplugChannelGetDataForIndex(currentZone.channels[nonVolatileSettings.currentChannelIndexInZone],&channelData);
+	trxSetFrequency(bcd2int(channelData.rxFreq)/10);
+	trxSetMode((channelData.chMode==0)?RADIO_MODE_ANALOG:RADIO_MODE_DIGITAL);
+}
 
 
 static void updateScreen()
@@ -78,11 +86,6 @@ static void updateScreen()
 	char nameBuf[17];
 
 
-	int currentChanelIndex = currentZone.channels[nonVolatileSettings.currentChannelIndexInZone];//[zoneChannelIndex];
-
-	codeplugChannelGetDataForIndex(currentChanelIndex,&channelData);
-	trxSetFrequency(bcd2int(channelData.rxFreq)/10);
-	trxSetMode((channelData.chMode==0)?RADIO_MODE_ANALOG:RADIO_MODE_DIGITAL);
 	codeplugRxGroupGetDataForIndex(channelData.rxGroupList,&rxGroupData);
 	codeplugContactGetDataForIndex(rxGroupData.contacts[currentIndexInTRxGroup],&contactData);
 
@@ -168,6 +171,7 @@ static void handleEvent(int buttons, int keys, int events)
 		{
 			nonVolatileSettings.currentChannelIndexInZone =  currentZone.NOT_IN_MEMORY_numChannelsInZone - 1;
 		}
+		loadChannelData();
 	}
 	else if ((keys & KEY_UP)!=0)
 	{
@@ -176,6 +180,7 @@ static void handleEvent(int buttons, int keys, int events)
 		{
 			nonVolatileSettings.currentChannelIndexInZone = 0;
 		}
+		loadChannelData();
 	}
 
 	updateScreen();
