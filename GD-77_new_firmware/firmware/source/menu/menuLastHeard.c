@@ -72,6 +72,7 @@ static void updateScreen()
 	}
 	while((item != NULL) && item->id != 0)
 	{
+		memset(&foundRecord,0,sizeof(dmrIdDataStruct_t));
 		dmrIDLookup(item->id,&foundRecord);
 		{
 			UC1701_printCentered(16+(numDisplayed*16), foundRecord.text,UC1701_FONT_GD77_8x16);
