@@ -117,3 +117,12 @@ V0.1:
   - Added PWM control of LED backlight + menu screen for Display Options.
 
 V0.1.1:
+- Additional stuff by Roger Clark, VK3KYY / G4KYF:
+  - Displayoptions backlight optimization.
+  - Fix issue on Channel mode screen, where the Star key did not change the mode.
+  - Change screen header to show mode in the middle rather than battery voltage.
+  - Possible fix for audio breakup bug. Also put debugging tests on keypad buttons 1 to 4
+  - Fixed problem with menuDisplayList crashing after use of RSSI screen.
+  - Fixed bug on lastheard screen.
+  - Some compilation optimization.
+  - Added GD77_FirmwareLoader.exe to the tools and as possible post-build step.
