@@ -259,52 +259,40 @@ void send_sound_data()
 {
 	if (wavbuffer_count>0)
 	{
+		uint8_t *spi_soundBuf;
+		sai_transfer_t xfer;
+
+		switch(g_SAI_TX_Handle.queueUser)
+		{
+		case 0:
+			spi_soundBuf = spi_sound1;
+			break;
+		case 1:
+			spi_soundBuf = spi_sound2;
+			break;
+		case 2:
+			spi_soundBuf = spi_sound3;
+			break;
+		case 3:
+			spi_soundBuf = spi_sound4;
+			break;
+		default:
+			spi_soundBuf=spi_sound1;// just put in to please the compiler
+			break;
+		}
+
 		for (int i=0; i<(WAV_BUFFER_SIZE/2); i++)
 		{
-			switch(g_SAI_TX_Handle.queueUser)
-			{
-			case 0:
-#ifdef LINEOUT2
-				spi_sound1[4*i+3]=wavbuffer[wavbuffer_read_idx][2*i+1];
-				spi_sound1[4*i+2]=wavbuffer[wavbuffer_read_idx][2*i];
-#endif
-#ifdef LINEOUT1
-				spi_sound1[4*i+1]=wavbuffer[wavbuffer_read_idx][2*i+1];
-				spi_sound1[4*i]=wavbuffer[wavbuffer_read_idx][2*i];
-#endif
-				break;
-			case 1:
-#ifdef LINEOUT2
-				spi_sound2[4*i+3]=wavbuffer[wavbuffer_read_idx][2*i+1];
-				spi_sound2[4*i+2]=wavbuffer[wavbuffer_read_idx][2*i];
-#endif
-#ifdef LINEOUT1
-				spi_sound2[4*i+1]=wavbuffer[wavbuffer_read_idx][2*i+1];
-				spi_sound2[4*i]=wavbuffer[wavbuffer_read_idx][2*i];
-#endif
-				break;
-			case 2:
-#ifdef LINEOUT2
-				spi_sound3[4*i+3]=wavbuffer[wavbuffer_read_idx][2*i+1];
-				spi_sound3[4*i+2]=wavbuffer[wavbuffer_read_idx][2*i];
-#endif
-#ifdef LINEOUT1
-				spi_sound3[4*i+1]=wavbuffer[wavbuffer_read_idx][2*i+1];
-				spi_sound3[4*i]=wavbuffer[wavbuffer_read_idx][2*i];
-#endif
-				break;
-			case 3:
-#ifdef LINEOUT2
-				spi_sound4[4*i+3]=wavbuffer[wavbuffer_read_idx][2*i+1];
-				spi_sound4[4*i+2]=wavbuffer[wavbuffer_read_idx][2*i];
-#endif
-#ifdef LINEOUT1
-				spi_sound4[4*i+1]=wavbuffer[wavbuffer_read_idx][2*i+1];
-				spi_sound4[4*i]=wavbuffer[wavbuffer_read_idx][2*i];
-#endif
-				break;
-			}
+			*(spi_soundBuf +4*i +3) = wavbuffer[wavbuffer_read_idx][2*i+1];
+			*(spi_soundBuf +4*i +2) = wavbuffer[wavbuffer_read_idx][2*i];
 		}
+
+		xfer.data = spi_soundBuf;
+		xfer.dataSize = WAV_BUFFER_SIZE*2;
+
+		SAI_TransferSendEDMA(I2S0, &g_SAI_TX_Handle, &xfer);
+
+		g_TX_SAI_in_use = true;
 
 		wavbuffer_read_idx++;
 		if (wavbuffer_read_idx>=WAV_BUFFER_COUNT)
@@ -313,27 +301,6 @@ void send_sound_data()
 		}
 		wavbuffer_count--;
 
-		sai_transfer_t xfer;
-		switch(g_SAI_TX_Handle.queueUser)
-		{
-		case 0:
-			xfer.data = spi_sound1;
-			break;
-		case 1:
-			xfer.data = spi_sound2;
-			break;
-		case 2:
-			xfer.data = spi_sound3;
-			break;
-		case 3:
-			xfer.data = spi_sound4;
-			break;
-		}
-		xfer.dataSize = WAV_BUFFER_SIZE*2;
-
-		SAI_TransferSendEDMA(I2S0, &g_SAI_TX_Handle, &xfer);
-
-		g_TX_SAI_in_use = true;
 	}
 }
 
