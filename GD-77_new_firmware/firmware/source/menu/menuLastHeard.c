@@ -62,6 +62,7 @@ static void updateScreen()
 	int numDisplayed=0;
 	LinkItem_t *item = LinkHead;
 
+
 	UC1701_clearBuf();
 	UC1701_printCentered(0, "Last heard",UC1701_FONT_GD77_8x16);
 
@@ -72,6 +73,7 @@ static void updateScreen()
 	}
 	while((item != NULL) && item->id != 0)
 	{
+
 		dmrIDLookup(item->id,&foundRecord);
 		{
 			UC1701_printCentered(16+(numDisplayed*16), foundRecord.text,UC1701_FONT_GD77_8x16);
