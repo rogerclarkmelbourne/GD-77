@@ -127,3 +127,5 @@ V0.1.1:
   - Some compilation optimization.
   - Added GD77_FirmwareLoader.exe to the tools and as possible post-build step.
   - Optimized audio buffer processing to only use the left channel of the I2C DAC.
+
+V0.1.2:
