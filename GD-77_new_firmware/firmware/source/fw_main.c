@@ -78,8 +78,6 @@ void fw_main_task()
 	fw_init_keyboard();
 	fw_init_display();
 
-
-
     // Init SPI
     init_SPI();
     setup_SPI0();
