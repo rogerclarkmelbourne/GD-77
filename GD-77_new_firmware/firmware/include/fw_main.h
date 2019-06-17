@@ -51,6 +51,7 @@
 #include "fw_HR-C6000.h"
 #include "fw_wdog.h"
 #include "fw_adc.h"
+#include "fw_dac.h"
 #include "fw_pit.h"
 
 #include "fw_sound.h"

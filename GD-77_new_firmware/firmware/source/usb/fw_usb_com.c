@@ -62,7 +62,7 @@ void tick_com_request()
 				length=32;
 			}
 
-			bool result;
+			bool result=false;
 			if (com_requestbuffer[1]==1)
 			{
 				taskEXIT_CRITICAL();
