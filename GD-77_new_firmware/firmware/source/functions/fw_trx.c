@@ -155,3 +155,79 @@ void trxSetFrequencyAndMode(int frequency,int mode)
 	trxSetMode(mode);
 	trxSetFrequency(frequency);
 }
+
+void trx_setRX()
+{
+	// MUX for RX
+	trxSetMode(currentMode);
+	GPIO_PinWrite(GPIO_TX_audio_mux, Pin_TX_audio_mux, 0);
+
+	// RX Antenna + PA power off
+    DAC_SetBufferValue(DAC0, 0U, 0U);
+    GPIO_PinWrite(GPIO_RF_ant_switch, Pin_RF_ant_switch, 0);
+
+	// TX preamp off
+	GPIO_PinWrite(GPIO_VHF_TX_amp_power, Pin_VHF_TX_amp_power, 0);
+	GPIO_PinWrite(GPIO_UHF_TX_amp_power, Pin_UHF_TX_amp_power, 0);
+
+	// AT1846 RX + unmute
+	set_clear_I2C_reg_2byte_with_mask(0x30, 0xFF, 0x1F, 0x00, 0x00);
+	set_clear_I2C_reg_2byte_with_mask(0x30, 0xFF, 0x1F, 0x00, 0x20); // RX
+
+	// RX amp on
+	if (check_frequency_is_VHF(currentFrequency))
+	{
+		GPIO_PinWrite(GPIO_VHF_RX_amp_power, Pin_VHF_RX_amp_power, 1);
+		GPIO_PinWrite(GPIO_UHF_RX_amp_power, Pin_UHF_RX_amp_power, 0);
+	}
+	else if (check_frequency_is_UHF(currentFrequency))
+	{
+		GPIO_PinWrite(GPIO_VHF_RX_amp_power, Pin_VHF_RX_amp_power, 0);
+		GPIO_PinWrite(GPIO_UHF_RX_amp_power, Pin_UHF_RX_amp_power, 1);
+	}
+}
+
+void trx_setTX()
+{
+	// MUX for TX
+	trxSetMode(currentMode);
+	if (currentMode == RADIO_MODE_ANALOG)
+	{
+		GPIO_PinWrite(GPIO_TX_audio_mux, Pin_TX_audio_mux, 0);
+	}
+	else
+	{
+		GPIO_PinWrite(GPIO_TX_audio_mux, Pin_TX_audio_mux, 1);
+	}
+
+	// RX amp off
+	GPIO_PinWrite(GPIO_VHF_RX_amp_power, Pin_VHF_RX_amp_power, 0);
+	GPIO_PinWrite(GPIO_UHF_RX_amp_power, Pin_UHF_RX_amp_power, 0);
+
+	// AT1846 TX + mute
+	set_clear_I2C_reg_2byte_with_mask(0x30, 0xFF, 0x1F, 0x00, 0x00);
+	if (currentMode == RADIO_MODE_ANALOG)
+	{
+		set_clear_I2C_reg_2byte_with_mask(0x30, 0xFF, 0x1F, 0x00, 0x40); // analog TX
+	}
+	else
+	{
+		set_clear_I2C_reg_2byte_with_mask(0x30, 0xFF, 0x1F, 0x00, 0xC0); // digital TX
+	}
+
+	// TX preamp on
+	if (check_frequency_is_VHF(currentFrequency))
+	{
+		GPIO_PinWrite(GPIO_VHF_TX_amp_power, Pin_VHF_TX_amp_power, 1);
+		GPIO_PinWrite(GPIO_UHF_TX_amp_power, Pin_UHF_TX_amp_power, 0);
+	}
+	else if (check_frequency_is_UHF(currentFrequency))
+	{
+		GPIO_PinWrite(GPIO_VHF_TX_amp_power, Pin_VHF_TX_amp_power, 0);
+		GPIO_PinWrite(GPIO_UHF_TX_amp_power, Pin_UHF_TX_amp_power, 1);
+	}
+
+	// TX Antenna + PA power off
+    GPIO_PinWrite(GPIO_RF_ant_switch, Pin_RF_ant_switch, 1);
+    DAC_SetBufferValue(DAC0, 0U, 200U);
+}

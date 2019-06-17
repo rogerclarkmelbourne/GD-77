@@ -38,6 +38,7 @@ int menuTxScreen(int buttons, int keys, int events, bool isFirstRun)
 		updateScreen();
 	    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
 	    GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 1);
+	    trx_setTX();
 	}
 	else
 	{
@@ -73,6 +74,7 @@ static void handleEvent(int buttons, int keys, int events)
 	if ((buttons & BUTTON_PTT)==0)
 	{
 	    GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 0);
+		trx_setRX();
 		menuSystemPopPreviousMenu();
 	}
 }

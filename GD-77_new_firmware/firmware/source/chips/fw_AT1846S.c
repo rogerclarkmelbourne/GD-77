@@ -147,7 +147,7 @@ void I2C_AT1846_Postinit()
 	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x0A, 0x7B, 0xA0); // AGC Table
 	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x49, 0x0C, 0x96); // setting SQ open and shut threshold
 	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x33, 0x45, 0xF5); // agc number (recommended value)
-	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x41, 0x47, 0x0F); // Digital voice gain, (bits 6:0) however default value is supposed to be 0x4006 hence some bits are being set outside the documented range
+	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x41, 0x47, 0x31); // Digital voice gain, (bits 6:0) however default value is supposed to be 0x4006 hence some bits are being set outside the documented range
 	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x42, 0x10, 0x36); // RDA1846 lists this as Vox Shut threshold
 	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x43, 0x00, 0xBB); // FM deviation
 }

@@ -47,5 +47,7 @@ int	trxGetMode();
 int	trxGetFrequency();
 void trxSetMode(int mode);
 void trxSetFrequency(int frequency);
+void trx_setRX();
+void trx_setTX();
 
 #endif /* _FW_TRX_H_ */
