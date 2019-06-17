@@ -2,6 +2,9 @@ Changelog
 =========
 
 V0.1.2:
+- Added DAC support.
+- PTT enabled: switch between TX and RX, different settings for analog/digital TX, changed digital voice gain.
+- DMR TX (TX packet sequence with empty voice packets only, currently no mic->codec->voice data).
 <work in progress>
 
 V0.1.1:
