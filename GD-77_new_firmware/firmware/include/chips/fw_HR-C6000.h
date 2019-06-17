@@ -30,6 +30,8 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
+#include "fw_keyboard.h"
+
 #include "fw_spi.h"
 #include "fw_usb_com.h"
 
@@ -74,6 +76,8 @@ extern int skip_count;
 extern int last_TG;
 extern int last_DMRID;
 extern int qsodata_timer;
+
+extern int tx_sequence;
 
 void SPI_HR_C6000_init();
 void SPI_C6000_postinit1();

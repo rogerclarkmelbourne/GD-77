@@ -45,6 +45,8 @@ int last_TG;
 int last_DMRID;
 int qsodata_timer;
 
+int tx_sequence;
+
 void SPI_HR_C6000_init()
 {
     // C6000 interrupts
@@ -421,6 +423,23 @@ void tick_HR_C6000()
 	}
 	taskEXIT_CRITICAL();
 
+	if (((fw_read_buttons() & BUTTON_PTT)!=0) && (slot_state==0))
+	{
+		// dummy data for now -> we need those value to come from a central place and managed by the menu system
+		uint32_t tmp_tg = 1234;
+		uint32_t tmp_dmrid = 12345678;
+		uint8_t spi_tx[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+		spi_tx[3] = (tmp_tg >> 16) & 0xFF;
+		spi_tx[4] = (tmp_tg >> 8) & 0xFF;
+		spi_tx[5] = (tmp_tg >> 0) & 0xFF;
+		spi_tx[6] = (tmp_dmrid >> 16) & 0xFF;
+		spi_tx[7] = (tmp_dmrid >> 8) & 0xFF;
+		spi_tx[8] = (tmp_dmrid >> 0) & 0xFF;
+		write_SPI_page_reg_bytearray_SPI0(0x02, 0x00, spi_tx, 0x0c);
+		write_SPI_page_reg_byte_SPI0(0x04, 0x40, 0xA3);
+		slot_state=11;
+	}
+
 	if (slot_state>0)
 	{
 		if (int_timeout<200)
@@ -463,9 +482,72 @@ void tick_HR_C6000()
 		    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
 			slot_state=0;
 			break;
+		case 11:
+			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x80);
+			write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x10);
+			tx_sequence=0;
+			slot_state=12;
+			break;
+		case 12:
+			if (((fw_read_buttons() & BUTTON_PTT)==0) && (tx_sequence==0))
+			{
+				slot_state=14;
+			}
+			else
+			{
+				write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x00);
+				slot_state=13;
+			}
+			break;
+		case 13:
+			if (((fw_read_buttons() & BUTTON_PTT)==0) && (tx_sequence==0))
+			{
+				slot_state=14;
+			}
+			else
+			{
+				write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x80);
+				switch (tx_sequence)
+				{
+				case 0:
+					write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x08);
+					break;
+				case 1:
+					write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x19);
+					break;
+				case 2:
+					write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x2B);
+					break;
+				case 3:
+					write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x3B);
+					break;
+				case 4:
+					write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x4A);
+					break;
+				case 5:
+					write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x58);
+					break;
+				}
+				tx_sequence++;
+				if (tx_sequence>5)
+				{
+					tx_sequence=0;
+				}
+				slot_state=12;
+			}
+			break;
+		case 14:
+			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x80);
+			write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x20);
+			slot_state=15;
+			break;
+		case 15:
+			write_SPI_page_reg_byte_SPI0(0x04, 0x40, 0xC3);
+			slot_state=0;
+			break;
 		}
 
-    	if (tick_cnt<10)
+    	if ((slot_state<11) && (tick_cnt<10))
     	{
     		// Timeout interrupted transmission
     		tick_cnt++;
