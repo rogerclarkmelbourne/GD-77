@@ -92,6 +92,9 @@ void fw_main_task()
     // Init ADC
     adc_init();
 
+    // Init DAC
+    dac_init();
+
     // Init AT1846S
     I2C_AT1846S_init();
 
