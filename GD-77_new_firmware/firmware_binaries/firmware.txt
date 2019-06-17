@@ -1,15 +1,87 @@
 Changelog
 =========
 
-initial version:
-- MCUXpresso start project for new firmware containing hopefully all necessary dependencies.
-- Support for buttons, LEDs, keyboard and display.
-- Timed splash screen at power on.
-- Timed shutdown screen at power off.
-- Power off gets interrupted by just turning power on again.
-- Display light stays on for 4 seconds when something happens on the display.
-- Multilevel menu system with example structure. Enter/Exit Menu with SK2, navigate menu with up/down/left/right.
-- COM port (compatible to existing Windows 10 driver) gets detected when programming cable is attached to PC.
+V0.1.2:
+<work in progress>
+
+V0.1.1:
+- Additional stuff by Roger Clark, VK3KYY / G4KYF:
+  - Displayoptions backlight optimization.
+  - Fix issue on Channel mode screen, where the Star key did not change the mode.
+  - Change screen header to show mode in the middle rather than battery voltage.
+  - Possible fix for audio breakup bug. Also put debugging tests on keypad buttons 1 to 4
+  - Fixed problem with menuDisplayList crashing after use of RSSI screen.
+  - Fixed bug on lastheard screen.
+  - Some compilation optimization.
+  - Added GD77_FirmwareLoader.exe to the tools and as possible post-build step.
+  - Optimized audio buffer processing to only use the left channel of the I2C DAC.
+
+V0.1:
+- Extended watchdog to look for all tasks.
+- Removed old menu system.
+- Removed old edit system.
+- Cosmetic / cleanup / refactoring / optimization.
+- Additional stuff by Roger Clark, VK3KYY / G4KYF:
+  - New display library.
+  - New menu/edit system.
+  - PIT counter.
+  - Modified startup sound.
+  - Squelch optimization.
+  - Better FM filter handling.
+  - SPI flash optimization.
+  - Some compilation optimization.
+  - Store qsodata seems to report DMR ID of 0x4ED1E7 when it miss interprets a late start.
+  - Added debug options control screen for Sq and log.
+  - Added basic countdown timer to Tx screen, as proof of concept.
+  - Added PWM control of LED backlight + menu screen for Display Options.
+
+V0.0.1e:
+- Optimized filter setting to improve DMR sensitivity.
+- Simplified frequency system.
+- Store multiple frequencies as array, use right/left to cycle them.
+- Load settings from EEPROM at startup, save settings to EEPROM at shutdown.
+- Added watchdog.
+- Added ADC support.
+- Added battery monitoring.
+- Block startup when low battery, go into safe pre-shutdown mode when running and low battery.
+- Improved critical sections.
+- Changed clock settings to reflect the GD-77 external oscillators frequency of 12,288 MHz resulting in the MCU having a 122,88 MHz system clock.
+- Added a periodic interrupt timer (PIT) with a tick rate of 100us and some counters to get used by the tasks.
+- I2C/SPI is now blocking and threadsafe.
+- Don't interfere when sound is playing.
+- Don't show flags while startup or shutdown.
+- Added critical section to remove race condition.
+- Added HR-C6000 interrupt timeout to avoid interrupt hangup due to missed packets.
+- Added new tasks for HR-C6000 and watchdog, tasks timing is controlled by the periodic interrupt timer (PIT).
+- Reorganized tasks to fit into the new PIT controlled task structure, adjusted timings.
+
+V0.0.1d:
+- Proper muting of speaker in analog and digital mode.
+- Added TG and DMRID display.
+- Integrated new SPI flash library written by Roger Clark VK3KYY / G4KYF.
+- Integrated new EEPROM library written by Roger Clark VK3KYY / G4KYF.
+- Firmware support for external flash and EEPROM read/write.
+- ComTool support for external flash and EEPROM read/write.
+- Integrated DMRID lookup stuff written by Roger Clark VK3KYY / G4KYF.
+
+V0.0.1c:
+- Optimized the packet handling algorithm again.
+- RTT optimization.
+- Added tool to create *.dat files.
+- More detailed packet logging.
+
+V0.0.1b:
+- Don't check for sc anymore.
+- Changed packet handling.
+- Check for rpi==0.
+- Skip some data at late entry.
+- Added better reinit of codec and HR-C6000.
+- Added better RX LED handling.
+
+V0.0.1a:
+- Improved transmission timeout handling.
+- Added another transmission starting condition.
+- Improved checking for correct received packets.
 
 V0.0.1:
 - Support for I2C, SPI and I2S (with DMA).
@@ -49,83 +121,12 @@ V0.0.1:
 - Init and call the AMBE codec. (Copyright disclaimer: THIS IS NOT THE AMBE CODEC ITSELF! IT IS ONLY A STUB THAT CALLS INTO THE ORIGINAL FIRMWARE CODE!)
 - Added additional lateinit stuff (AT1846S + HR-C6000).
 
-V0.0.1a:
-- Improved transmission timeout handling.
-- Added another transmission starting condition.
-- Improved checking for correct received packets.
-
-V0.0.1b:
-- Don't check for sc anymore.
-- Changed packet handling.
-- Check for rpi==0.
-- Skip some data at late entry.
-- Added better reinit of codec and HR-C6000.
-- Added better RX LED handling.
-
-V0.0.1c:
-- Optimized the packet handling algorithm again.
-- RTT optimization.
-- Added tool to create *.dat files.
-- More detailed packet logging.
-
-V0.0.1d:
-- Proper muting of speaker in analog and digital mode.
-- Added TG and DMRID display.
-- Integrated new SPI flash library written by Roger Clark VK3KYY / G4KYF.
-- Integrated new EEPROM library written by Roger Clark VK3KYY / G4KYF.
-- Firmware support for external flash and EEPROM read/write.
-- ComTool support for external flash and EEPROM read/write.
-- Integrated DMRID lookup stuff written by Roger Clark VK3KYY / G4KYF.
-
-V0.0.1e:
-- Optimized filter setting to improve DMR sensitivity.
-- Simplified frequency system.
-- Store multiple frequencies as array, use right/left to cycle them.
-- Load settings from EEPROM at startup, save settings to EEPROM at shutdown.
-- Added watchdog.
-- Added ADC support.
-- Added battery monitoring.
-- Block startup when low battery, go into safe pre-shutdown mode when running and low battery.
-- Improved critical sections.
-- Changed clock settings to reflect the GD-77 external oscillators frequency of 12,288 MHz resulting in the MCU having a 122,88 MHz system clock.
-- Added a periodic interrupt timer (PIT) with a tick rate of 100us and some counters to get used by the tasks.
-- I2C/SPI is now blocking and threadsafe.
-- Don't interfere when sound is playing.
-- Don't show flags while startup or shutdown.
-- Added critical section to remove race condition.
-- Added HR-C6000 interrupt timeout to avoid interrupt hangup due to missed packets.
-- Added new tasks for HR-C6000 and watchdog, tasks timing is controlled by the periodic interrupt timer (PIT).
-- Reorganized tasks to fit into the new PIT controlled task structure, adjusted timings.
-
-V0.1:
-- Extended watchdog to look for all tasks.
-- Removed old menu system.
-- Removed old edit system.
-- Cosmetic / cleanup / refactoring / optimization.
-- Additional stuff by Roger Clark, VK3KYY / G4KYF:
-  - New display library.
-  - New menu/edit system.
-  - PIT counter.
-  - Modified startup sound.
-  - Squelch optimization.
-  - Better FM filter handling.
-  - SPI flash optimization.
-  - Some compilation optimization.
-  - Store qsodata seems to report DMR ID of 0x4ED1E7 when it miss interprets a late start.
-  - Added debug options control screen for Sq and log.
-  - Added basic countdown timer to Tx screen, as proof of concept.
-  - Added PWM control of LED backlight + menu screen for Display Options.
-
-V0.1.1:
-- Additional stuff by Roger Clark, VK3KYY / G4KYF:
-  - Displayoptions backlight optimization.
-  - Fix issue on Channel mode screen, where the Star key did not change the mode.
-  - Change screen header to show mode in the middle rather than battery voltage.
-  - Possible fix for audio breakup bug. Also put debugging tests on keypad buttons 1 to 4
-  - Fixed problem with menuDisplayList crashing after use of RSSI screen.
-  - Fixed bug on lastheard screen.
-  - Some compilation optimization.
-  - Added GD77_FirmwareLoader.exe to the tools and as possible post-build step.
-  - Optimized audio buffer processing to only use the left channel of the I2C DAC.
-
-V0.1.2:
+initial version:
+- MCUXpresso start project for new firmware containing hopefully all necessary dependencies.
+- Support for buttons, LEDs, keyboard and display.
+- Timed splash screen at power on.
+- Timed shutdown screen at power off.
+- Power off gets interrupted by just turning power on again.
+- Display light stays on for 4 seconds when something happens on the display.
+- Multilevel menu system with example structure. Enter/Exit Menu with SK2, navigate menu with up/down/left/right.
+- COM port (compatible to existing Windows 10 driver) gets detected when programming cable is attached to PC.
