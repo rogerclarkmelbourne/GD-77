@@ -1,11 +1,12 @@
 Changelog
 =========
 
-V0.1.2:
+V0.1.2 <work in progress>:
 - Added DAC support.
 - PTT enabled: switch between TX and RX, different settings for analog/digital TX, changed digital voice gain.
 - DMR TX (TX packet sequence with empty voice packets only, currently no mic->codec->voice data).
-<work in progress>
+- Additional stuff by Roger Clark, VK3KYY / G4KYF:
+  - Manually optimised the sending the decoded audio stream to the HR-C6000 I2S.
 
 V0.1.1:
 - Additional stuff by Roger Clark, VK3KYY / G4KYF:
