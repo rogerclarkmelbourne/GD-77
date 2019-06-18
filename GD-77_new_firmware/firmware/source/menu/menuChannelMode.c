@@ -140,6 +140,8 @@ static void handleEvent(int buttons, int keys, int events)
 		{
 			currentIndexInTRxGroup =  0;
 		}
+		menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
+		updateScreen();
 	}
 	else if ((keys & KEY_LEFT)!=0)
 	{
@@ -149,6 +151,8 @@ static void handleEvent(int buttons, int keys, int events)
 		{
 			currentIndexInTRxGroup =  rxGroupData.NOT_IN_MEMORY_numTGsInGroup - 1;
 		}
+		menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
+		updateScreen();
 	}
 	else if ((keys & KEY_STAR)!=0)
 	{
@@ -160,6 +164,8 @@ static void handleEvent(int buttons, int keys, int events)
 		{
 			trxSetMode(RADIO_MODE_ANALOG);
 		}
+		menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
+		updateScreen();
 	}
 	else if ((keys & KEY_DOWN)!=0)
 	{
@@ -169,6 +175,8 @@ static void handleEvent(int buttons, int keys, int events)
 			nonVolatileSettings.currentChannelIndexInZone =  currentZone.NOT_IN_MEMORY_numChannelsInZone - 1;
 		}
 		loadChannelData();
+		menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
+		updateScreen();
 	}
 	else if ((keys & KEY_UP)!=0)
 	{
@@ -178,31 +186,9 @@ static void handleEvent(int buttons, int keys, int events)
 			nonVolatileSettings.currentChannelIndexInZone = 0;
 		}
 		loadChannelData();
-	}
-	else if ((keys & KEY_1)!=0)
-	{
-		GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 0);
-	    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
-		init_digital_DMR_RX();
-		init_digital_state();
-	    NVIC_EnableIRQ(PORTC_IRQn);
-		init_codec();
-	}
-	else if ((keys & KEY_2)!=0)
-	{
-		init_digital_DMR_RX();
-	}
-	else if ((keys & KEY_3)!=0)
-	{
-		init_digital_state();
-	}
-	else if ((keys & KEY_4)!=0)
-	{
-		init_sound();
-	//	init_digital();
+		menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
+		updateScreen();
 	}
 
 
-
-	updateScreen();
 }
