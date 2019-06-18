@@ -58,6 +58,7 @@ int menuLastHeard(int buttons, int keys, int events, bool isFirstRun)
 
 static void updateScreen()
 {
+	char buffer[17];
 	dmrIdDataStruct_t foundRecord;
 	int numDisplayed=0;
 	LinkItem_t *item = LinkHead;
@@ -72,11 +73,26 @@ static void updateScreen()
 	}
 	while((item != NULL) && item->id != 0)
 	{
-		dmrIDLookup(item->id,&foundRecord);
+		if (dmrIDLookup(item->id,&foundRecord))
 		{
 			UC1701_printCentered(16+(numDisplayed*16), foundRecord.text,UC1701_FONT_GD77_8x16);
-			numDisplayed++;
 		}
+		else
+		{
+			if (LinkHead->talkerAlias[0] != 0x00)
+			{
+				memcpy(buffer,item->talkerAlias,16);// limit to 1 line of the display which is 16 chars at the normal font size
+				buffer[16]=0x00;
+			}
+			else
+			{
+				sprintf(buffer,"ID:%d",item->id);
+			}
+			UC1701_printCentered(16+(numDisplayed*16), buffer,UC1701_FONT_GD77_8x16);
+		}
+
+		numDisplayed++;
+
 		item=item->next;
 		if (numDisplayed>3)
 		{
