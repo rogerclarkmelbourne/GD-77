@@ -339,7 +339,13 @@ void terminate_digital()
 
 void store_qsodata()
 {
+	// If this is the start of a newly received signal, we always need to trigger the display to show this, even if its the same station calling again.
+	if (qsodata_timer==0)
+	{
+		menuDisplayQSODataState = QSO_DISPLAY_CALLER_DATA;
+	}
 	// check if this is a valid data frame, including Talker Alias data frames (0x04 - 0x07)
+	// Not sure if its necessary to check byte [1] for 0x00 but I'm doing this
 	if (tmp_ram[1] == 0x00  && (tmp_ram[0]==0x00 || (tmp_ram[0]>=0x04 && tmp_ram[0]<=0x7)))
 	{
 		lastHeardListUpdate(tmp_ram);
