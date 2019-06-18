@@ -27,7 +27,7 @@
 #define _MENU_UTILITY_QSO_DATA_H_                    /**< Symbol preventing repeated inclusion */
 #include "fw_common.h"
 
-#define NUM_LASTHEARD_STORED 16
+#define NUM_LASTHEARD_STORED 8
 
 typedef struct dmrIdDataStruct
 {
@@ -41,15 +41,24 @@ typedef struct LinkItem
     struct LinkItem *prev;
     int id;
     int talkGroup;
+    char talkerAlias[32];// 4 blocks of data. 6 bytes + 6 bytes + 7 bytes + 7 bytes . plus 1 for termination some more for safety
     struct LinkItem *next;
 } LinkItem_t;
 
-extern bool menuIsDisplayingQSOData;
+enum QSO_DISPLAY_STATE
+{
+	QSO_DISPLAY_IDLE,
+	QSO_DISPLAY_DEFAULT_SCREEN,
+	QSO_DISPLAY_CALLER_DATA
+};
+
+//extern bool menuIsDisplayingQSOData;
 extern LinkItem_t *LinkHead;
+extern int menuDisplayQSODataState;
 
 bool dmrIDLookup( int targetId,dmrIdDataStruct_t *foundRecord);
 void menuUtilityRenderQSOData();
 void menuUtilityRenderHeader();
 void lastheardInitList();
-void lastHeardListUpdate(int id,int talkGroup);
+void lastHeardListUpdate(uint8_t *dmrDataBuffer);
 #endif

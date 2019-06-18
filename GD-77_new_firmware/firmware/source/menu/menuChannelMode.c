@@ -45,20 +45,19 @@ int menuChannelMode(int buttons, int keys, int events, bool isFirstRun)
 	{
 		nonVolatileSettings.initialMenuNumber = MENU_CHANNEL_MODE;// This menu.
 		codeplugZoneGetDataForIndex(nonVolatileSettings.currentZone,&currentZone);
-		gMenusCurrentItemIndex=0;
+
 		loadChannelData();
+		menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
 		updateScreen();
-		menuIsDisplayingQSOData=(qsodata_timer!=0);
 	}
 	else
 	{
 		if (events==0)
 		{
 			// is there an incoming DMR signal
-			if (menuIsDisplayingQSOData != (qsodata_timer!=0))
+			if (menuDisplayQSODataState != QSO_DISPLAY_IDLE)
 			{
 				updateScreen();
-				menuIsDisplayingQSOData=(qsodata_timer!=0);
 			}
 		}
 		else
@@ -93,28 +92,26 @@ static void updateScreen()
 
 	menuUtilityRenderHeader();
 
-	if (qsodata_timer!=0)
+	switch(menuDisplayQSODataState)
 	{
-		menuUtilityRenderQSOData();
+		case QSO_DISPLAY_DEFAULT_SCREEN:
+			codeplugUtilConvertBufToString(channelData.name,nameBuf,16);
+			UC1701_printCentered(20, (char *)nameBuf,UC1701_FONT_GD77_8x16);
+
+			codeplugUtilConvertBufToString(contactData.name,nameBuf,16);
+			UC1701_printCentered(40, (char *)nameBuf,UC1701_FONT_GD77_8x16);
+			displayLightTrigger();
+			UC1701_render();
+			break;
+
+		case QSO_DISPLAY_CALLER_DATA:
+			menuUtilityRenderQSOData();
+			displayLightTrigger();
+			UC1701_render();
+			break;
 	}
-	else
-	{
-/*
- * Not enough room to display the zone as well as channel etc
-		codeplugUtilConvertBufToString(currentZone.name,nameBuf,16);
-		UC1701_printCentered(20, (char *)nameBuf,UC1701_FONT_GD77_8x16);
-*/
 
-		codeplugUtilConvertBufToString(channelData.name,nameBuf,16);
-		UC1701_printCentered(20, (char *)nameBuf,UC1701_FONT_GD77_8x16);
-
-		codeplugUtilConvertBufToString(contactData.name,nameBuf,16);
-		UC1701_printCentered(40, (char *)nameBuf,UC1701_FONT_GD77_8x16);
-
-
-	}
-	displayLightTrigger();
-	UC1701_render();
+	menuDisplayQSODataState = QSO_DISPLAY_IDLE;
 }
 
 static void handleEvent(int buttons, int keys, int events)

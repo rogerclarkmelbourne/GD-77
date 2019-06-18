@@ -40,9 +40,6 @@ volatile int int_timeout;
 int slot_state;
 int tick_cnt;
 int skip_count;
-
-int last_TG;
-int last_DMRID;
 int qsodata_timer;
 
 int tx_sequence;
@@ -311,8 +308,6 @@ void init_digital_state()
 	slot_state=0;
 	tick_cnt=0;
 	skip_count=0;
-	last_TG = 0;
-	last_DMRID = 0;
 	qsodata_timer = 0;
 }
 
@@ -344,23 +339,11 @@ void terminate_digital()
 
 void store_qsodata()
 {
-	int tmp_last_TG=(tmp_ram[3]<<16)+(tmp_ram[4]<<8)+(tmp_ram[5]<<0);
-	int tmp_last_DMRID=(tmp_ram[6]<<16)+(tmp_ram[7]<<8)+(tmp_ram[8]<<0);
-	qsodata_timer=2400;
-	if ((tmp_last_TG!=last_TG) || (tmp_last_DMRID!=last_DMRID))
+	// check if this is a valid data frame, including Talker Alias data frames (0x04 - 0x07)
+	if (tmp_ram[1] == 0x00  && (tmp_ram[0]==0x00 || (tmp_ram[0]>=0x04 && tmp_ram[0]<=0x7)))
 	{
-
-#warning HACK ALERT. store qsodata seems to report DMR ID of 0x4ED1E7 when it miss interprets a late start
-
-		//I suspect the C6000 is returning an error code or something similar in these cases in place of the DMR ID,
-		// because the value is always the same no matter what the incoming ID actually is
-		if (tmp_last_DMRID!=0x4ED1E7)
-		{
-
-			last_TG=tmp_last_TG;
-			last_DMRID=tmp_last_DMRID;
-			lastHeardListUpdate(last_DMRID,last_TG);
-		}
+		lastHeardListUpdate(tmp_ram);
+		qsodata_timer=2400;
 	}
 }
 
@@ -705,8 +688,7 @@ void tick_HR_C6000()
 		qsodata_timer--;
 		if (qsodata_timer==0)
 		{
-			last_TG = 0;
-			last_DMRID = 0;
+			menuDisplayQSODataState= QSO_DISPLAY_DEFAULT_SCREEN;
 		}
 	}
 }

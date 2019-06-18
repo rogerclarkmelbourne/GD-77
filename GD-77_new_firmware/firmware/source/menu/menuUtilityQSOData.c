@@ -34,10 +34,10 @@ void updateLastHeardList(int id,int talkGroup);
 
 static const int DMRID_MEMORY_STORAGE_START = 0x30000;
 static const int DMRID_HEADER_LENGTH = 0x0C;
-bool menuIsDisplayingQSOData = false;
 LinkItem_t callsList[NUM_LASTHEARD_STORED];
 LinkItem_t *LinkHead = callsList;
 int numLastHeard=0;
+int menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
 
 void lastheardInitList()
 {
@@ -92,68 +92,123 @@ LinkItem_t * findInList(int id)
     return NULL;
 }
 
-void lastHeardListUpdate(int id,int talkGroup)
+int lastID=0;
+
+void lastHeardListUpdate(uint8_t *dmrDataBuffer)
 {
-    LinkItem_t *item = findInList(id);
+	if (dmrDataBuffer[0] == 0x00)
+	{
+		int talkGroup=(dmrDataBuffer[3]<<16)+(dmrDataBuffer[4]<<8)+(dmrDataBuffer[5]<<0);
+		int id=(dmrDataBuffer[6]<<16)+(dmrDataBuffer[7]<<8)+(dmrDataBuffer[8]<<0);
 
-    if (item!=NULL)
-    {
-        // Already in the list
+		if (id!=lastID)
+		{
+			lastID=id;
+			menuDisplayQSODataState = QSO_DISPLAY_CALLER_DATA;// flag that the display needs to update
+			LinkItem_t *item = findInList(id);
+
+			if (item!=NULL)
+			{
+				// Already in the list
 
 
-        item->talkGroup = talkGroup;// update the TG in case they changed TG
+				item->talkGroup = talkGroup;// update the TG in case they changed TG
 
-        if (item == LinkHead)
-        {
+				if (item == LinkHead)
+				{
 
-            return;// already at top of the list
-        }
-        else
-        {
-            // not at top of the list
-            // Move this item to the top of the list
-        	LinkItem_t *next=item->next;
-            LinkItem_t *prev=item->prev;
+					return;// already at top of the list
+				}
+				else
+				{
+					// not at top of the list
+					// Move this item to the top of the list
+					LinkItem_t *next=item->next;
+					LinkItem_t *prev=item->prev;
 
-            // set the previous item to skip this item and link to 'items' next item.
-            prev->next = next;
+					// set the previous item to skip this item and link to 'items' next item.
+					prev->next = next;
 
-            if (item->next!=NULL)
-            {
-                // not the last in the list
-                next->prev = prev;// backwards link the next item to the item before us in the list.
-            }
+					if (item->next!=NULL)
+					{
+						// not the last in the list
+						next->prev = prev;// backwards link the next item to the item before us in the list.
+					}
 
-            item->next = LinkHead;// link our next item to the item at the head of the list
+					item->next = LinkHead;// link our next item to the item at the head of the list
 
-            LinkHead->prev = item;// backwards link the hold head item to the item moving to the top of the list.
+					LinkHead->prev = item;// backwards link the hold head item to the item moving to the top of the list.
 
-            item->prev=NULL;// change the items prev to NULL now we are at teh top of the list
-            LinkHead = item;// Change the global for the head of the link to the item that is to be at the top of the list.
-        }
-    }
-    else
-    {
-        // Not in the list
-        item = LinkHead;// setup to traverse the list from the top.
+					item->prev=NULL;// change the items prev to NULL now we are at teh top of the list
+					LinkHead = item;// Change the global for the head of the link to the item that is to be at the top of the list.
+				}
+			}
+			else
+			{
+				// Not in the list
+				item = LinkHead;// setup to traverse the list from the top.
 
-        // need to use the last item in the list as the new item at the top of the list.
-        // find last item in the list
-        while(item->next != NULL )
-        {
-            item=item->next;
-        }
-        //item is now the last
+				// need to use the last item in the list as the new item at the top of the list.
+				// find last item in the list
+				while(item->next != NULL )
+				{
+					item=item->next;
+				}
+				//item is now the last
 
-        (item->prev)->next = NULL;// make the previous item the last
+				(item->prev)->next = NULL;// make the previous item the last
 
-        LinkHead->prev = item;// set the current head item to back reference this item.
-        item->next = LinkHead;// set this items next to the current head
-        LinkHead = item;// Make this item the new head
+				LinkHead->prev = item;// set the current head item to back reference this item.
+				item->next = LinkHead;// set this items next to the current head
+				LinkHead = item;// Make this item the new head
 
-        item->id=id;
-        item->talkGroup =  talkGroup;
-    }
+				item->id=id;
+				item->talkGroup =  talkGroup;
+				memset(item->talkerAlias,0,32);// Clear any TA data
+			}
+		}
+	}
+	else
+	{
+		int TAStartPos;
+		int TABlockLen;
+		int TAOffset;
+
+		// Data contains the Talker Alias Data
+		switch(tmp_ram[0])
+		{
+			case 0x04:
+				TAOffset=0;
+				TAStartPos=3;
+				TABlockLen=6;
+				break;
+			case 0x05:
+				TAOffset=6;
+				TAStartPos=2;
+				TABlockLen=7;
+				break;
+			case 0x06:
+				TAOffset=13;
+				TAStartPos=2;
+				TABlockLen=7;
+				break;
+			case 0x07:
+				TAOffset=20;
+				TAStartPos=2;
+				TABlockLen=7;
+				break;
+			default:
+				TAOffset=0;
+				TAStartPos=0;
+				TABlockLen=0;
+				break;
+		}
+		if (LinkHead->talkerAlias[TAOffset] == 0x00 && TABlockLen!=0)
+		{
+			memcpy(&LinkHead->talkerAlias[TAOffset],&tmp_ram[TAStartPos],TABlockLen);// Brandmeister seems to send callsign as 6 chars only
+			menuDisplayQSODataState=QSO_DISPLAY_CALLER_DATA;
+		}
+	}
 }
 
 // Needed to convert the legacy DMR ID data which uses BCD encoding for the DMR ID numbers
@@ -222,23 +277,50 @@ bool dmrIDLookup( int targetId,dmrIdDataStruct_t *foundRecord)
 	return false;
 }
 
+
+
 void menuUtilityRenderQSOData()
 {
 char buffer[32];// buffer passed to the DMR ID lookup function, needs to be large enough to hold worst case text length that is returned. Currently 16+1
 dmrIdDataStruct_t currentRec;
 
-	sprintf(buffer,"TG %d", last_TG);
-	UC1701_printCentered(20, buffer,UC1701_FONT_GD77_8x16);
-	if (!dmrIDLookup(last_DMRID,&currentRec))
+	sprintf(buffer,"TG %d", LinkHead->talkGroup);
+	UC1701_printCentered(16, buffer,UC1701_FONT_GD77_8x16);
+
+	// first check if we have this ID in the DMR ID data
+	if (dmrIDLookup( LinkHead->id,&currentRec))
 	{
-		sprintf(buffer,"%d", last_DMRID);
+		sprintf(buffer,"%s", currentRec.text);
+		UC1701_printCentered(32, buffer,UC1701_FONT_GD77_8x16);
 	}
 	else
 	{
-		sprintf(buffer,"%s", currentRec.text);
-	}
+		// We don't have this ID, so try looking in the Talker alias data
+		if (LinkHead->talkerAlias[0] != 0x00)
+		{
+			if (strlen(LinkHead->talkerAlias)> 16)
+			{
+				// More than 1 line wide of text, so we need to split onto 2 lines.
+				memcpy(buffer,LinkHead->talkerAlias,16);
+				buffer[16]=0x00;
+				UC1701_printCentered(32, buffer,UC1701_FONT_GD77_8x16);
 
-	UC1701_printCentered(40, buffer,UC1701_FONT_GD77_8x16);
+				memcpy(buffer,&LinkHead->talkerAlias[16],16);
+				buffer[16]=0x00;
+				UC1701_printAt(0,48,buffer,UC1701_FONT_GD77_8x16);
+			}
+			else
+			{
+				UC1701_printCentered(32,LinkHead->talkerAlias,UC1701_FONT_GD77_8x16);
+			}
+		}
+		else
+		{
+			// No talker alias. So we can only show the ID.
+			sprintf(buffer,"ID: %d", LinkHead->id);
+			UC1701_printCentered(32, buffer,UC1701_FONT_GD77_8x16);
+		}
+	}
 }
 
 void menuUtilityRenderHeader()
