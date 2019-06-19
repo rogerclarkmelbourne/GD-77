@@ -102,5 +102,5 @@ uint32_t bcd2int(uint32_t in);
 
 void codeplugRxGroupGetDataForIndex(int index, struct_codeplugRxGroup_t *rxGroupBuf);
 void codeplugContactGetDataForIndex(int index, struct_codeplugContact_t *contact);
-
+int codeplugGetUserDMRID();
 #endif

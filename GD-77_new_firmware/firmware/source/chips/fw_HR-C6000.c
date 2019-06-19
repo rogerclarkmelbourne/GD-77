@@ -412,18 +412,15 @@ void tick_HR_C6000()
 	}
 	taskEXIT_CRITICAL();
 
-	if (((fw_read_buttons() & BUTTON_PTT)!=0) && (slot_state==0))
+	if (trxIsTransmitting==true && (slot_state==0))
 	{
-		// dummy data for now -> we need those value to come from a central place and managed by the menu system
-		uint32_t tmp_tg = 1234;
-		uint32_t tmp_dmrid = 12345678;
 		uint8_t spi_tx[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-		spi_tx[3] = (tmp_tg >> 16) & 0xFF;
-		spi_tx[4] = (tmp_tg >> 8) & 0xFF;
-		spi_tx[5] = (tmp_tg >> 0) & 0xFF;
-		spi_tx[6] = (tmp_dmrid >> 16) & 0xFF;
-		spi_tx[7] = (tmp_dmrid >> 8) & 0xFF;
-		spi_tx[8] = (tmp_dmrid >> 0) & 0xFF;
+		spi_tx[3] = (trxTalkGroup >> 16) & 0xFF;
+		spi_tx[4] = (trxTalkGroup >> 8) & 0xFF;
+		spi_tx[5] = (trxTalkGroup >> 0) & 0xFF;
+		spi_tx[6] = (trxDMRID >> 16) & 0xFF;
+		spi_tx[7] = (trxDMRID >> 8) & 0xFF;
+		spi_tx[8] = (trxDMRID >> 0) & 0xFF;
 		write_SPI_page_reg_bytearray_SPI0(0x02, 0x00, spi_tx, 0x0c);
 		write_SPI_page_reg_byte_SPI0(0x04, 0x40, 0xA3);
 		slot_state=11;
@@ -478,7 +475,7 @@ void tick_HR_C6000()
 			slot_state=12;
 			break;
 		case 12:
-			if (((fw_read_buttons() & BUTTON_PTT)==0) && (tx_sequence==0))
+			if (trxIsTransmitting==false && (tx_sequence==0))
 			{
 				slot_state=14;
 			}
@@ -489,7 +486,7 @@ void tick_HR_C6000()
 			}
 			break;
 		case 13:
-			if (((fw_read_buttons() & BUTTON_PTT)==0) && (tx_sequence==0))
+			if (trxIsTransmitting==false && (tx_sequence==0))
 			{
 				slot_state=14;
 			}

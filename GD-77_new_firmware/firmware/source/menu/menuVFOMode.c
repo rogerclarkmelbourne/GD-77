@@ -80,21 +80,17 @@ int menuVFOMode(int buttons, int keys, int events, bool isFirstRun)
 
 static void updateScreen()
 {
+	char buffer[32];
 	UC1701_clearBuf();
 	menuUtilityRenderHeader();
 
 	switch(menuDisplayQSODataState)
 	{
 		case QSO_DISPLAY_DEFAULT_SCREEN:
-			if (trxGetMode() == RADIO_MODE_ANALOG)
-			{
-				UC1701_printCentered(20, "Analog",UC1701_FONT_GD77_8x16);
-			}
-			else if (trxGetMode() == RADIO_MODE_DIGITAL)
-			{
-				UC1701_printCentered(20, "DMR",UC1701_FONT_GD77_8x16);
-			}
-			char buffer[32];
+			sprintf(buffer,"TG %d",trxTalkGroup);
+
+			UC1701_printCentered(20,buffer,UC1701_FONT_GD77_8x16);
+
 			if (freq_enter_idx==0)
 			{
 				int val_before_dp = nonVolatileSettings.vfoFrequenciesArray[nonVolatileSettings.currentVFOIndex]/10000;

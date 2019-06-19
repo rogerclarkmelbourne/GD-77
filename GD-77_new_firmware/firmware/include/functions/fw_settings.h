@@ -53,6 +53,7 @@ typedef struct settingsStruct
 } settingsStruct_t;
 
 extern settingsStruct_t nonVolatileSettings;
+extern bool settingsIsTgOverride;
 
 void settingsSaveSettings();
 void settingsLoadSettings();

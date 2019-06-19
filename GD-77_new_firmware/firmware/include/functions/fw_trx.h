@@ -40,6 +40,9 @@ enum RADIO_MODE { RADIO_MODE_NONE,RADIO_MODE_ANALOG,RADIO_MODE_DIGITAL};
 extern bool open_squelch;
 extern bool HR_C6000_datalogging;
 
+extern bool trxIsTransmitting;
+extern uint32_t trxTalkGroup;
+extern uint32_t trxDMRID;
 extern int trx_measure_count;
 
 void trx_check_analog_squelch();

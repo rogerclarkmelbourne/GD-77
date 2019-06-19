@@ -77,16 +77,18 @@ static void loadChannelData()
 	codeplugChannelGetDataForIndex(currentZone.channels[nonVolatileSettings.currentChannelIndexInZone],&channelData);
 	trxSetFrequency(bcd2int(channelData.rxFreq)/10);
 	trxSetMode((channelData.chMode==0)?RADIO_MODE_ANALOG:RADIO_MODE_DIGITAL);
+	codeplugRxGroupGetDataForIndex(channelData.rxGroupList,&rxGroupData);
+	codeplugContactGetDataForIndex(rxGroupData.contacts[currentIndexInTRxGroup],&contactData);
+	if (settingsIsTgOverride==false)
+	{
+		trxTalkGroup = contactData.tgNumber;
+	}
 }
 
 
 static void updateScreen()
 {
 	char nameBuf[17];
-
-
-	codeplugRxGroupGetDataForIndex(channelData.rxGroupList,&rxGroupData);
-	codeplugContactGetDataForIndex(rxGroupData.contacts[currentIndexInTRxGroup],&contactData);
 
 	UC1701_clearBuf();
 
@@ -98,7 +100,14 @@ static void updateScreen()
 			codeplugUtilConvertBufToString(channelData.name,nameBuf,16);
 			UC1701_printCentered(20, (char *)nameBuf,UC1701_FONT_GD77_8x16);
 
-			codeplugUtilConvertBufToString(contactData.name,nameBuf,16);
+			if (settingsIsTgOverride)
+			{
+				sprintf(nameBuf,"TG %d",trxTalkGroup);
+			}
+			else
+			{
+				codeplugUtilConvertBufToString(contactData.name,nameBuf,16);
+			}
 			UC1701_printCentered(40, (char *)nameBuf,UC1701_FONT_GD77_8x16);
 			displayLightTrigger();
 			UC1701_render();
@@ -140,6 +149,11 @@ static void handleEvent(int buttons, int keys, int events)
 		{
 			currentIndexInTRxGroup =  0;
 		}
+		codeplugContactGetDataForIndex(rxGroupData.contacts[currentIndexInTRxGroup],&contactData);
+
+		settingsIsTgOverride=false;
+		trxTalkGroup = contactData.tgNumber;
+
 		menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
 		updateScreen();
 	}
@@ -151,6 +165,11 @@ static void handleEvent(int buttons, int keys, int events)
 		{
 			currentIndexInTRxGroup =  rxGroupData.NOT_IN_MEMORY_numTGsInGroup - 1;
 		}
+
+		codeplugContactGetDataForIndex(rxGroupData.contacts[currentIndexInTRxGroup],&contactData);
+		settingsIsTgOverride=false;
+		trxTalkGroup = contactData.tgNumber;
+
 		menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
 		updateScreen();
 	}
