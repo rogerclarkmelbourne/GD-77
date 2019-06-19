@@ -41,7 +41,7 @@ int menuLastHeard(int buttons, int keys, int events, bool isFirstRun)
 	else
 	{
 		// do live update by checking if the item at the top of the list has changed
-		if (gMenusStartIndex != LinkHead->id)
+		if (gMenusStartIndex != LinkHead->id || menuDisplayQSODataState==QSO_DISPLAY_CALLER_DATA)
 		{
 			gMenusStartIndex = LinkHead->id;
 			gMenusCurrentItemIndex=0;
@@ -110,6 +110,7 @@ static void updateScreen()
 
 	UC1701_render();
 	displayLightTrigger();
+	menuDisplayQSODataState = QSO_DISPLAY_IDLE;
 }
 
 

@@ -104,7 +104,7 @@ void lastHeardListUpdate(uint8_t *dmrDataBuffer)
 		if (id!=lastID)
 		{
 			lastID=id;
-			menuDisplayQSODataState = QSO_DISPLAY_CALLER_DATA;// flag that the display needs to update
+
 			LinkItem_t *item = findInList(id);
 
 			if (item!=NULL)
@@ -116,7 +116,7 @@ void lastHeardListUpdate(uint8_t *dmrDataBuffer)
 
 				if (item == LinkHead)
 				{
-
+					menuDisplayQSODataState = QSO_DISPLAY_CALLER_DATA;// flag that the display needs to update
 					return;// already at top of the list
 				}
 				else
@@ -141,6 +141,7 @@ void lastHeardListUpdate(uint8_t *dmrDataBuffer)
 
 					item->prev=NULL;// change the items prev to NULL now we are at teh top of the list
 					LinkHead = item;// Change the global for the head of the link to the item that is to be at the top of the list.
+					menuDisplayQSODataState = QSO_DISPLAY_CALLER_DATA;// flag that the display needs to update
 				}
 			}
 			else
@@ -165,6 +166,7 @@ void lastHeardListUpdate(uint8_t *dmrDataBuffer)
 				item->id=id;
 				item->talkGroup =  talkGroup;
 				memset(item->talkerAlias,0,32);// Clear any TA data
+				menuDisplayQSODataState = QSO_DISPLAY_CALLER_DATA;// flag that the display needs to update
 			}
 		}
 	}
