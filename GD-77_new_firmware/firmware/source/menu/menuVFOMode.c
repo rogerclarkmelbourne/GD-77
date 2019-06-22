@@ -54,6 +54,7 @@ int menuVFOMode(int buttons, int keys, int events, bool isFirstRun)
 		nonVolatileSettings.initialMenuNumber=MENU_VFO_MODE;
 		trxSetFrequency(nonVolatileSettings.vfoFrequenciesArray[nonVolatileSettings.currentVFOIndex]);
 		trxSetMode(nonVolatileSettings.vfoTrxMode);
+		trxSetPower(nonVolatileSettings.txPower);
 		reset_freq_enter_digits();
 		menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
 		updateScreen();

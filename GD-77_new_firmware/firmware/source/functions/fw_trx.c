@@ -26,6 +26,7 @@
 
 #include "fw_trx.h"
 #include "fw_HR-C6000.h"
+#include "fw_settings.h"
 
 bool open_squelch=false;
 bool HR_C6000_datalogging=false;
@@ -34,7 +35,6 @@ int trx_measure_count = 0;
 bool trxIsTransmitting = false;
 uint32_t trxTalkGroup=9;// Set to local TG just in case there is some problem with it not being loaded
 uint32_t trxDMRID = 0;// Set ID to 0. Not sure if its valid. This value needs to be loaded from the codeplug.
-
 const int RADIO_VHF_MIN			=	1340000;
 const int RADIO_VHF_MAX			=	1740000;
 const int RADIO_UHF_MIN			=	4000000;
@@ -233,7 +233,20 @@ void trx_setTX()
 		GPIO_PinWrite(GPIO_UHF_TX_amp_power, Pin_UHF_TX_amp_power, 1);
 	}
 
-	// TX Antenna + PA power off
+	// TX Antenna + PA power o
     GPIO_PinWrite(GPIO_RF_ant_switch, Pin_RF_ant_switch, 1);
-    DAC_SetBufferValue(DAC0, 0U, 200U);
+    DAC_SetBufferValue(DAC0, 0U, nonVolatileSettings.txPower);
+}
+
+void trxSetPower(uint32_t powerVal)
+{
+	if (powerVal<4096)
+	{
+		nonVolatileSettings.txPower = powerVal;
+	}
+    DAC_SetBufferValue(DAC0, 0U, nonVolatileSettings.txPower);
+}
+uint16_t trxGetPower()
+{
+	return nonVolatileSettings.txPower;
 }
