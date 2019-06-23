@@ -1,6 +1,8 @@
 /*
  * Copyright (C)2019 Kai Ludwig, DG4KLU
  *
+ * Additional code by Roger Clark VK3KYY / G4KYF
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
@@ -27,7 +29,7 @@
 #include "fw_HR-C6000.h"
 #include "menu/menuUtilityQSOData.h"
 
-#if defined(USE_SEGGER_RTT)
+#if defined(USE_SEGGER_RTT) && defined(DEBUG_DMR_DATA)
 #include <SeggerRTT/RTT/SEGGER_RTT.h>
 #endif
 
@@ -41,8 +43,10 @@ int slot_state;
 int tick_cnt;
 int skip_count;
 int qsodata_timer;
-
 int tx_sequence;
+
+enum DMR_SLOT_STATE {	DMR_STATE_IDLE , DMR_STATE_RX_1,DMR_STATE_RX_2,DMR_STATE_RX_END,
+						DMR_STATE_TX_START,DMR_STATE_TX_1,DMR_STATE_TX_2,DMR_STATE_TX_END_1,DMR_STATE_TX_END_2};
 
 void SPI_HR_C6000_init()
 {
@@ -298,6 +302,7 @@ void init_HR_C6000_interrupts()
     NVIC_SetPriority(PORTC_IRQn, 3);
 }
 
+
 void init_digital_state()
 {
 	taskENTER_CRITICAL();
@@ -305,7 +310,7 @@ void init_digital_state()
 	int_ts=false;
 	int_timeout=0;
 	taskEXIT_CRITICAL();
-	slot_state=0;
+	slot_state = DMR_STATE_IDLE;
 	tick_cnt=0;
 	skip_count=0;
 	qsodata_timer = 0;
@@ -395,6 +400,9 @@ void fw_hrc6000_task()
     }
 }
 
+
+
+
 void tick_HR_C6000()
 {
 	bool tmp_int_sys=false;
@@ -412,7 +420,7 @@ void tick_HR_C6000()
 	}
 	taskEXIT_CRITICAL();
 
-	if (trxIsTransmitting==true && (slot_state==0))
+	if (trxIsTransmitting==true && (slot_state == DMR_STATE_IDLE))
 	{
 		uint8_t spi_tx[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 		spi_tx[3] = (trxTalkGroup >> 16) & 0xFF;
@@ -423,10 +431,10 @@ void tick_HR_C6000()
 		spi_tx[8] = (trxDMRID >> 0) & 0xFF;
 		write_SPI_page_reg_bytearray_SPI0(0x02, 0x00, spi_tx, 0x0c);
 		write_SPI_page_reg_byte_SPI0(0x04, 0x40, 0xA3);
-		slot_state=11;
+		slot_state = DMR_STATE_TX_START;
 	}
 
-	if (slot_state>0)
+	if (slot_state != DMR_STATE_IDLE) // 0
 	{
 		if (int_timeout<200)
 		{
@@ -434,9 +442,9 @@ void tick_HR_C6000()
 			if (int_timeout==200)
 			{
 	            	init_digital();
-	            	slot_state=0;
+	            	slot_state = DMR_STATE_IDLE;
 	            	int_timeout=0;
-#if defined(USE_SEGGER_RTT)
+#if defined(USE_SEGGER_RTT) && defined(DEBUG_DMR_DATA)
             	SEGGER_RTT_printf(0, ">>> INTERRUPT TIMEOUT\r\n");
 #endif
 			}
@@ -452,43 +460,43 @@ void tick_HR_C6000()
 		// Transmission start/stop state machine
 		switch (slot_state)
 		{
-		case 1: // Start RX of transmission (first step)
+		case DMR_STATE_RX_1:// 1: // Start RX of transmission (first step)
 			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x00);
 			GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 1);
 		    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
-			slot_state=2;
+			slot_state = DMR_STATE_RX_2;
 			break;
-		case 2: // Start RX of transmission (second step)
+		case DMR_STATE_RX_2://2 : // Start RX of transmission (second step)
 			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x50);
-			slot_state=1;
+			slot_state = DMR_STATE_RX_1;
 			break;
-		case 3: // Stop RX of transmission
+		case DMR_STATE_RX_END://3: // Stop RX of transmission
 			init_digital_DMR_RX();
 			GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 0);
 		    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
-			slot_state=0;
+			slot_state = DMR_STATE_IDLE;
 			break;
-		case 11:
+		case DMR_STATE_TX_START://11:
 			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x80);
 			write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x10);
 			tx_sequence=0;
-			slot_state=12;
+			slot_state = DMR_STATE_TX_1;
 			break;
-		case 12:
+		case DMR_STATE_TX_1://12:
 			if (trxIsTransmitting==false && (tx_sequence==0))
 			{
-				slot_state=14;
+				slot_state = DMR_STATE_TX_END_1;
 			}
 			else
 			{
 				write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x00);
-				slot_state=13;
+				slot_state = DMR_STATE_TX_2;
 			}
 			break;
-		case 13:
+		case DMR_STATE_TX_2://13:
 			if (trxIsTransmitting==false && (tx_sequence==0))
 			{
-				slot_state=14;
+				slot_state = DMR_STATE_TX_END_1;
 			}
 			else
 			{
@@ -519,28 +527,29 @@ void tick_HR_C6000()
 				{
 					tx_sequence=0;
 				}
-				slot_state=12;
+				slot_state = DMR_STATE_TX_1;
 			}
 			break;
-		case 14:
+		case DMR_STATE_TX_END_1://14:
 			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x80);
 			write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x20);
-			slot_state=15;
+			slot_state = DMR_STATE_TX_END_2;
 			break;
-		case 15:
+		case DMR_STATE_TX_END_2:// 15:
 			write_SPI_page_reg_byte_SPI0(0x04, 0x40, 0xC3);
-			slot_state=0;
+			slot_state = DMR_STATE_IDLE;
 			break;
 		}
 
-    	if ((slot_state<11) && (tick_cnt<10))
+#warning This code probably checks if the radio is transmitting or receiving. We may need a flag for his, as its not an ideal use of enums
+    	if ((slot_state < DMR_STATE_TX_START) && (tick_cnt<10))
     	{
     		// Timeout interrupted transmission
     		tick_cnt++;
             if (tick_cnt==10)
             {
-            	slot_state=3;
-#if defined(USE_SEGGER_RTT)
+            	slot_state = DMR_STATE_RX_END;
+#if defined(USE_SEGGER_RTT) && defined(DEBUG_DMR_DATA)
             	SEGGER_RTT_printf(0, ">>> TIMEOUT\r\n");
 #endif
             }
@@ -580,18 +589,18 @@ void tick_HR_C6000()
     		if (tmp_val_0x82 & 0x10) // InterLateEntry
     		{
     			// Late entry into ongoing transmission
-                if ((slot_state==0) && (tmp_ram[0]==0))
+                if ((slot_state == DMR_STATE_IDLE) && (tmp_ram[0]==0))
                 {
-                	slot_state=1;
+                	slot_state = DMR_STATE_RX_1;
                 	store_qsodata();
                 	init_codec();
                 	skip_count = 2;
-#if defined(USE_SEGGER_RTT)
+#if defined(USE_SEGGER_RTT) && defined(DEBUG_DMR_DATA)
             	SEGGER_RTT_printf(0, ">>> START LATE\r\n");
 #endif
                 }
 
-#if defined(USE_SEGGER_RTT)
+#if defined(USE_SEGGER_RTT) && defined(DEBUG_DMR_DATA)
             	SEGGER_RTT_printf(0, "LATE %02x [%02x %02x] %02x %02x %02x %02x SC:%02x RCRC:%02x RPI:%02x RXDT:%02x LCSS:%02x TC:%02x AT:%02x CC:%02x ??:%02x ST:%02x RAM:", slot_state, tmp_val_0x82, tmp_val_0x86, tmp_val_0x51, tmp_val_0x52, tmp_val_0x57, tmp_val_0x5f, (tmp_val_0x51 >> 0) & 0x03, (tmp_val_0x51 >> 2) & 0x01, (tmp_val_0x51 >> 3) & 0x01, (tmp_val_0x51 >> 4) & 0x0f, (tmp_val_0x52 >> 0) & 0x03, (tmp_val_0x52 >> 2) & 0x01, (tmp_val_0x52 >> 3) & 0x01, (tmp_val_0x52 >> 4) & 0x0f, (tmp_val_0x57 >> 2) & 0x01, (tmp_val_0x5f >> 0) & 0x03);
 				for (int i=0;i<0x0c;i++)
 				{
@@ -613,20 +622,20 @@ void tick_HR_C6000()
     			// Start or stop transmission
     			int rxdt = (tmp_val_0x51 >> 4) & 0x0f;
     			int sc = (tmp_val_0x51 >> 0) & 0x03;
-                if ((slot_state==0) && (sc==2) && (rxdt==1) && (tmp_ram[0]==0))
+                if ((slot_state == DMR_STATE_IDLE) && (sc==2) && (rxdt==1) && (tmp_ram[0]==0))
                 {
-                	slot_state=1;
+                	slot_state = DMR_STATE_RX_1;
                 	store_qsodata();
                 	init_codec();
                 	skip_count = 0;
-#if defined(USE_SEGGER_RTT)
+#if defined(USE_SEGGER_RTT) && defined(DEBUG_DMR_DATA)
             	SEGGER_RTT_printf(0, ">>> START\r\n");
 #endif
                 }
                 if ((sc==2) && (rxdt==2) && (tmp_ram[0]==0))
                 {
-                	slot_state=3;
-#if defined(USE_SEGGER_RTT)
+                	slot_state = DMR_STATE_RX_END;
+#if defined(USE_SEGGER_RTT) && defined(DEBUG_DMR_DATA)
             	SEGGER_RTT_printf(0, ">>> STOP\r\n");
 #endif
                 }
@@ -637,7 +646,7 @@ void tick_HR_C6000()
             	}
 
                 // Detect/decode voice packet and transfer it into the output soundbuffer
-                if ((slot_state!=0) && (skip_count==0) && (sc!=2) && ((rxdt & 0x07) >= 0x01) && ((rxdt & 0x07) <= 0x06))
+                if ((slot_state != DMR_STATE_IDLE) && (skip_count==0) && (sc!=2) && ((rxdt & 0x07) >= 0x01) && ((rxdt & 0x07) <= 0x06))
                 {
                 	store_qsodata();
                     read_SPI_page_reg_bytearray_SPI1(0x03, 0x00, tmp_ram, 27);
@@ -645,7 +654,7 @@ void tick_HR_C6000()
                     tick_soundbuffer();
                 }
 
-#if defined(USE_SEGGER_RTT)
+#if defined(USE_SEGGER_RTT) && defined(DEBUG_DMR_DATA)
             	SEGGER_RTT_printf(0, "DATA %02x [%02x %02x] %02x %02x %02x %02x SC:%02x RCRC:%02x RPI:%02x RXDT:%02x LCSS:%02x TC:%02x AT:%02x CC:%02x ??:%02x ST:%02x RAM:", slot_state, tmp_val_0x82, tmp_val_0x86, tmp_val_0x51, tmp_val_0x52, tmp_val_0x57, tmp_val_0x5f, (tmp_val_0x51 >> 0) & 0x03, (tmp_val_0x51 >> 2) & 0x01, (tmp_val_0x51 >> 3) & 0x01, (tmp_val_0x51 >> 4) & 0x0f, (tmp_val_0x52 >> 0) & 0x03, (tmp_val_0x52 >> 2) & 0x01, (tmp_val_0x52 >> 3) & 0x01, (tmp_val_0x52 >> 4) & 0x0f, (tmp_val_0x57 >> 2) & 0x01, (tmp_val_0x5f >> 0) & 0x03);
 				for (int i=0;i<0x0c;i++)
 				{
@@ -675,7 +684,7 @@ void tick_HR_C6000()
         }
         else
         {
-#if defined(USE_SEGGER_RTT)
+#if defined(USE_SEGGER_RTT) && defined(DEBUG_DMR_DATA)
             	SEGGER_RTT_printf(0, "---- %02x [%02x %02x] %02x %02x %02x %02x SC:%02x RCRC:%02x RPI:%02x RXDT:%02x LCSS:%02x TC:%02x AT:%02x CC:%02x ??:%02x ST:%02x RAM:", slot_state, tmp_val_0x82, tmp_val_0x86, tmp_val_0x51, tmp_val_0x52, tmp_val_0x57, tmp_val_0x5f, (tmp_val_0x51 >> 0) & 0x03, (tmp_val_0x51 >> 2) & 0x01, (tmp_val_0x51 >> 3) & 0x01, (tmp_val_0x51 >> 4) & 0x0f, (tmp_val_0x52 >> 0) & 0x03, (tmp_val_0x52 >> 2) & 0x01, (tmp_val_0x52 >> 3) & 0x01, (tmp_val_0x52 >> 4) & 0x0f, (tmp_val_0x57 >> 2) & 0x01, (tmp_val_0x5f >> 0) & 0x03);
 				for (int i=0;i<0x0c;i++)
 				{
