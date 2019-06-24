@@ -41,6 +41,7 @@ const int CODEPLUG_RX_GROUP_LEN = 0x50;
 const int CODEPLUG_ADDR_CONTACTS = 0x87620;
 const int CODEPLUG_CONTACTS_LEN = 0x18;
 
+const int CODEPLUG_ADDR_USER_DMRID = 0x00E8;
 
 
 uint32_t byteSwap32(uint32_t n)
@@ -61,6 +62,7 @@ uint32_t bcd2int(uint32_t i)
     }
     return result;
 }
+
 
 void codeplugUtilConvertBufToString(char *inBuf,char *outBuf,int len)
 {
@@ -171,5 +173,12 @@ void codeplugContactGetDataForIndex(int index, struct_codeplugContact_t *contact
 {
 	index--;
 	SPI_Flash_read(CODEPLUG_ADDR_CONTACTS + index*sizeof(struct_codeplugContact_t),(uint8_t *)contact,sizeof(struct_codeplugContact_t));
-	contact->tgNumber = bcd2int(contact->tgNumber);
+	contact->tgNumber = bcd2int(byteSwap32(contact->tgNumber));
+}
+
+int codeplugGetUserDMRID()
+{
+	int dmrId;
+	EEPROM_Read(CODEPLUG_ADDR_USER_DMRID,(uint8_t *)&dmrId,4);
+	return bcd2int(byteSwap32(dmrId));
 }

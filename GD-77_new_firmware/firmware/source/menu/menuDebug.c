@@ -27,6 +27,7 @@
 
 static void updateScreen();
 static void handleEvent(int buttons, int keys, int events);
+static const int NUM_MENUS=3;
 
 int menuDebug(int buttons, int keys, int events, bool isFirstRun)
 {
@@ -47,39 +48,71 @@ int menuDebug(int buttons, int keys, int events, bool isFirstRun)
 
 static void updateScreen()
 {
+	int mNum=0;
 	char buf[16];
 	UC1701_clearBuf();
 	UC1701_printCentered(0, "Debug options",UC1701_FONT_GD77_8x16);
 
-	if (open_squelch)
+	// Can only display 3 of the options at a time menu at -1, 0 and +1
+	for(int i=-1;i<=1;i++)
 	{
-		strcpy(buf,"SQ:OFF");
-	}
-	else
-	{
-		strcpy(buf,"SQ:ON");
-	}
-	if (gMenusCurrentItemIndex==0)
-	{
-		UC1701_fillRect(0,16,128,16,false);
-	}
-	UC1701_printCore(0,16,buf,UC1701_FONT_GD77_8x16,0,(gMenusCurrentItemIndex==0));
+		mNum = gMenusCurrentItemIndex+i;
+		if (mNum<0)
+		{
+			mNum = NUM_MENUS + mNum;
+		}
+		if (mNum >= NUM_MENUS)
+		{
+			mNum = mNum - NUM_MENUS;
+		}
+		switch(mNum)
+		{
+		case 0:
+			sprintf(buf,"Power %d",trxGetPower());
+			if (gMenusCurrentItemIndex==0)
+			{
+				UC1701_fillRect(0,(i+2)*16,128,16,false);
+			}
 
-	if (HR_C6000_datalogging)
-	{
-		strcpy(buf,"LOG:ON");
-	}
-	else
-	{
-		strcpy(buf,"LOG:OFF");
-	}
+			UC1701_printCore(0,(i+2)*16,buf,UC1701_FONT_GD77_8x16,0,(gMenusCurrentItemIndex==0));
+			break;
+		case 1:
+			if (open_squelch)
+			{
+				strcpy(buf,"SQ:OFF");
+			}
+			else
+			{
+				strcpy(buf,"SQ:ON");
+			}
+			if (gMenusCurrentItemIndex==1)
+			{
+				UC1701_fillRect(0,(i+2)*16,128,16,false);
+			}
+			UC1701_printCore(0,(i+2)*16,buf,UC1701_FONT_GD77_8x16,0,(gMenusCurrentItemIndex==1));
+			break;
+		case 2:
+			if (HR_C6000_datalogging)
+			{
+				strcpy(buf,"LOG:ON");
+			}
+			else
+			{
+				strcpy(buf,"LOG:OFF");
+			}
 
-	if (gMenusCurrentItemIndex==1)
-	{
-		UC1701_fillRect(0,32,128,16,false);
-	}
+			if (gMenusCurrentItemIndex==2)
+			{
+				UC1701_fillRect(0,(i+2)*16,128,16,false);
+			}
 
-	UC1701_printCore(0,32,buf,UC1701_FONT_GD77_8x16,0,(gMenusCurrentItemIndex==1));
+			UC1701_printCore(0,(i+2)*16,buf,UC1701_FONT_GD77_8x16,0,(gMenusCurrentItemIndex==2));
+			break;
+
+
+
+		}
+	}
 
 	UC1701_render();
 	displayLightTrigger();
@@ -90,24 +123,57 @@ static void handleEvent(int buttons, int keys, int events)
 {
 	if ((keys & KEY_DOWN)!=0 && gMenusEndIndex!=0)
 	{
-		gMenusCurrentItemIndex = 1 - gMenusCurrentItemIndex;
+		gMenusCurrentItemIndex++;
+		if (gMenusCurrentItemIndex>=NUM_MENUS)
+		{
+			gMenusCurrentItemIndex=0;
+		}
 	}
 	else if ((keys & KEY_UP)!=0)
 	{
-		gMenusCurrentItemIndex = 1 - gMenusCurrentItemIndex;
+		gMenusCurrentItemIndex--;
+		if (gMenusCurrentItemIndex<0)
+		{
+			gMenusCurrentItemIndex=NUM_MENUS-1;
+		}
 	}
-	else if ((keys & KEY_GREEN)!=0)
+	else if ((keys & KEY_RIGHT)!=0)
 	{
 		switch(gMenusCurrentItemIndex)
 		{
-			case 0:
-				open_squelch = 1 - open_squelch;
-				break;
 			case 1:
-				HR_C6000_datalogging = 1 - HR_C6000_datalogging;
+				open_squelch = 1;
+				break;
+			case 2:
+				HR_C6000_datalogging = 1;
+				break;
+			case 0:
+				trxSetPower(trxGetPower() + 100);
 				break;
 		}
-
+	}
+	else if ((keys & KEY_LEFT)!=0)
+	{
+		switch(gMenusCurrentItemIndex)
+		{
+			case 1:
+				open_squelch = 0;
+				break;
+			case 2:
+				HR_C6000_datalogging = 0;
+				break;
+			case 0:
+				if (trxGetPower() >= 100)
+				{
+					trxSetPower(trxGetPower() - 100);
+				}
+				break;
+		}
+	}
+	else if ((keys & KEY_GREEN)!=0)
+	{
+		menuSystemPopPreviousMenu();
+		return;
 	}
 	else if ((keys & KEY_RED)!=0)
 	{

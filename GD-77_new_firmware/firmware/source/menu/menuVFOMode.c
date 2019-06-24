@@ -43,17 +43,20 @@ static void reset_freq_enter_digits();
 static int read_freq_enter_digits();
 static bool check_frequency(int tmp_frequency);
 static void update_frequency(int tmp_frequency);
-
+bool menuIsDisplayingQSOData = false;// HACK ALERT. DO NOT DELETE THIS LINE. BECAUSE THE DMR AUDIO WILL STOP WOKRING
 
 // public interface
 int menuVFOMode(int buttons, int keys, int events, bool isFirstRun)
 {
+	menuIsDisplayingQSOData=true;// HACK ALERT. DO NOT DELETE THIS LINE. BECAUSE THE DMR AUDIO WILL STOP WOKRING
 	if (isFirstRun)
 	{
 		nonVolatileSettings.initialMenuNumber=MENU_VFO_MODE;
 		trxSetFrequency(nonVolatileSettings.vfoFrequenciesArray[nonVolatileSettings.currentVFOIndex]);
 		trxSetMode(nonVolatileSettings.vfoTrxMode);
+		trxSetPower(nonVolatileSettings.txPower);
 		reset_freq_enter_digits();
+		menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
 		updateScreen();
 	}
 	else
@@ -61,10 +64,9 @@ int menuVFOMode(int buttons, int keys, int events, bool isFirstRun)
 		if (events==0)
 		{
 			// is there an incoming DMR signal
-			if (menuIsDisplayingQSOData != (qsodata_timer!=0))
+			if (menuDisplayQSODataState != QSO_DISPLAY_IDLE)
 			{
 				updateScreen();
-				menuIsDisplayingQSOData=(qsodata_timer!=0);
 			}
 		}
 		else
@@ -72,46 +74,46 @@ int menuVFOMode(int buttons, int keys, int events, bool isFirstRun)
 			handleEvent(buttons, keys, events);
 		}
 	}
+
 	return 0;
 }
 
 
 static void updateScreen()
 {
+	char buffer[32];
 	UC1701_clearBuf();
 	menuUtilityRenderHeader();
 
-	if (qsodata_timer!=0)
+	switch(menuDisplayQSODataState)
 	{
-		menuUtilityRenderQSOData();
-		displayLightOverrideTimeout(-1);// turn the display light on without timeout
-	}
-	else
-	{
-		if (trxGetMode() == RADIO_MODE_ANALOG)
-		{
-			UC1701_printCentered(20, "Analog",UC1701_FONT_GD77_8x16);
-		}
-		else if (trxGetMode() == RADIO_MODE_DIGITAL)
-		{
-			UC1701_printCentered(20, "DMR",UC1701_FONT_GD77_8x16);
-		}
-		char buffer[32];
-		if (freq_enter_idx==0)
-		{
-			int val_before_dp = nonVolatileSettings.vfoFrequenciesArray[nonVolatileSettings.currentVFOIndex]/10000;
-			int val_after_dp = nonVolatileSettings.vfoFrequenciesArray[nonVolatileSettings.currentVFOIndex] - val_before_dp*10000;
-			sprintf(buffer,"#%d %d.%04d MHz", nonVolatileSettings.currentVFOIndex+1, val_before_dp, val_after_dp);
-		}
-		else
-		{
-			sprintf(buffer,"#%d %c%c%c.%c%c%c%c MHz", nonVolatileSettings.currentVFOIndex+1, freq_enter_digits[0], freq_enter_digits[1], freq_enter_digits[2], freq_enter_digits[3], freq_enter_digits[4], freq_enter_digits[5], freq_enter_digits[6] );
-		}
-		UC1701_printCentered(40, buffer,UC1701_FONT_GD77_8x16);
-		displayLightTrigger();
-	}
+		case QSO_DISPLAY_DEFAULT_SCREEN:
+			sprintf(buffer,"TG %d",trxTalkGroup);
 
-	UC1701_render();
+			UC1701_printCentered(20,buffer,UC1701_FONT_GD77_8x16);
+
+			if (freq_enter_idx==0)
+			{
+				int val_before_dp = nonVolatileSettings.vfoFrequenciesArray[nonVolatileSettings.currentVFOIndex]/10000;
+				int val_after_dp = nonVolatileSettings.vfoFrequenciesArray[nonVolatileSettings.currentVFOIndex] - val_before_dp*10000;
+				sprintf(buffer,"#%d %d.%04d MHz", nonVolatileSettings.currentVFOIndex+1, val_before_dp, val_after_dp);
+			}
+			else
+			{
+				sprintf(buffer,"#%d %c%c%c.%c%c%c%c MHz", nonVolatileSettings.currentVFOIndex+1, freq_enter_digits[0], freq_enter_digits[1], freq_enter_digits[2], freq_enter_digits[3], freq_enter_digits[4], freq_enter_digits[5], freq_enter_digits[6] );
+			}
+			UC1701_printCentered(40, buffer,UC1701_FONT_GD77_8x16);
+			displayLightTrigger();
+			UC1701_render();
+			break;
+
+		case QSO_DISPLAY_CALLER_DATA:
+			menuUtilityRenderQSOData();
+			displayLightTrigger();
+			UC1701_render();
+			break;
+	}
+	menuDisplayQSODataState = QSO_DISPLAY_IDLE;
 }
 
 
@@ -181,6 +183,7 @@ static void handleEvent(int buttons, int keys, int events)
 				nonVolatileSettings.currentVFOIndex=0;
 			}
 			trxSetFrequency(nonVolatileSettings.vfoFrequenciesArray[nonVolatileSettings.currentVFOIndex]);
+			menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
 		}
 		else if ((keys & KEY_LEFT)!=0)
 		{
@@ -190,6 +193,7 @@ static void handleEvent(int buttons, int keys, int events)
 				nonVolatileSettings.currentVFOIndex=VFO_COUNT-1;
 			}
 			trxSetFrequency(nonVolatileSettings.vfoFrequenciesArray[nonVolatileSettings.currentVFOIndex]);
+			menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
 		}
 		else if ((keys & KEY_STAR)!=0)
 		{
@@ -202,6 +206,7 @@ static void handleEvent(int buttons, int keys, int events)
 				trxSetMode(RADIO_MODE_ANALOG);
 			}
 			nonVolatileSettings.vfoTrxMode=trxGetMode();
+			menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
 		}
 		else if ((keys & KEY_DOWN)!=0)
 		{
@@ -214,6 +219,7 @@ static void handleEvent(int buttons, int keys, int events)
 			{
         	    set_melody(melody_ERROR_beep);
 			}
+			menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
 		}
 		else if ((keys & KEY_UP)!=0)
 		{
@@ -226,6 +232,7 @@ static void handleEvent(int buttons, int keys, int events)
 			{
         	    set_melody(melody_ERROR_beep);
 			}
+			menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
 		}
 		else if ((keys & KEY_RED)!=0)
 		{
@@ -239,11 +246,13 @@ static void handleEvent(int buttons, int keys, int events)
 		{
 			freq_enter_idx--;
 			freq_enter_digits[freq_enter_idx]='-';
+			menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
 		}
 		else if ((keys & KEY_RED)!=0)
 		{
 			reset_freq_enter_digits();
     	    set_melody(melody_NACK_beep);
+    		menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
 		}
 	}
 	if (freq_enter_idx<7)
@@ -307,6 +316,7 @@ static void handleEvent(int buttons, int keys, int events)
 	        	    set_melody(melody_ERROR_beep);
 				}
 			}
+			menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
 		}
 
 	}

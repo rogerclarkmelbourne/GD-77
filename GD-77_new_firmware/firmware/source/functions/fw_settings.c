@@ -29,6 +29,7 @@
 #include "fw_EEPROM.h"
 #include "fw_trx.h"
 #include "menu/menuSystem.h"
+#include "fw_codeplug.h"
 
 const int BAND_VHF_MIN 	= 1440000;
 const int BAND_VHF_MAX 	= 1480000;
@@ -36,8 +37,9 @@ const int BAND_UHF_MIN 	= 4300000;
 const int BAND_UHF_MAX 	= 4500000;
 
 static const int STORAGE_BASE_ADDRESS = 0xFF00;
-static const int STORAGE_MAGIC_NUMBER = 0x4714;
+static const int STORAGE_MAGIC_NUMBER = 0x4715;
 
+bool settingsIsTgOverride=false;
 settingsStruct_t nonVolatileSettings;
 
 void settingsSaveSettings()
@@ -54,6 +56,7 @@ void settingsLoadSettings()
     	settingsRestoreDefaultSettings();
     	settingsSaveSettings();
 	}
+	trxDMRID = codeplugGetUserDMRID();
 }
 
 void settingsRestoreDefaultSettings()
@@ -74,4 +77,5 @@ void settingsRestoreDefaultSettings()
 	nonVolatileSettings.initialMenuNumber=MENU_VFO_MODE;
 	nonVolatileSettings.displayBacklightPercentage=100U;// 100% brightness
 	nonVolatileSettings.displayInverseVideo=0;// Not inverse video
+	nonVolatileSettings.txPower=1000;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C)2019 Kai Ludwig, DG4KLU
+ * Copyright (C)2019 Roger Clark. VK3KYY / G4KYF
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -23,36 +23,17 @@
  * OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef _FW_MENU_LEGACY_CODEPLUG_UTILS_H_
+#define _FW_MENU_LEGACY_CODEPLUG_UTILS_H_
+#include "fw_common.h"
 
-#ifndef _FW_TRX_H_
-#define _FW_TRX_H_
+typedef struct calibrationStruct
+{
+	int masterOscillator;
+	uint8_t powerLevels[16];
+} calibrationStruct_t;
 
-#include "fw_sound.h"
-#include "fw_i2c.h"
+extern calibrationStruct_t calibrationVHF;
+extern calibrationStruct_t calibrationUHF;
 
-extern const int RADIO_VHF_MIN;
-extern const int RADIO_VHF_MAX;
-extern const int RADIO_UHF_MIN;
-extern const int RADIO_UHF_MAX;
-
-enum RADIO_MODE { RADIO_MODE_NONE,RADIO_MODE_ANALOG,RADIO_MODE_DIGITAL};
-
-extern bool open_squelch;
-extern bool HR_C6000_datalogging;
-
-extern bool trxIsTransmitting;
-extern uint32_t trxTalkGroup;
-extern uint32_t trxDMRID;
-extern int trx_measure_count;
-
-void trx_check_analog_squelch();
-int	trxGetMode();
-int	trxGetFrequency();
-void trxSetMode(int mode);
-void trxSetFrequency(int frequency);
-void trx_setRX();
-void trx_setTX();
-void trxSetPower(uint32_t powerVal);
-uint16_t trxGetPower();
-
-#endif /* _FW_TRX_H_ */
+#endif
