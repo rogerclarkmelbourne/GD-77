@@ -73,10 +73,6 @@ extern int slot_state;
 extern int tick_cnt;
 extern int skip_count;
 
-//extern int last_TG;
-//extern int last_DMRID;
-//extern int qsodata_timer;
-
 extern int tx_sequence;
 
 void SPI_HR_C6000_init();

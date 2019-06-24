@@ -45,7 +45,6 @@ int menuChannelMode(int buttons, int keys, int events, bool isFirstRun)
 	{
 		nonVolatileSettings.initialMenuNumber = MENU_CHANNEL_MODE;// This menu.
 		codeplugZoneGetDataForIndex(nonVolatileSettings.currentZone,&currentZone);
-
 		loadChannelData();
 		menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
 		updateScreen();
@@ -86,7 +85,6 @@ static void loadChannelData()
 	}
 }
 
-
 static void updateScreen()
 {
 	char nameBuf[17];
@@ -100,7 +98,6 @@ static void updateScreen()
 		case QSO_DISPLAY_DEFAULT_SCREEN:
 			codeplugUtilConvertBufToString(channelData.name,nameBuf,16);
 			UC1701_printCentered(20, (char *)nameBuf,UC1701_FONT_GD77_8x16);
-
 			if (settingsIsTgOverride)
 			{
 				sprintf(nameBuf,"TG %d",trxTalkGroup);
@@ -209,6 +206,4 @@ static void handleEvent(int buttons, int keys, int events)
 		menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
 		updateScreen();
 	}
-
-
 }

@@ -302,7 +302,6 @@ void init_HR_C6000_interrupts()
     NVIC_SetPriority(PORTC_IRQn, 3);
 }
 
-
 void init_digital_state()
 {
 	taskENTER_CRITICAL();
@@ -400,9 +399,6 @@ void fw_hrc6000_task()
     }
 }
 
-
-
-
 void tick_HR_C6000()
 {
 	bool tmp_int_sys=false;
@@ -434,7 +430,7 @@ void tick_HR_C6000()
 		slot_state = DMR_STATE_TX_START;
 	}
 
-	if (slot_state != DMR_STATE_IDLE) // 0
+	if (slot_state != DMR_STATE_IDLE) //0
 	{
 		if (int_timeout<200)
 		{
@@ -460,7 +456,7 @@ void tick_HR_C6000()
 		// Transmission start/stop state machine
 		switch (slot_state)
 		{
-		case DMR_STATE_RX_1:// 1: // Start RX of transmission (first step)
+		case DMR_STATE_RX_1://1: // Start RX of transmission (first step)
 			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x00);
 			GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 1);
 		    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
@@ -535,7 +531,7 @@ void tick_HR_C6000()
 			write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x20);
 			slot_state = DMR_STATE_TX_END_2;
 			break;
-		case DMR_STATE_TX_END_2:// 15:
+		case DMR_STATE_TX_END_2://15:
 			write_SPI_page_reg_byte_SPI0(0x04, 0x40, 0xC3);
 
 			init_digital_DMR_RX();

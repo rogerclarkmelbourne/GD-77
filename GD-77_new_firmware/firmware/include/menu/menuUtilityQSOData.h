@@ -52,7 +52,6 @@ enum QSO_DISPLAY_STATE
 	QSO_DISPLAY_CALLER_DATA
 };
 
-//extern bool menuIsDisplayingQSOData;
 extern LinkItem_t *LinkHead;
 extern int menuDisplayQSODataState;
 

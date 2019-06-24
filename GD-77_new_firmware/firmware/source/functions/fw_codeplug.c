@@ -43,7 +43,6 @@ const int CODEPLUG_CONTACTS_LEN = 0x18;
 
 const int CODEPLUG_ADDR_USER_DMRID = 0x00E8;
 
-
 uint32_t byteSwap32(uint32_t n)
 {
     return ((((n)&0x000000FFU) << 24U) | (((n)&0x0000FF00U) << 8U) | (((n)&0x00FF0000U) >> 8U) | (((n)&0xFF000000U) >> 24U));// from usb_misc.h
@@ -62,7 +61,6 @@ uint32_t bcd2int(uint32_t i)
     }
     return result;
 }
-
 
 void codeplugUtilConvertBufToString(char *inBuf,char *outBuf,int len)
 {

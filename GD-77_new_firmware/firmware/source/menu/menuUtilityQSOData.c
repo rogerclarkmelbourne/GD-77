@@ -110,8 +110,6 @@ void lastHeardListUpdate(uint8_t *dmrDataBuffer)
 			if (item!=NULL)
 			{
 				// Already in the list
-
-
 				item->talkGroup = talkGroup;// update the TG in case they changed TG
 
 				if (item == LinkHead)
@@ -279,12 +277,10 @@ bool dmrIDLookup( int targetId,dmrIdDataStruct_t *foundRecord)
 	return false;
 }
 
-
-
 void menuUtilityRenderQSOData()
 {
-char buffer[32];// buffer passed to the DMR ID lookup function, needs to be large enough to hold worst case text length that is returned. Currently 16+1
-dmrIdDataStruct_t currentRec;
+	char buffer[32];// buffer passed to the DMR ID lookup function, needs to be large enough to hold worst case text length that is returned. Currently 16+1
+	dmrIdDataStruct_t currentRec;
 
 	sprintf(buffer,"TG %d", LinkHead->talkGroup);
 	UC1701_printCentered(16, buffer,UC1701_FONT_GD77_8x16);

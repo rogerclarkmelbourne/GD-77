@@ -108,16 +108,12 @@ static void updateScreen()
 
 			UC1701_printCore(0,(i+2)*16,buf,UC1701_FONT_GD77_8x16,0,(gMenusCurrentItemIndex==2));
 			break;
-
-
-
 		}
 	}
 
 	UC1701_render();
 	displayLightTrigger();
 }
-
 
 static void handleEvent(int buttons, int keys, int events)
 {

@@ -43,12 +43,10 @@ static void reset_freq_enter_digits();
 static int read_freq_enter_digits();
 static bool check_frequency(int tmp_frequency);
 static void update_frequency(int tmp_frequency);
-bool menuIsDisplayingQSOData = false;// HACK ALERT. DO NOT DELETE THIS LINE. BECAUSE THE DMR AUDIO WILL STOP WOKRING
 
 // public interface
 int menuVFOMode(int buttons, int keys, int events, bool isFirstRun)
 {
-	menuIsDisplayingQSOData=true;// HACK ALERT. DO NOT DELETE THIS LINE. BECAUSE THE DMR AUDIO WILL STOP WOKRING
 	if (isFirstRun)
 	{
 		nonVolatileSettings.initialMenuNumber=MENU_VFO_MODE;
@@ -77,7 +75,6 @@ int menuVFOMode(int buttons, int keys, int events, bool isFirstRun)
 
 	return 0;
 }
-
 
 static void updateScreen()
 {
@@ -113,9 +110,9 @@ static void updateScreen()
 			UC1701_render();
 			break;
 	}
+
 	menuDisplayQSODataState = QSO_DISPLAY_IDLE;
 }
-
 
 static void reset_freq_enter_digits()
 {
@@ -318,7 +315,6 @@ static void handleEvent(int buttons, int keys, int events)
 			}
 			menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
 		}
-
 	}
 
 	updateScreen();

@@ -50,7 +50,7 @@ typedef struct settingsStruct
 	uint8_t			initialMenuNumber;
 	int8_t			displayBacklightPercentage;
 	uint8_t			displayInverseVideo;
-	uint16_t		txPower;//
+	uint16_t		txPower;
 } settingsStruct_t;
 
 extern settingsStruct_t nonVolatileSettings;
