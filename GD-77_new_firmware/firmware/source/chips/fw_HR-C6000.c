@@ -537,6 +537,9 @@ void tick_HR_C6000()
 			break;
 		case DMR_STATE_TX_END_2:// 15:
 			write_SPI_page_reg_byte_SPI0(0x04, 0x40, 0xC3);
+
+			init_digital_DMR_RX();
+
 			slot_state = DMR_STATE_IDLE;
 			break;
 		}
