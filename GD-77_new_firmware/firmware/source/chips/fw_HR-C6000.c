@@ -479,7 +479,7 @@ void tick_HR_C6000()
 			slot_state = DMR_STATE_TX_1;
 			break;
 		case DMR_STATE_TX_1://12:
-			if (trxIsTransmitting==false && (tx_sequence==0))
+			if (trxIsTransmitting==false)
 			{
 				slot_state = DMR_STATE_TX_END_1;
 			}
@@ -490,7 +490,7 @@ void tick_HR_C6000()
 			}
 			break;
 		case DMR_STATE_TX_2://13:
-			if (trxIsTransmitting==false && (tx_sequence==0))
+			if (trxIsTransmitting==false)
 			{
 				slot_state = DMR_STATE_TX_END_1;
 			}
