@@ -201,6 +201,7 @@ uint8_t spi_sound3[WAV_BUFFER_SIZE*2];
 uint8_t spi_sound4[WAV_BUFFER_SIZE*2];
 
 volatile bool g_TX_SAI_in_use = false;
+volatile bool g_RX_SAI_in_use = false;
 
 uint8_t *spi_soundBuf;
 sai_transfer_t xfer;
@@ -209,9 +210,13 @@ void init_sound()
 {
 	taskENTER_CRITICAL();
     g_TX_SAI_in_use = false;
+    g_RX_SAI_in_use = false;
 	taskEXIT_CRITICAL();
     SAI_TxSoftwareReset(I2S0, kSAI_ResetAll);
 	SAI_TxEnable(I2S0, true);
+    SAI_RxSoftwareReset(I2S0, kSAI_ResetAll);
+	SAI_RxEnable(I2S0, true);
+	spi_soundBuf=NULL;
 	wavbuffer_read_idx = 0;
 	wavbuffer_write_idx = 0;
 	taskENTER_CRITICAL();
@@ -222,6 +227,7 @@ void init_sound()
 void terminate_sound()
 {
     SAI_TransferTerminateSendEDMA(I2S0, &g_SAI_TX_Handle);
+    SAI_TransferTerminateSendEDMA(I2S0, &g_SAI_RX_Handle);
 }
 
 void store_soundbuffer()
@@ -246,6 +252,32 @@ void store_soundbuffer()
 
 		taskENTER_CRITICAL();
 		wavbuffer_count++;
+		taskEXIT_CRITICAL();
+	}
+}
+
+void retrieve_soundbuffer()
+{
+	taskENTER_CRITICAL();
+	int tmp_wavbuffer_count = wavbuffer_count;
+	taskEXIT_CRITICAL();
+
+	if (tmp_wavbuffer_count>0)
+	{
+		taskENTER_CRITICAL();
+		for (int wav_idx=0;wav_idx<WAV_BUFFER_SIZE;wav_idx++)
+		{
+			tmp_wavbuffer[wav_idx]=wavbuffer[wavbuffer_read_idx][wav_idx];
+		}
+		taskEXIT_CRITICAL();
+		wavbuffer_read_idx++;
+		if (wavbuffer_read_idx>=WAV_BUFFER_COUNT)
+		{
+			wavbuffer_read_idx=0;
+		}
+
+		taskENTER_CRITICAL();
+		wavbuffer_count--;
 		taskEXIT_CRITICAL();
 	}
 }
@@ -295,6 +327,59 @@ void send_sound_data()
 	}
 }
 
+void receive_sound_data()
+{
+	if (trxIsTransmitting==false)
+	{
+		return;
+	}
+
+	if (wavbuffer_count<WAV_BUFFER_COUNT)
+	{
+		if (spi_soundBuf!=NULL)
+		{
+			for (int i=0; i<(WAV_BUFFER_SIZE/2); i++)
+			{
+				wavbuffer[wavbuffer_write_idx][2*i+1] = *(spi_soundBuf +4*i +3);
+				wavbuffer[wavbuffer_write_idx][2*i] = *(spi_soundBuf +4*i +2);
+			}
+
+			wavbuffer_write_idx++;
+			if (wavbuffer_write_idx>=WAV_BUFFER_COUNT)
+			{
+				wavbuffer_write_idx=0;
+			}
+			wavbuffer_count++;
+		}
+
+		switch(g_SAI_RX_Handle.queueUser)
+		{
+		case 0:
+			spi_soundBuf = spi_sound1;
+			break;
+		case 1:
+			spi_soundBuf = spi_sound2;
+			break;
+		case 2:
+			spi_soundBuf = spi_sound3;
+			break;
+		case 3:
+			spi_soundBuf = spi_sound4;
+			break;
+		default:
+			spi_soundBuf=spi_sound1;// just put in to please the compiler
+			break;
+		}
+
+		xfer.data = spi_soundBuf;
+		xfer.dataSize = WAV_BUFFER_SIZE*2;
+
+		SAI_TransferReceiveEDMA(I2S0, &g_SAI_RX_Handle, &xfer);
+
+		g_RX_SAI_in_use = true;
+	}
+}
+
 void tick_RXsoundbuffer()
 {
 	taskENTER_CRITICAL();
@@ -304,6 +389,19 @@ void tick_RXsoundbuffer()
     {
     	taskENTER_CRITICAL();
     	send_sound_data();
+    	taskEXIT_CRITICAL();
+    }
+}
+
+void tick_TXsoundbuffer()
+{
+	taskENTER_CRITICAL();
+	bool tmp_g_RX_SAI_in_use = g_RX_SAI_in_use;
+	taskEXIT_CRITICAL();
+    if (!tmp_g_RX_SAI_in_use)
+    {
+    	taskENTER_CRITICAL();
+    	receive_sound_data();
     	taskEXIT_CRITICAL();
     }
 }

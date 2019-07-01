@@ -75,6 +75,7 @@ extern uint8_t spi_sound3[WAV_BUFFER_SIZE*2];
 extern uint8_t spi_sound4[WAV_BUFFER_SIZE*2];
 
 extern volatile bool g_TX_SAI_in_use;
+extern volatile bool g_RX_SAI_in_use;
 
 extern uint8_t *spi_soundBuf;
 extern sai_transfer_t xfer;
@@ -86,8 +87,11 @@ int get_freq(int tone);
 void create_song(const uint8_t *melody);
 void fw_init_beep_task();
 void send_sound_data();
+void receive_sound_data();
 void store_soundbuffer();
+void retrieve_soundbuffer();
 void tick_RXsoundbuffer();
+void tick_TXsoundbuffer();
 void tick_melody();
 void fw_beep_task();
 

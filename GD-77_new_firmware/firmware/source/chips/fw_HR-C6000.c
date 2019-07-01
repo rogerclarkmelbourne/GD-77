@@ -418,6 +418,7 @@ void tick_HR_C6000()
 
 	if (trxIsTransmitting==true && (slot_state == DMR_STATE_IDLE))
 	{
+		init_codec();
 		uint8_t spi_tx[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 		spi_tx[3] = (trxTalkGroup >> 16) & 0xFF;
 		spi_tx[4] = (trxTalkGroup >> 8) & 0xFF;
@@ -473,6 +474,7 @@ void tick_HR_C6000()
 			slot_state = DMR_STATE_IDLE;
 			break;
 		case DMR_STATE_TX_START://11:
+			tick_TXsoundbuffer();
 			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x80);
 			write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x10);
 			tx_sequence=0;
@@ -496,6 +498,11 @@ void tick_HR_C6000()
 			}
 			else
 			{
+				tick_TXsoundbuffer();
+				for (int i=0; i<6; i++)
+				{
+					retrieve_soundbuffer();
+				}
 				write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x80);
 				switch (tx_sequence)
 				{
