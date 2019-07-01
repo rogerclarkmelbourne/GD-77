@@ -25,13 +25,6 @@
  */
 
 #include "fw_sound.h"
-#include "fw_trx.h"
-#include "fsl_sai.h"
-#include "fsl_sai_edma.h"
-#include "fw_i2s.h"
-#include "fw_pit.h"
-#include "fw_wdog.h"
-
 
 TaskHandle_t fwBeepTaskHandle;
 
@@ -209,6 +202,9 @@ uint8_t spi_sound4[WAV_BUFFER_SIZE*2];
 
 volatile bool g_TX_SAI_in_use = false;
 
+uint8_t *spi_soundBuf;
+sai_transfer_t xfer;
+
 void init_sound()
 {
 	taskENTER_CRITICAL();
@@ -258,9 +254,6 @@ void send_sound_data()
 {
 	if (wavbuffer_count>0)
 	{
-		uint8_t *spi_soundBuf;
-		sai_transfer_t xfer;
-
 		switch(g_SAI_TX_Handle.queueUser)
 		{
 		case 0:

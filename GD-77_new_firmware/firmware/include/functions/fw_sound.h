@@ -32,6 +32,12 @@
 
 #include "fw_common.h"
 #include "fw_spi.h"
+#include "fw_trx.h"
+#include "fsl_sai.h"
+#include "fsl_sai_edma.h"
+#include "fw_i2s.h"
+#include "fw_pit.h"
+#include "fw_wdog.h"
 
 extern const uint8_t sine_beep[];
 extern volatile int sine_beep_freq;
@@ -69,6 +75,9 @@ extern uint8_t spi_sound3[WAV_BUFFER_SIZE*2];
 extern uint8_t spi_sound4[WAV_BUFFER_SIZE*2];
 
 extern volatile bool g_TX_SAI_in_use;
+
+extern uint8_t *spi_soundBuf;
+extern sai_transfer_t xfer;
 
 void init_sound();
 void terminate_sound();
