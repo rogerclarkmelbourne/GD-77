@@ -656,7 +656,7 @@ void tick_HR_C6000()
                 {
                 	store_qsodata();
                     read_SPI_page_reg_bytearray_SPI1(0x03, 0x00, tmp_ram, 27);
-                	tick_codec(tmp_ram);
+                	tick_codec_decode(tmp_ram);
                 	tick_RXsoundbuffer();
                 }
 

@@ -37,9 +37,9 @@
 #define QU(X) QUAUX(X)
 
 #define AMBE_DECODE 0x00054319;
-#define AMBE_BUFFER 0x1FFF859C;
+#define AMBE_DECODE_BUFFER 0x1FFF859C;
 
 void init_codec();
-void tick_codec(uint8_t *indata_ptr);
+void tick_codec_decode(uint8_t *indata_ptr);
 
 #endif /* _FW_CODEC_H_ */
