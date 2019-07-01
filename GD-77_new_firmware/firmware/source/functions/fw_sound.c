@@ -295,7 +295,7 @@ void send_sound_data()
 	}
 }
 
-void tick_soundbuffer()
+void tick_RXsoundbuffer()
 {
 	taskENTER_CRITICAL();
 	bool tmp_g_TX_SAI_in_use = g_TX_SAI_in_use;

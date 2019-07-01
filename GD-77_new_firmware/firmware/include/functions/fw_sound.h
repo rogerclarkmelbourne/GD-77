@@ -87,7 +87,7 @@ void create_song(const uint8_t *melody);
 void fw_init_beep_task();
 void send_sound_data();
 void store_soundbuffer();
-void tick_soundbuffer();
+void tick_RXsoundbuffer();
 void tick_melody();
 void fw_beep_task();
 
