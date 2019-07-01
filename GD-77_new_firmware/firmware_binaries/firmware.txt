@@ -6,7 +6,10 @@ V0.1.2 <work in progress>:
 - PTT enabled: switch between TX and RX, different settings for analog/digital TX, changed digital voice gain.
 - DMR TX (TX packet sequence with empty voice packets only, currently no mic->codec->voice data).
 - Removed all optimization for now to avoid running into any unwanted issues while developing the core functionality.
-- Cleanup.
+- Cleanup, refactoring.
+- Stop TX voice sequence immediately when TX stops.
+- I2S mic audio ADC from HR-C6000.
+- Init and call the AMBE codec (TX encoding, TX ECC handling). (Copyright disclaimer: THIS IS NOT THE AMBE CODEC ITSELF! IT IS ONLY A STUB THAT CALLS INTO THE ORIGINAL FIRMWARE CODE!)
 - Additional stuff by Roger Clark, VK3KYY / G4KYF:
   - Manually optimised the sending the decoded audio stream to the HR-C6000 I2S.
   - Added Talker Alias support, onto the Channel and VFO screens.
@@ -132,8 +135,8 @@ V0.0.1:
 - Display the flags (squelch, datalogging) that can be changed via menu.
 - Added transmission state machine with start/stop/interrupt/lateentry logic.
 - Added soundbuffer system that continously sends data via SAI/EDMA SPI/I2S to the HR-C6000.
-- Took some uncritical AMBE support stuff from https://github.com/szechyjs/dsd and https://github.com/szechyjs/mbelib.
-- Init and call the AMBE codec. (Copyright disclaimer: THIS IS NOT THE AMBE CODEC ITSELF! IT IS ONLY A STUB THAT CALLS INTO THE ORIGINAL FIRMWARE CODE!)
+- Took some uncritical AMBE support stuff (rewritten RX ECC handling) from https://github.com/szechyjs/dsd and https://github.com/szechyjs/mbelib.
+- Init and call the AMBE codec (RX decoding). (Copyright disclaimer: THIS IS NOT THE AMBE CODEC ITSELF! IT IS ONLY A STUB THAT CALLS INTO THE ORIGINAL FIRMWARE CODE!)
 - Added additional lateinit stuff (AT1846S + HR-C6000).
 
 initial version:
