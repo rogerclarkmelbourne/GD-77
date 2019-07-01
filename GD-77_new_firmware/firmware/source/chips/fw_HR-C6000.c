@@ -499,10 +499,8 @@ void tick_HR_C6000()
 			else
 			{
 				tick_TXsoundbuffer();
-				for (int i=0; i<6; i++)
-				{
-					retrieve_soundbuffer();
-				}
+            	tick_codec_encode(tmp_ram);
+                write_SPI_page_reg_bytearray_SPI1(0x03, 0x00, tmp_ram, 27);
 				write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x80);
 				switch (tx_sequence)
 				{
