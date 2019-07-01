@@ -253,8 +253,7 @@ void store_soundbuffer()
 		taskEXIT_CRITICAL();
 	}
 }
-#define LINEOUT2
-//#define LINEOUT1
+
 void send_sound_data()
 {
 	if (wavbuffer_count>0)
@@ -300,7 +299,6 @@ void send_sound_data()
 			wavbuffer_read_idx=0;
 		}
 		wavbuffer_count--;
-
 	}
 }
 
