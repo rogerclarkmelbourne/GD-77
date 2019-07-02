@@ -228,7 +228,16 @@ static void handleEvent(int buttons, int keys, int events)
 		}
 		else if ((keys & KEY_DOWN)!=0)
 		{
-			int tmp_frequency = currentChannelData->rxFreq - FREQ_STEP;
+			int tmp_frequency;
+			if (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_TX)
+			{
+				tmp_frequency  = currentChannelData->txFreq - FREQ_STEP;
+			}
+			else
+			{
+				tmp_frequency  = currentChannelData->rxFreq - FREQ_STEP;
+			}
+
 			if (check_frequency(tmp_frequency))
 			{
 				update_frequency(tmp_frequency);
@@ -241,7 +250,15 @@ static void handleEvent(int buttons, int keys, int events)
 		}
 		else if ((keys & KEY_UP)!=0)
 		{
-			int tmp_frequency=currentChannelData->rxFreq + FREQ_STEP;
+			int tmp_frequency;
+			if (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_TX)
+			{
+				tmp_frequency  = currentChannelData->txFreq + FREQ_STEP;
+			}
+			else
+			{
+				tmp_frequency  = currentChannelData->rxFreq + FREQ_STEP;
+			}
 			if (check_frequency(tmp_frequency))
 			{
 				update_frequency(tmp_frequency);
