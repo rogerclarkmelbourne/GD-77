@@ -29,6 +29,7 @@
 #define _FW_SETTINGS_H_
 
 #include "fw_common.h"
+#include "fw_codeplug.h"
 
 extern const int BAND_VHF_MIN;
 extern const int BAND_VHF_MAX;
@@ -39,22 +40,20 @@ extern const int BAND_UHF_MAX;
 typedef struct settingsStruct
 {
 	int 			magicNumber;
-	int				vfoFrequenciesArray[VFO_COUNT];
 	int16_t			currentChannelIndexInZone;
 	int16_t			currentZone;
-	uint8_t			vfoFrequencyStepKhz;// step in Khz times 10
-	int8_t			currentVFOIndex;
 	uint8_t			backLightTimeout;//0 = never timeout. 1 - 255 time in seconds
 	int8_t			displayContrast;
-	uint8_t			vfoTrxMode;
 	uint8_t			initialMenuNumber;
 	int8_t			displayBacklightPercentage;
 	uint8_t			displayInverseVideo;
 	uint16_t		txPower;
+	struct_codeplugChannel_t vfoChannel;
 } settingsStruct_t;
 
 extern settingsStruct_t nonVolatileSettings;
 extern bool settingsIsTgOverride;
+extern struct_codeplugChannel_t *currentChannelData;
 
 void settingsSaveSettings();
 void settingsLoadSettings();
