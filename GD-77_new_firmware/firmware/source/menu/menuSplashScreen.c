@@ -46,7 +46,7 @@ int menuSplashScreen(int buttons, int keys, int events, bool isFirstRun)
 static void updateScreen()
 {
 	UC1701_clearBuf();
-	UC1701_printCentered(12, "OpenGD-77",3);
+	UC1701_printCentered(12, "OpenGD77",3);
 	UC1701_printCentered(32,(char *)FIRMWARE_VERSION_STRING,3);
 	UC1701_printCentered(48,__DATE__,3);
 	UC1701_render();
