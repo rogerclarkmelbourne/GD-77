@@ -483,7 +483,7 @@ void tick_HR_C6000()
 		case DMR_STATE_TX_1://12:
 			if (trxIsTransmitting==false)
 			{
-				slot_state = DMR_STATE_TX_END_1;
+				slot_state = DMR_STATE_TX_END_1; // only exit here to ensure staying in the correct timeslot
 			}
 			else
 			{
@@ -492,44 +492,37 @@ void tick_HR_C6000()
 			}
 			break;
 		case DMR_STATE_TX_2://13:
-			if (trxIsTransmitting==false)
+			tick_TXsoundbuffer();
+			tick_codec_encode(tmp_ram);
+			write_SPI_page_reg_bytearray_SPI1(0x03, 0x00, tmp_ram, 27);
+			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x80);
+			switch (tx_sequence)
 			{
-				slot_state = DMR_STATE_TX_END_1;
+			case 0:
+				write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x08);
+				break;
+			case 1:
+				write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x19);
+				break;
+			case 2:
+				write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x2B);
+				break;
+			case 3:
+				write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x3B);
+				break;
+			case 4:
+				write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x4A);
+				break;
+			case 5:
+				write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x58);
+				break;
 			}
-			else
+			tx_sequence++;
+			if (tx_sequence>5)
 			{
-				tick_TXsoundbuffer();
-            	tick_codec_encode(tmp_ram);
-                write_SPI_page_reg_bytearray_SPI1(0x03, 0x00, tmp_ram, 27);
-				write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x80);
-				switch (tx_sequence)
-				{
-				case 0:
-					write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x08);
-					break;
-				case 1:
-					write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x19);
-					break;
-				case 2:
-					write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x2B);
-					break;
-				case 3:
-					write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x3B);
-					break;
-				case 4:
-					write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x4A);
-					break;
-				case 5:
-					write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x58);
-					break;
-				}
-				tx_sequence++;
-				if (tx_sequence>5)
-				{
-					tx_sequence=0;
-				}
-				slot_state = DMR_STATE_TX_1;
+				tx_sequence=0;
 			}
+			slot_state = DMR_STATE_TX_1;
 			break;
 		case DMR_STATE_TX_END_1://14:
 			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x80);
