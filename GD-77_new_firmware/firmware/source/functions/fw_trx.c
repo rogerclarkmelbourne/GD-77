@@ -245,6 +245,7 @@ void trxSetPower(uint32_t powerVal)
 		nonVolatileSettings.txPower = powerVal;
 	}
 }
+
 uint16_t trxGetPower()
 {
 	return nonVolatileSettings.txPower;
