@@ -42,6 +42,10 @@ const int CODEPLUG_ADDR_CONTACTS = 0x87620;
 const int CODEPLUG_CONTACTS_LEN = 0x18;
 
 const int CODEPLUG_ADDR_USER_DMRID = 0x00E8;
+const int CODEPLUG_ADDR_USER_CALLSIGN = 0x00E0;
+
+const int CODEPLUG_ADDR_BOOT_LINE1 = 0x7540;
+const int CODEPLUG_ADDR_BOOT_LINE2 = 0x7550;
 
 uint32_t byteSwap32(uint32_t n)
 {
@@ -183,4 +187,18 @@ int codeplugGetUserDMRID()
 	int dmrId;
 	EEPROM_Read(CODEPLUG_ADDR_USER_DMRID,(uint8_t *)&dmrId,4);
 	return bcd2int(byteSwap32(dmrId));
+}
+
+void codeplugGetRadioName(char *buf)
+{
+	EEPROM_Read(CODEPLUG_ADDR_USER_CALLSIGN,(uint8_t *)buf,6);
+	codeplugUtilConvertBufToString(buf,buf,6);
+}
+
+void codeplugGetBootItemTexts(char *line1, char *line2)
+{
+	EEPROM_Read(CODEPLUG_ADDR_BOOT_LINE1,(uint8_t *)line1,6);
+	codeplugUtilConvertBufToString(line1,line1,15);
+	EEPROM_Read(CODEPLUG_ADDR_BOOT_LINE2,(uint8_t *)line2,6);
+	codeplugUtilConvertBufToString(line2,line2,15);
 }
