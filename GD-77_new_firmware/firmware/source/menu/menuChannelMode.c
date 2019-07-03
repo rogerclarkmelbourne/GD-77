@@ -75,7 +75,7 @@ uint16_t byteSwap16(uint16_t in)
 static void loadChannelData()
 {
 	codeplugChannelGetDataForIndex(currentZone.channels[nonVolatileSettings.currentChannelIndexInZone],&channelData);
-	trxSetFrequency(bcd2int(channelData.rxFreq)/10);
+	trxSetFrequency(channelData.rxFreq);
 	trxSetMode((channelData.chMode==0)?RADIO_MODE_ANALOG:RADIO_MODE_DIGITAL);
 	trxSetPower(nonVolatileSettings.txPower);
 	codeplugRxGroupGetDataForIndex(channelData.rxGroupList,&rxGroupData);
