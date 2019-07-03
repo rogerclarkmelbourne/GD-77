@@ -10,6 +10,8 @@ V0.1.2 <work in progress>:
 - Stop TX voice sequence immediately when TX stops.
 - I2S mic audio ADC from HR-C6000.
 - Init and call the AMBE codec (TX encoding, TX ECC handling). (Copyright disclaimer: THIS IS NOT THE AMBE CODEC ITSELF! IT IS ONLY A STUB THAT CALLS INTO THE ORIGINAL FIRMWARE CODE!)
+- Exit the send sequence keeping the correct timeslot for the stop packet.
+- Added delays for txstart and txstop to ensure that the transmission is not cut off.
 - Additional stuff by Roger Clark, VK3KYY / G4KYF:
   - Manually optimised the sending the decoded audio stream to the HR-C6000 I2S.
   - Added Talker Alias support, onto the Channel and VFO screens.
@@ -21,6 +23,9 @@ V0.1.2 <work in progress>:
   - Added Tx power to the nonvolatile settings, also started to add support for calibration etc.
   - Changed HR-C6000 state machine to use named enums, to make the code easier to understand.
   - Fix problem where DMR Rx would not work after transmitting in DMR mode.
+  - Limit power setting to value of 2000 which equates to approximately 4W. Also don't immediately set the DAC output power level when setting the Tx power, because its possible that the DAC power level control voltage should be zero when not transmitting.
+  - Updated Splash and Firmware info screens, with name change to OpenGD-77.
+  - Changed to using channel data struct for the VFO. Reduced number of VFO's to 1. Changed Tx screen to use the Tx freq from the current channel - this may be the VFO or a codeplug channel.
 
 V0.1.1:
 - Additional stuff by Roger Clark, VK3KYY / G4KYF:
