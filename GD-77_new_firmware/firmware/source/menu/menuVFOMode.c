@@ -93,9 +93,12 @@ static void updateScreen()
 	switch(menuDisplayQSODataState)
 	{
 		case QSO_DISPLAY_DEFAULT_SCREEN:
-			sprintf(buffer,"TG %d",trxTalkGroup);
 
-			UC1701_printCentered(16,buffer,UC1701_FONT_GD77_8x16);
+			if (trxGetMode() == RADIO_MODE_DIGITAL)
+			{
+				sprintf(buffer,"TG %d",trxTalkGroup);
+				UC1701_printCentered(16,buffer,UC1701_FONT_GD77_8x16);
+			}
 
 			if (freq_enter_idx==0)
 			{

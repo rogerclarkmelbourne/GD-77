@@ -98,16 +98,21 @@ static void updateScreen()
 	{
 		case QSO_DISPLAY_DEFAULT_SCREEN:
 			codeplugUtilConvertBufToString(channelData.name,nameBuf,16);
-			UC1701_printCentered(20, (char *)nameBuf,UC1701_FONT_GD77_8x16);
-			if (settingsIsTgOverride)
+			UC1701_printCentered(32, (char *)nameBuf,UC1701_FONT_GD77_8x16);
+
+			if (trxGetMode() == RADIO_MODE_DIGITAL)
 			{
-				sprintf(nameBuf,"TG %d",trxTalkGroup);
+				if (settingsIsTgOverride)
+				{
+					sprintf(nameBuf,"TG %d",trxTalkGroup);
+				}
+				else
+				{
+					codeplugUtilConvertBufToString(contactData.name,nameBuf,16);
+				}
+				UC1701_printCentered(16, (char *)nameBuf,UC1701_FONT_GD77_8x16);
 			}
-			else
-			{
-				codeplugUtilConvertBufToString(contactData.name,nameBuf,16);
-			}
-			UC1701_printCentered(40, (char *)nameBuf,UC1701_FONT_GD77_8x16);
+
 			displayLightTrigger();
 			UC1701_render();
 			break;
