@@ -78,12 +78,9 @@ enum MENU_SCREENS { MENU_SPLASH_SCREEN=0,
 					MENU_RSSI_SCREEN,
 					MENU_LAST_HEARD,
 					MENU_DEBUG,
-					MENU_DISPLAY};
+					MENU_DISPLAY,
+					MENU_CREDITS};
 
-
-
-//extern const MenuFunctionPointer_t menuFunctions[];
-//extern menuControlDataStruct_t menuControlData;
 extern int gMenusCurrentItemIndex;
 extern int gMenusStartIndex;
 extern int gMenusEndIndex;
