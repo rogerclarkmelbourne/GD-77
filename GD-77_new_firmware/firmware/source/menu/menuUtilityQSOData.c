@@ -324,24 +324,7 @@ void menuUtilityRenderQSOData()
 void menuUtilityRenderHeader()
 {
 	char buffer[16];
-	if (open_squelch)
-	{
-		UC1701_printAt(0, 8, "SQ:OFF",1);
-	}
-	else
-	{
-		UC1701_printAt(0, 8, "SQ:ON ",1);
-	}
-	if (HR_C6000_datalogging)
-	{
-		UC1701_printAt(14*6, 8, "LOG:ON ",1);
-	}
-	else
-	{
-		UC1701_printAt(14*6, 8, "LOG:OFF",1);
-	}
-
 
 	sprintf(buffer,"%s", trxGetMode() == RADIO_MODE_ANALOG?"FM":"DMR");
-	UC1701_printCentered(8, buffer,1);
+	UC1701_printAt(0,8, buffer,UC1701_FONT_6X8);
 }
