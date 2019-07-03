@@ -197,8 +197,11 @@ void codeplugGetRadioName(char *buf)
 
 void codeplugGetBootItemTexts(char *line1, char *line2)
 {
-	EEPROM_Read(CODEPLUG_ADDR_BOOT_LINE1,(uint8_t *)line1,6);
+	memset(line1,0,16);
+	memset(line2,0,16);
+
+	EEPROM_Read(CODEPLUG_ADDR_BOOT_LINE1,(uint8_t *)line1,15);
 	codeplugUtilConvertBufToString(line1,line1,15);
-	EEPROM_Read(CODEPLUG_ADDR_BOOT_LINE2,(uint8_t *)line2,6);
+	EEPROM_Read(CODEPLUG_ADDR_BOOT_LINE2,(uint8_t *)line2,15);
 	codeplugUtilConvertBufToString(line2,line2,15);
 }
