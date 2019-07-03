@@ -244,7 +244,6 @@ void trxSetPower(uint32_t powerVal)
 	{
 		nonVolatileSettings.txPower = powerVal;
 	}
-    DAC_SetBufferValue(DAC0, 0U, nonVolatileSettings.txPower);
 }
 uint16_t trxGetPower()
 {

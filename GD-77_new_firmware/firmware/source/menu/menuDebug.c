@@ -117,6 +117,7 @@ static void updateScreen()
 
 static void handleEvent(int buttons, int keys, int events)
 {
+	int tmpPower;
 	if ((keys & KEY_DOWN)!=0 && gMenusEndIndex!=0)
 	{
 		gMenusCurrentItemIndex++;
@@ -144,7 +145,11 @@ static void handleEvent(int buttons, int keys, int events)
 				HR_C6000_datalogging = 1;
 				break;
 			case 0:
-				trxSetPower(trxGetPower() + 100);
+				tmpPower = trxGetPower() + 100;
+				if (tmpPower<=2000)
+				{
+					trxSetPower(tmpPower);
+				}
 				break;
 		}
 	}

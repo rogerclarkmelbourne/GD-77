@@ -147,6 +147,10 @@ void codeplugChannelGetDataForIndex(int index, struct_codeplugChannel_t *channel
 		index -= 128;
 		SPI_Flash_read(flashReadPos + index*sizeof(struct_codeplugChannel_t),(uint8_t *)channelBuf,sizeof(struct_codeplugChannel_t));
 	}
+
+	// Convert the the legacy codeplug tx and rx freq values into normal integers
+	channelBuf->txFreq = bcd2int(channelBuf->txFreq)/10;
+	channelBuf->rxFreq = bcd2int(channelBuf->rxFreq)/10;
 }
 
 

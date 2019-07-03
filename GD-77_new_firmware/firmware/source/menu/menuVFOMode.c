@@ -30,8 +30,11 @@
 
 
 
+enum VFO_SELECTED_FREQUENCY_INPUT  {VFO_SELECTED_FREQUENCY_INPUT_RX , VFO_SELECTED_FREQUENCY_INPUT_TX};
+
 static char freq_enter_digits[7] = { '-', '-', '-', '-', '-', '-', '-' };
 static int freq_enter_idx = 0;
+static int selectedFreq = VFO_SELECTED_FREQUENCY_INPUT_TX;
 
 static int FREQ_STEP =	125;// will load from settings
 
@@ -50,8 +53,9 @@ int menuVFOMode(int buttons, int keys, int events, bool isFirstRun)
 	if (isFirstRun)
 	{
 		nonVolatileSettings.initialMenuNumber=MENU_VFO_MODE;
-		trxSetFrequency(nonVolatileSettings.vfoFrequenciesArray[nonVolatileSettings.currentVFOIndex]);
-		trxSetMode(nonVolatileSettings.vfoTrxMode);
+		currentChannelData = &nonVolatileSettings.vfoChannel;
+		trxSetFrequency(currentChannelData->rxFreq);
+		trxSetMode(currentChannelData->chMode);
 		trxSetPower(nonVolatileSettings.txPower);
 		reset_freq_enter_digits();
 		menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
@@ -78,8 +82,12 @@ int menuVFOMode(int buttons, int keys, int events, bool isFirstRun)
 
 static void updateScreen()
 {
+	int val_before_dp;
+	int val_after_dp;
+
 	char buffer[32];
 	UC1701_clearBuf();
+
 	menuUtilityRenderHeader();
 
 	switch(menuDisplayQSODataState)
@@ -87,19 +95,33 @@ static void updateScreen()
 		case QSO_DISPLAY_DEFAULT_SCREEN:
 			sprintf(buffer,"TG %d",trxTalkGroup);
 
-			UC1701_printCentered(20,buffer,UC1701_FONT_GD77_8x16);
+			UC1701_printCentered(16,buffer,UC1701_FONT_GD77_8x16);
 
 			if (freq_enter_idx==0)
 			{
-				int val_before_dp = nonVolatileSettings.vfoFrequenciesArray[nonVolatileSettings.currentVFOIndex]/10000;
-				int val_after_dp = nonVolatileSettings.vfoFrequenciesArray[nonVolatileSettings.currentVFOIndex] - val_before_dp*10000;
-				sprintf(buffer,"#%d %d.%04d MHz", nonVolatileSettings.currentVFOIndex+1, val_before_dp, val_after_dp);
+				val_before_dp = currentChannelData->txFreq/10000;
+				val_after_dp = currentChannelData->txFreq - val_before_dp*10000;
+				sprintf(buffer,"%cT %d.%04d MHz", (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_TX)?'>':' ',val_before_dp, val_after_dp);
+				UC1701_printCentered(32, buffer,UC1701_FONT_GD77_8x16);
+
+				val_before_dp = currentChannelData->rxFreq/10000;
+				val_after_dp = currentChannelData->rxFreq - val_before_dp*10000;
+				sprintf(buffer,"%cR %d.%04d MHz", (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_RX)?'>':' ',val_before_dp, val_after_dp);
+				UC1701_printCentered(48, buffer,UC1701_FONT_GD77_8x16);
 			}
 			else
 			{
-				sprintf(buffer,"#%d %c%c%c.%c%c%c%c MHz", nonVolatileSettings.currentVFOIndex+1, freq_enter_digits[0], freq_enter_digits[1], freq_enter_digits[2], freq_enter_digits[3], freq_enter_digits[4], freq_enter_digits[5], freq_enter_digits[6] );
+				sprintf(buffer,"%c%c%c.%c%c%c%c MHz", freq_enter_digits[0], freq_enter_digits[1], freq_enter_digits[2], freq_enter_digits[3], freq_enter_digits[4], freq_enter_digits[5], freq_enter_digits[6] );
+				if (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_TX)
+				{
+					UC1701_printCentered(32, buffer,UC1701_FONT_GD77_8x16);
+				}
+				else
+				{
+					UC1701_printCentered(48, buffer,UC1701_FONT_GD77_8x16);
+				}
 			}
-			UC1701_printCentered(40, buffer,UC1701_FONT_GD77_8x16);
+
 			displayLightTrigger();
 			UC1701_render();
 			break;
@@ -144,7 +166,14 @@ static bool check_frequency(int tmp_frequency)
 
 static void update_frequency(int frequency)
 {
-	nonVolatileSettings.vfoFrequenciesArray[nonVolatileSettings.currentVFOIndex]=frequency;
+	if (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_TX)
+	{
+		currentChannelData->txFreq=frequency;
+	}
+	else
+	{
+		currentChannelData->rxFreq=frequency;
+	}
 	trxSetFrequency(frequency);
 }
 
@@ -172,24 +201,16 @@ static void handleEvent(int buttons, int keys, int events)
 
 	if (freq_enter_idx==0)
 	{
-		if ((keys & KEY_RIGHT)!=0)
+		if ((keys & KEY_LEFT)!=0 || (keys & KEY_RIGHT)!=0)
 		{
-			nonVolatileSettings.currentVFOIndex++;
-			if (nonVolatileSettings.currentVFOIndex>VFO_COUNT-1)
+			if (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_TX)
 			{
-				nonVolatileSettings.currentVFOIndex=0;
+				selectedFreq = VFO_SELECTED_FREQUENCY_INPUT_RX;
 			}
-			trxSetFrequency(nonVolatileSettings.vfoFrequenciesArray[nonVolatileSettings.currentVFOIndex]);
-			menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
-		}
-		else if ((keys & KEY_LEFT)!=0)
-		{
-			nonVolatileSettings.currentVFOIndex--;
-			if (nonVolatileSettings.currentVFOIndex<0)
+			else
 			{
-				nonVolatileSettings.currentVFOIndex=VFO_COUNT-1;
+				selectedFreq = VFO_SELECTED_FREQUENCY_INPUT_TX;
 			}
-			trxSetFrequency(nonVolatileSettings.vfoFrequenciesArray[nonVolatileSettings.currentVFOIndex]);
 			menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
 		}
 		else if ((keys & KEY_STAR)!=0)
@@ -202,12 +223,21 @@ static void handleEvent(int buttons, int keys, int events)
 			{
 				trxSetMode(RADIO_MODE_ANALOG);
 			}
-			nonVolatileSettings.vfoTrxMode=trxGetMode();
+			currentChannelData->chMode = trxGetMode();
 			menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
 		}
 		else if ((keys & KEY_DOWN)!=0)
 		{
-			int tmp_frequency=nonVolatileSettings.vfoFrequenciesArray[nonVolatileSettings.currentVFOIndex]-FREQ_STEP;
+			int tmp_frequency;
+			if (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_TX)
+			{
+				tmp_frequency  = currentChannelData->txFreq - FREQ_STEP;
+			}
+			else
+			{
+				tmp_frequency  = currentChannelData->rxFreq - FREQ_STEP;
+			}
+
 			if (check_frequency(tmp_frequency))
 			{
 				update_frequency(tmp_frequency);
@@ -220,7 +250,15 @@ static void handleEvent(int buttons, int keys, int events)
 		}
 		else if ((keys & KEY_UP)!=0)
 		{
-			int tmp_frequency=nonVolatileSettings.vfoFrequenciesArray[nonVolatileSettings.currentVFOIndex]+FREQ_STEP;
+			int tmp_frequency;
+			if (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_TX)
+			{
+				tmp_frequency  = currentChannelData->txFreq + FREQ_STEP;
+			}
+			else
+			{
+				tmp_frequency  = currentChannelData->rxFreq + FREQ_STEP;
+			}
 			if (check_frequency(tmp_frequency))
 			{
 				update_frequency(tmp_frequency);

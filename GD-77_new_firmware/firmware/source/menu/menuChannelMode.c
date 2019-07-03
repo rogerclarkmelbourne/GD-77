@@ -46,6 +46,7 @@ int menuChannelMode(int buttons, int keys, int events, bool isFirstRun)
 		nonVolatileSettings.initialMenuNumber = MENU_CHANNEL_MODE;// This menu.
 		codeplugZoneGetDataForIndex(nonVolatileSettings.currentZone,&currentZone);
 		loadChannelData();
+		currentChannelData = &channelData;
 		menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
 		updateScreen();
 	}
@@ -74,7 +75,7 @@ uint16_t byteSwap16(uint16_t in)
 static void loadChannelData()
 {
 	codeplugChannelGetDataForIndex(currentZone.channels[nonVolatileSettings.currentChannelIndexInZone],&channelData);
-	trxSetFrequency(bcd2int(channelData.rxFreq)/10);
+	trxSetFrequency(channelData.rxFreq);
 	trxSetMode((channelData.chMode==0)?RADIO_MODE_ANALOG:RADIO_MODE_DIGITAL);
 	trxSetPower(nonVolatileSettings.txPower);
 	codeplugRxGroupGetDataForIndex(channelData.rxGroupList,&rxGroupData);

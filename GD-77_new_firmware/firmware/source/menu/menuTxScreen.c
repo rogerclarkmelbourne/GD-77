@@ -38,6 +38,7 @@ int menuTxScreen(int buttons, int keys, int events, bool isFirstRun)
 		updateScreen();
 	    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
 	    GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 1);
+	    trxSetFrequency(currentChannelData->txFreq);
 	    trx_setTX();
 	}
 	else

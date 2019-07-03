@@ -37,10 +37,11 @@ const int BAND_UHF_MIN 	= 4300000;
 const int BAND_UHF_MAX 	= 4500000;
 
 static const int STORAGE_BASE_ADDRESS = 0xFF00;
-static const int STORAGE_MAGIC_NUMBER = 0x4715;
+static const int STORAGE_MAGIC_NUMBER = 0x4716;
 
 bool settingsIsTgOverride=false;
 settingsStruct_t nonVolatileSettings;
+struct_codeplugChannel_t *currentChannelData;
 
 void settingsSaveSettings()
 {
@@ -59,23 +60,52 @@ void settingsLoadSettings()
 	trxDMRID = codeplugGetUserDMRID();
 }
 
+void initVFOChannel()
+{
+	strcpy(nonVolatileSettings.vfoChannel.name,"VFO");
+	nonVolatileSettings.vfoChannel.rxFreq=BAND_VHF_MIN;
+	nonVolatileSettings.vfoChannel.txFreq=BAND_VHF_MIN;
+	nonVolatileSettings.vfoChannel.chMode =  RADIO_MODE_DIGITAL;
+	nonVolatileSettings.vfoChannel.rxRefFreq=0;
+	nonVolatileSettings.vfoChannel.txRefFreq=0;
+	nonVolatileSettings.vfoChannel.tot=180;
+	nonVolatileSettings.vfoChannel.totRekey=0;;
+	nonVolatileSettings.vfoChannel.admitCriteria = ADMIT_CRITERIA_ALWAYS;
+	nonVolatileSettings.vfoChannel.rssiThreshold = 45;
+	nonVolatileSettings.vfoChannel.scanList=0;
+	nonVolatileSettings.vfoChannel.rxTone=0;
+	nonVolatileSettings.vfoChannel.txTone=0;
+	nonVolatileSettings.vfoChannel.voiceEmphasis=0;
+	nonVolatileSettings.vfoChannel.txSignaling=0;
+	nonVolatileSettings.vfoChannel.unmuteRule=0;
+	nonVolatileSettings.vfoChannel.rxSignaling=0;
+	nonVolatileSettings.vfoChannel.artsInterval=0;
+	nonVolatileSettings.vfoChannel.encrypt=0;
+	nonVolatileSettings.vfoChannel.rxColor=0;
+	nonVolatileSettings.vfoChannel.rxGroupList=0;
+	nonVolatileSettings.vfoChannel.txColor=0;
+	nonVolatileSettings.vfoChannel.emgSystem=0;
+	nonVolatileSettings.vfoChannel.contact=0;
+	nonVolatileSettings.vfoChannel.flag1=0;
+	nonVolatileSettings.vfoChannel.flag2=0;
+	nonVolatileSettings.vfoChannel.flag3=0;
+	nonVolatileSettings.vfoChannel.flag4=0;
+	nonVolatileSettings.vfoChannel.reserve2=0;
+	nonVolatileSettings.vfoChannel.reserve=0;
+	nonVolatileSettings.vfoChannel.sql=45;
+}
+
 void settingsRestoreDefaultSettings()
 {
 	nonVolatileSettings.magicNumber=STORAGE_MAGIC_NUMBER;
-	for(int i=0;i<4;i++)
-	{
-		nonVolatileSettings.vfoFrequenciesArray[i]=	BAND_VHF_MIN;// Note. Need to change this hard coded frequency
-	}
-
 	nonVolatileSettings.currentChannelIndexInZone = 0;
 	nonVolatileSettings.currentZone = 0;
-	nonVolatileSettings.vfoFrequencyStepKhz = 125;// 12.5 step in Khz times 10
-	nonVolatileSettings.currentVFOIndex = 0 ;
 	nonVolatileSettings.backLightTimeout = 5;//0 = never timeout. 1 - 255 time in seconds
 	nonVolatileSettings.displayContrast = 0x0E;
-	nonVolatileSettings.vfoTrxMode = RADIO_MODE_DIGITAL;
 	nonVolatileSettings.initialMenuNumber=MENU_VFO_MODE;
 	nonVolatileSettings.displayBacklightPercentage=100U;// 100% brightness
 	nonVolatileSettings.displayInverseVideo=0;// Not inverse video
 	nonVolatileSettings.txPower=1000;
+	initVFOChannel();
+	currentChannelData = &nonVolatileSettings.vfoChannel;// Set the current channel data to point to the VFO data since the default screen will be the VFO
 }
