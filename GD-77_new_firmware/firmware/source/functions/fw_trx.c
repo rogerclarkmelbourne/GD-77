@@ -35,6 +35,8 @@ int trx_measure_count = 0;
 bool trxIsTransmitting = false;
 uint32_t trxTalkGroup=9;// Set to local TG just in case there is some problem with it not being loaded
 uint32_t trxDMRID = 0;// Set ID to 0. Not sure if its valid. This value needs to be loaded from the codeplug.
+int txstartdelay = 0;
+int txstopdelay = 0;
 
 const int RADIO_VHF_MIN			=	1340000;
 const int RADIO_VHF_MAX			=	1740000;
@@ -162,7 +164,6 @@ void trxSetFrequencyAndMode(int frequency,int mode)
 
 void trx_setRX()
 {
-	trxIsTransmitting=false;
 	// MUX for RX
 	trxSetMode(currentMode);
 	GPIO_PinWrite(GPIO_TX_audio_mux, Pin_TX_audio_mux, 0);
@@ -195,7 +196,6 @@ void trx_setRX()
 void trx_setTX()
 {
 	// MUX for TX
-	trxIsTransmitting=true;
 	trxSetMode(currentMode);
 	if (currentMode == RADIO_MODE_ANALOG)
 	{

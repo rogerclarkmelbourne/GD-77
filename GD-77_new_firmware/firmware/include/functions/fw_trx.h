@@ -45,6 +45,8 @@ extern bool trxIsTransmitting;
 extern uint32_t trxTalkGroup;
 extern uint32_t trxDMRID;
 extern int trx_measure_count;
+extern int txstartdelay;
+extern int txstopdelay;
 
 void trx_check_analog_squelch();
 int	trxGetMode();

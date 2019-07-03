@@ -39,6 +39,9 @@ int menuTxScreen(int buttons, int keys, int events, bool isFirstRun)
 	    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
 	    GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 1);
 	    trxSetFrequency(currentChannelData->txFreq);
+	    txstartdelay=0;
+	    txstopdelay=0;
+		trxIsTransmitting=true;
 	    trx_setTX();
 	}
 	else
@@ -74,9 +77,17 @@ static void handleEvent(int buttons, int keys, int events)
 {
 	if ((buttons & BUTTON_PTT)==0)
 	{
-	    GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 0);
-		trx_setRX();
-		menuSystemPopPreviousMenu();
+		if (txstopdelay>0)
+		{
+			trxIsTransmitting=false;
+			txstopdelay--;
+		}
+		else
+		{
+			GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 0);
+			trx_setRX();
+			menuSystemPopPreviousMenu();
+		}
 	}
 }
 

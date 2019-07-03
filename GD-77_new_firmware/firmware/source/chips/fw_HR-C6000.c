@@ -418,17 +418,25 @@ void tick_HR_C6000()
 
 	if (trxIsTransmitting==true && (slot_state == DMR_STATE_IDLE))
 	{
-		init_codec();
-		uint8_t spi_tx[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-		spi_tx[3] = (trxTalkGroup >> 16) & 0xFF;
-		spi_tx[4] = (trxTalkGroup >> 8) & 0xFF;
-		spi_tx[5] = (trxTalkGroup >> 0) & 0xFF;
-		spi_tx[6] = (trxDMRID >> 16) & 0xFF;
-		spi_tx[7] = (trxDMRID >> 8) & 0xFF;
-		spi_tx[8] = (trxDMRID >> 0) & 0xFF;
-		write_SPI_page_reg_bytearray_SPI0(0x02, 0x00, spi_tx, 0x0c);
-		write_SPI_page_reg_byte_SPI0(0x04, 0x40, 0xA3);
-		slot_state = DMR_STATE_TX_START;
+		if (txstartdelay<300)
+		{
+			txstartdelay++;
+		}
+		else
+		{
+			txstopdelay=300;
+			init_codec();
+			uint8_t spi_tx[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+			spi_tx[3] = (trxTalkGroup >> 16) & 0xFF;
+			spi_tx[4] = (trxTalkGroup >> 8) & 0xFF;
+			spi_tx[5] = (trxTalkGroup >> 0) & 0xFF;
+			spi_tx[6] = (trxDMRID >> 16) & 0xFF;
+			spi_tx[7] = (trxDMRID >> 8) & 0xFF;
+			spi_tx[8] = (trxDMRID >> 0) & 0xFF;
+			write_SPI_page_reg_bytearray_SPI0(0x02, 0x00, spi_tx, 0x0c);
+			write_SPI_page_reg_byte_SPI0(0x04, 0x40, 0xA3);
+			slot_state = DMR_STATE_TX_START;
+		}
 	}
 
 	if (slot_state != DMR_STATE_IDLE) //0
