@@ -44,6 +44,7 @@ const int RADIO_UHF_MIN			=	4000000;
 const int RADIO_UHF_MAX			=	5200000;
 
 static int currentMode = RADIO_MODE_NONE;
+static int currentBandWidth=0;
 static int currentFrequency =1440000;
 static uint8_t squelch = 0x00;
 static const uint8_t SQUELCH_SETTINGS[] = {45,45,45};
@@ -69,6 +70,7 @@ void trxSetMode(int theMode)
 		}
 		else
 		{
+			trxSetBandWidth(125);// DMR is always 12.5kHz
 			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x58, 0xBC, 0xFD); // Disable all filters in DMR mode
 			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x44, 0x06, 0xCC); // set internal volume to 80%
 			GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 0); // connect AT1846S audio to HR_C6000
@@ -249,4 +251,72 @@ void trxSetPower(uint32_t powerVal)
 uint16_t trxGetPower()
 {
 	return nonVolatileSettings.txPower;
+}
+
+// Use 125 for 12.5kHz, or 250 for 25kHz
+void trxSetBandWidth(int bandWidthkHzx10)
+{
+
+	if (currentBandWidth==bandWidthkHzx10)
+	{
+		return;
+	}
+	currentBandWidth = bandWidthkHzx10;
+
+	switch(bandWidthkHzx10)
+	{
+		case 125:
+			// 12.5 kHz settings
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x15, 0x11, 0x00); // IF tuning bits (12:9)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x32, 0x44, 0x95); // agc target power
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x3A, 0x40, 0xC3); // modu_det_sel (SQ setting)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x3F, 0x28, 0xD0); // Rssi3_th (SQ setting)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x3C, 0x0F, 0x1E); // Pk_det_th (SQ setting)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x48, 0x1D, 0xB6); // noise1_th (SQ setting)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x62, 0x14, 0x25); // modu_det_th (SQ setting)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x65, 0x24, 0x94); // setting th_sif for SQ rssi detect
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x66, 0xEB, 0x2E); // rssi_comp  and afc range
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x7F, 0x00, 0x01); // Goto page 1 registers
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x06, 0x00, 0x14); // AGC Table (recommended value for 12.5kHz bandwidth operation)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x07, 0x02, 0x0C); // AGC Table (recommended value for 12.5kHz bandwidth operation)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x08, 0x02, 0x14); // AGC Table (recommended value for 12.5kHz bandwidth operation)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x09, 0x03, 0x0C); // AGC Table (recommended value for 12.5kHz bandwidth operation)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x0A, 0x03, 0x14); // AGC Table (recommended value for 12.5kHz bandwidth operation)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x0B, 0x03, 0x24); // AGC Table (recommended value for 12.5kHz bandwidth operation)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x0C, 0x03, 0x44); // AGC Table (recommended value for 12.5kHz bandwidth operation)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x0D, 0x13, 0x44); // AGC Table (recommended value for 12.5kHz bandwidth operation)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x0E, 0x1B, 0x44); // AGC Table (recommended value for 12.5kHz bandwidth operation)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x0F, 0x3F, 0x44); // AGC Table (recommended value for 12.5kHz bandwidth operation)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x12, 0xE0, 0xEB); // AGC Table (recommended value for 12.5kHz bandwidth operation)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x7F, 0x00, 0x00); // Go back to page 0 registers
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x30, 0x40, 0x06); // filter_band_sel + band_mode_sel = 12.5KHz
+			break;
+		case 250:
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x15, 0x1F, 0x00); // IF tuning bits (12:9)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x32, 0x75, 0x64); // agc target power
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x3A, 0x44, 0xC3); // modu_det_sel (SQ setting)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x3F, 0x29, 0xD2); // Rssi3_th (SQ setting)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x3C, 0x0E, 0x1C); // Pk_det_th (SQ setting)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x48, 0x1E, 0x38); // noise1_th (SQ setting)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x62, 0x37, 0x67); // modu_det_th (SQ setting)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x65, 0x24, 0x8A); // setting th_sif for SQ rssi detect
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x66, 0xFF, 0x2E); // rssi_comp  and afc range
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x7F, 0x00, 0x01); // Goto page 1 registers
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x06, 0x00, 0x24); // AGC Table (recommended value for 12.5kHz bandwidth operation)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x07, 0x02, 0x14); // AGC Table (recommended value for 12.5kHz bandwidth operation)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x08, 0x02, 0x24); // AGC Table (recommended value for 12.5kHz bandwidth operation)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x09, 0x03, 0x14); // AGC Table (recommended value for 12.5kHz bandwidth operation)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x0A, 0x03, 0x24); // AGC Table (recommended value for 12.5kHz bandwidth operation)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x0B, 0x03, 0x44); // AGC Table (recommended value for 12.5kHz bandwidth operation)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x0C, 0x03, 0x84); // AGC Table (recommended value for 12.5kHz bandwidth operation)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x0D, 0x13, 0x84); // AGC Table (recommended value for 12.5kHz bandwidth operation)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x0E, 0x1B, 0x84); // AGC Table (recommended value for 12.5kHz bandwidth operation)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x0F, 0x3F, 0x84); // AGC Table (recommended value for 12.5kHz bandwidth operation)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x12, 0xE0, 0xEB); // AGC Table (recommended value for 12.5kHz bandwidth operation)
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x7F, 0x00, 0x00); // Go back to page 0 registers
+			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x30, 0x70, 0x06); // filter_band_sel + band_mode_sel = 12.5KHz
+			break;
+
+	}
+
 }

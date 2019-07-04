@@ -25,6 +25,7 @@
  */
 
 #include "fw_AT1846S.h"
+#include "fw_trx.h"
 
 void I2C_AT1846S_init()
 {
@@ -72,6 +73,10 @@ void I2C_AT1846S_init()
 	// Calibration end
 	// --- end of AT1846_init()
 
+
+	trxSetBandWidth(125);// initially set the bandwidith for 12.5 kHz
+
+/*
 	// --- start of AT1486_init_mode()
 	// --- Init for 12.5KHz
 	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x15, 0x11, 0x00); // IF tuning bits (12:9)
@@ -98,6 +103,8 @@ void I2C_AT1846S_init()
 	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x7F, 0x00, 0x00); // Go back to page 0 registers
 	write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x30, 0x40, 0x06); // filter_band_sel + band_mode_sel = 12.5KHz
 	// --- end of AT1486_init_mode()
+*/
+
 
 	/*
 	// --- start of AT1486_init_mode()
