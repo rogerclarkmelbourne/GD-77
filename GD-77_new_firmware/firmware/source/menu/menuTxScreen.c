@@ -77,9 +77,9 @@ static void handleEvent(int buttons, int keys, int events)
 {
 	if ((buttons & BUTTON_PTT)==0)
 	{
+		trxIsTransmitting=false;
 		if (txstopdelay>0)
 		{
-			trxIsTransmitting=false;
 			txstopdelay--;
 		}
 		else
