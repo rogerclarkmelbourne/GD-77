@@ -108,7 +108,15 @@ static void updateScreen()
 
 			if (trxGetMode() == RADIO_MODE_DIGITAL)
 			{
-				sprintf(buffer,"TG %d",trxTalkGroup);
+
+				if (settingsIsTgOverride)
+				{
+					sprintf(buffer,"TG %d",trxTalkGroup);
+				}
+				else
+				{
+					codeplugUtilConvertBufToString(contactData.name,buffer,16);
+				}
 				UC1701_printCentered(16,buffer,UC1701_FONT_GD77_8x16);
 			}
 
