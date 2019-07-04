@@ -1,10 +1,17 @@
 Changelog
 =========
 
-V0.2.1 <work in progress>:
+V0.2.1:
 - Fixed a bug where a very short TX would break RX afterwards.
 - Fixed a bug where low battery prevents power off.
 - Don't start TX while ongoing RX.
+- Additional stuff by Roger Clark, VK3KYY / G4KYF:
+  - Re-organise menuChannel so that the TG is displayed in same postion on both screens, also stop displaying the TG when in Analog mode.
+  - Added Boot 'Line1' and 'Line2' to the Splash screen, changed firmware into and power off screen.
+  - Remove debug log and squelch indication from the screen.
+  - Added Credits screen.
+  - Various changes to the operation of the VFO system and VFO screen etc.
+  - Use contact name from codeplug in VFO screen (same as Channel screen).
 
 V0.2:
 - Added DAC support.
