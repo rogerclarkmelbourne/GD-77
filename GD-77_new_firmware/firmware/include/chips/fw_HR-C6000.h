@@ -37,9 +37,6 @@
 
 #include "fw_codec.h"
 
-enum DMR_SLOT_STATE {	DMR_STATE_IDLE , DMR_STATE_RX_1,DMR_STATE_RX_2,DMR_STATE_RX_END,
-						DMR_STATE_TX_START,DMR_STATE_TX_1,DMR_STATE_TX_2,DMR_STATE_TX_END_1,DMR_STATE_TX_END_2};
-
 // C6000 interrupts
 // IN      C7  - C6000 RF_RX_INTER
 // IN      C16 - C6000 RF_TX_INTER
@@ -77,6 +74,9 @@ extern int tick_cnt;
 extern int skip_count;
 
 extern int tx_sequence;
+
+enum DMR_SLOT_STATE {	DMR_STATE_IDLE , DMR_STATE_RX_1,DMR_STATE_RX_2,DMR_STATE_RX_END,
+						DMR_STATE_TX_START,DMR_STATE_TX_1,DMR_STATE_TX_2,DMR_STATE_TX_END_1,DMR_STATE_TX_END_2};
 
 void SPI_HR_C6000_init();
 void SPI_C6000_postinit1();

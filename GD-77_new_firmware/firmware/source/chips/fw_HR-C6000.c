@@ -45,8 +45,6 @@ int skip_count;
 int qsodata_timer;
 int tx_sequence;
 
-
-
 void SPI_HR_C6000_init()
 {
     // C6000 interrupts
