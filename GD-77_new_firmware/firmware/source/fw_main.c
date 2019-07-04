@@ -184,7 +184,7 @@ void fw_main_task()
             	    set_melody(melody_orange_beep);
         		}
 
-        		if ((buttons & BUTTON_PTT)!=0)
+        		if (((buttons & BUTTON_PTT)!=0) && (slot_state==DMR_STATE_IDLE))
         		{
         			menuSystemPushNewMenu(MENU_TX_SCREEN);
         		}
