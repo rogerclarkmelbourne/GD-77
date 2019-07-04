@@ -36,7 +36,11 @@ static char freq_enter_digits[7] = { '-', '-', '-', '-', '-', '-', '-' };
 static int freq_enter_idx = 0;
 static int selectedFreq = VFO_SELECTED_FREQUENCY_INPUT_TX;
 
+static struct_codeplugRxGroup_t rxGroupData;
+static struct_codeplugContact_t contactData;
+
 static int FREQ_STEP =	125;// will load from settings
+static int currentIndexInTRxGroup=0;
 
 // internal prototypes
 static void updateScreen();
@@ -46,6 +50,8 @@ static void reset_freq_enter_digits();
 static int read_freq_enter_digits();
 static bool check_frequency(int tmp_frequency);
 static void update_frequency(int tmp_frequency);
+static void stepFrequency(int increment);
+
 
 // public interface
 int menuVFOMode(int buttons, int keys, int events, bool isFirstRun)
@@ -57,6 +63,12 @@ int menuVFOMode(int buttons, int keys, int events, bool isFirstRun)
 		trxSetFrequency(currentChannelData->rxFreq);
 		trxSetMode(currentChannelData->chMode);
 		trxSetPower(nonVolatileSettings.txPower);
+		codeplugRxGroupGetDataForIndex(currentChannelData->rxGroupList,&rxGroupData);
+		codeplugContactGetDataForIndex(rxGroupData.contacts[currentIndexInTRxGroup],&contactData);
+		if (settingsIsTgOverride==false)
+		{
+			trxTalkGroup = contactData.tgNumber;
+		}
 		reset_freq_enter_digits();
 		menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
 		updateScreen();
@@ -182,9 +194,9 @@ static void update_frequency(int frequency)
 
 static void handleEvent(int buttons, int keys, int events)
 {
-	if (events &0x02)
+	if (events & 0x02)
 	{
-		if (buttons & 0x08)
+		if (buttons & BUTTON_ORANGE)
 		{
 			menuSystemPushNewMenu(MENU_ZONE_LIST);
 			return;
@@ -204,19 +216,7 @@ static void handleEvent(int buttons, int keys, int events)
 
 	if (freq_enter_idx==0)
 	{
-		if ((keys & KEY_LEFT)!=0 || (keys & KEY_RIGHT)!=0)
-		{
-			if (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_TX)
-			{
-				selectedFreq = VFO_SELECTED_FREQUENCY_INPUT_RX;
-			}
-			else
-			{
-				selectedFreq = VFO_SELECTED_FREQUENCY_INPUT_TX;
-			}
-			menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
-		}
-		else if ((keys & KEY_STAR)!=0)
+		if ((keys & KEY_STAR)!=0)
 		{
 			if (trxGetMode() == RADIO_MODE_ANALOG)
 			{
@@ -231,51 +231,64 @@ static void handleEvent(int buttons, int keys, int events)
 		}
 		else if ((keys & KEY_DOWN)!=0)
 		{
-			int tmp_frequency;
-			if (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_TX)
+			if (buttons & BUTTON_SK2 )
 			{
-				tmp_frequency  = currentChannelData->txFreq - FREQ_STEP;
+				selectedFreq = VFO_SELECTED_FREQUENCY_INPUT_RX;
 			}
 			else
 			{
-				tmp_frequency  = currentChannelData->rxFreq - FREQ_STEP;
-			}
-
-			if (check_frequency(tmp_frequency))
-			{
-				update_frequency(tmp_frequency);
-			}
-			else
-			{
-        	    set_melody(melody_ERROR_beep);
+				stepFrequency(FREQ_STEP * -1);
 			}
 			menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
 		}
 		else if ((keys & KEY_UP)!=0)
 		{
-			int tmp_frequency;
-			if (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_TX)
+			if (buttons & BUTTON_SK2 )
 			{
-				tmp_frequency  = currentChannelData->txFreq + FREQ_STEP;
+				selectedFreq = VFO_SELECTED_FREQUENCY_INPUT_TX;
 			}
 			else
 			{
-				tmp_frequency  = currentChannelData->rxFreq + FREQ_STEP;
-			}
-			if (check_frequency(tmp_frequency))
-			{
-				update_frequency(tmp_frequency);
-			}
-			else
-			{
-        	    set_melody(melody_ERROR_beep);
+				stepFrequency(FREQ_STEP);
 			}
 			menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
+
 		}
 		else if ((keys & KEY_RED)!=0)
 		{
 			menuSystemSetCurrentMenu(MENU_CHANNEL_MODE);
 			return;
+		}
+		else if ((keys & KEY_RIGHT)!=0)
+		{
+			currentIndexInTRxGroup++;
+			if (currentIndexInTRxGroup > (rxGroupData.NOT_IN_MEMORY_numTGsInGroup -1))
+			{
+				currentIndexInTRxGroup =  0;
+			}
+			codeplugContactGetDataForIndex(rxGroupData.contacts[currentIndexInTRxGroup],&contactData);
+
+			settingsIsTgOverride=false;
+			trxTalkGroup = contactData.tgNumber;
+
+			menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
+			updateScreen();
+		}
+		else if ((keys & KEY_LEFT)!=0)
+		{
+			// To Do change TG in on same channel freq
+			currentIndexInTRxGroup--;
+			if (currentIndexInTRxGroup < 0)
+			{
+				currentIndexInTRxGroup =  rxGroupData.NOT_IN_MEMORY_numTGsInGroup - 1;
+			}
+
+			codeplugContactGetDataForIndex(rxGroupData.contacts[currentIndexInTRxGroup],&contactData);
+			settingsIsTgOverride=false;
+			trxTalkGroup = contactData.tgNumber;
+
+			menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
+			updateScreen();
 		}
 	}
 	else
@@ -359,5 +372,27 @@ static void handleEvent(int buttons, int keys, int events)
 	}
 
 	updateScreen();
+}
+
+static void stepFrequency(int increment)
+{
+int tmp_frequency;
+
+	if (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_TX)
+	{
+		tmp_frequency  = currentChannelData->txFreq + increment;
+	}
+	else
+	{
+		tmp_frequency  = currentChannelData->rxFreq + increment;
+	}
+	if (check_frequency(tmp_frequency))
+	{
+		update_frequency(tmp_frequency);
+	}
+	else
+	{
+		set_melody(melody_ERROR_beep);
+	}
 }
 

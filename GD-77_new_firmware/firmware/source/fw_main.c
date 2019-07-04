@@ -171,6 +171,7 @@ void fw_main_task()
 
         	if (button_event==EVENT_BUTTON_CHANGE)
         	{
+        		/*
         		if ((buttons & BUTTON_SK1)!=0)
         		{
             	    set_melody(melody_sk1_beep);
@@ -183,6 +184,7 @@ void fw_main_task()
         		{
             	    set_melody(melody_orange_beep);
         		}
+        		*/
 
         		if ((buttons & BUTTON_PTT)!=0)
         		{

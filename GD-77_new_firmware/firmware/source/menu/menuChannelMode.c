@@ -33,11 +33,11 @@
 static void updateScreen();
 static void handleEvent(int buttons, int keys, int events);
 static void loadChannelData();
-struct_codeplugZone_t currentZone;
-struct_codeplugChannel_t channelData;
-struct_codeplugRxGroup_t rxGroupData;
-struct_codeplugContact_t contactData;
-int currentIndexInTRxGroup=0;
+static struct_codeplugZone_t currentZone;
+static struct_codeplugChannel_t channelData;
+static struct_codeplugRxGroup_t rxGroupData;
+static struct_codeplugContact_t contactData;
+static int currentIndexInTRxGroup=0;
 
 int menuChannelMode(int buttons, int keys, int events, bool isFirstRun)
 {
@@ -76,7 +76,7 @@ static void loadChannelData()
 {
 	codeplugChannelGetDataForIndex(currentZone.channels[nonVolatileSettings.currentChannelIndexInZone],&channelData);
 	trxSetFrequency(channelData.rxFreq);
-	trxSetMode((channelData.chMode==0)?RADIO_MODE_ANALOG:RADIO_MODE_DIGITAL);
+	trxSetMode(channelData.chMode);
 	trxSetPower(nonVolatileSettings.txPower);
 	codeplugRxGroupGetDataForIndex(channelData.rxGroupList,&rxGroupData);
 	codeplugContactGetDataForIndex(rxGroupData.contacts[currentIndexInTRxGroup],&contactData);

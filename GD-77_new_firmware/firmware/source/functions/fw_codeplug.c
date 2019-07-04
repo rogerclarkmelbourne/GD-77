@@ -46,6 +46,7 @@ const int CODEPLUG_ADDR_USER_CALLSIGN = 0x00E0;
 
 const int CODEPLUG_ADDR_BOOT_LINE1 = 0x7540;
 const int CODEPLUG_ADDR_BOOT_LINE2 = 0x7550;
+const int CODEPLUG_ADDR_VFO_A_CHANNEL = 0x7590;
 
 uint32_t byteSwap32(uint32_t n)
 {
@@ -79,24 +80,6 @@ void codeplugUtilConvertBufToString(char *inBuf,char *outBuf,int len)
 	outBuf[len]=0;
 	return;
 }
-/*
- * deprecated. Use our own non volatile storage instead
- *
-void codeplugZoneGetSelected(int *selectedZone,int *selectedChannel)
-{
-	uint8_t buf[4];
-	EEPROM_Read(CODEPLUG_ADDR_EX_ZONE_BASIC + 4, (uint8_t*)&buf, sizeof(buf));
-	*selectedZone = buf[2];
-	*selectedChannel = buf[0];
-}
-
-void codeplugZoneSetSelected(int selectedZone,int selectedChannel)
-{
-	uint8_t buf[4]={selectedChannel,0,selectedZone,0};
-	EEPROM_Write(CODEPLUG_ADDR_EX_ZONE_BASIC + 4, (uint8_t*)&buf, sizeof(buf));
-    vTaskDelay(portTICK_PERIOD_MS * 5);// Not essential since the user will not be able to retrigger this in less than 5mS
-}
-*/
 
 int codeplugZonesGetCount()
 {
@@ -152,6 +135,7 @@ void codeplugChannelGetDataForIndex(int index, struct_codeplugChannel_t *channel
 		SPI_Flash_read(flashReadPos + index*sizeof(struct_codeplugChannel_t),(uint8_t *)channelBuf,sizeof(struct_codeplugChannel_t));
 	}
 
+	channelBuf->chMode = (channelBuf->chMode==0)?RADIO_MODE_ANALOG:RADIO_MODE_DIGITAL;
 	// Convert the the legacy codeplug tx and rx freq values into normal integers
 	channelBuf->txFreq = bcd2int(channelBuf->txFreq)/10;
 	channelBuf->rxFreq = bcd2int(channelBuf->rxFreq)/10;
@@ -207,4 +191,15 @@ void codeplugGetBootItemTexts(char *line1, char *line2)
 	codeplugUtilConvertBufToString(line1,line1,15);
 	EEPROM_Read(CODEPLUG_ADDR_BOOT_LINE2,(uint8_t *)line2,15);
 	codeplugUtilConvertBufToString(line2,line2,15);
+}
+
+
+void codeplugVFO_A_ChannelData(struct_codeplugChannel_t *vfoBuf)
+{
+	EEPROM_Read(CODEPLUG_ADDR_VFO_A_CHANNEL,(uint8_t *)vfoBuf,sizeof(struct_codeplugChannel_t));
+
+	// Convert the the legacy codeplug tx and rx freq values into normal integers
+	vfoBuf->chMode = (vfoBuf->chMode==0)?RADIO_MODE_ANALOG:RADIO_MODE_DIGITAL;
+	vfoBuf->txFreq = bcd2int(vfoBuf->txFreq)/10;
+	vfoBuf->rxFreq = bcd2int(vfoBuf->rxFreq)/10;
 }
