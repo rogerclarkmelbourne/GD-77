@@ -45,9 +45,6 @@ int skip_count;
 int qsodata_timer;
 int tx_sequence;
 
-enum DMR_SLOT_STATE {	DMR_STATE_IDLE , DMR_STATE_RX_1,DMR_STATE_RX_2,DMR_STATE_RX_END,
-						DMR_STATE_TX_START,DMR_STATE_TX_1,DMR_STATE_TX_2,DMR_STATE_TX_END_1,DMR_STATE_TX_END_2};
-
 void SPI_HR_C6000_init()
 {
     // C6000 interrupts
