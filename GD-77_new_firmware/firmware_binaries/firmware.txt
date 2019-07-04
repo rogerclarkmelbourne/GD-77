@@ -1,6 +1,8 @@
 Changelog
 =========
 
+V0.2.2 <work in progress>:
+
 V0.2.1:
 - Fixed a bug where a very short TX would break RX afterwards.
 - Fixed a bug where low battery prevents power off.
