@@ -2,6 +2,8 @@ Changelog
 =========
 
 V0.2.2 <work in progress>:
+- Update TG even if the DMRID did not change.
+- Bumped STORAGE_MAGIC_NUMBER to get rid of some intialization issues.
 
 V0.2.1:
 - Fixed a bug where a very short TX would break RX afterwards.
