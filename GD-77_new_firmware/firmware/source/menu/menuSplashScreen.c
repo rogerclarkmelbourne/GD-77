@@ -33,7 +33,7 @@ int menuSplashScreen(int buttons, int keys, int events, bool isFirstRun)
 {
 	if (isFirstRun)
 	{
-		menuTimer = 3000;// Increased so its easier to see what version of fw is being run
+		menuTimer = 3000;
 		updateScreen();
 	}
 	else
@@ -45,41 +45,20 @@ int menuSplashScreen(int buttons, int keys, int events, bool isFirstRun)
 
 static void updateScreen()
 {
+	char line1[16];
+	char line2[16];
+
+	codeplugGetBootItemTexts(line1,line2);
 	UC1701_clearBuf();
-	UC1701_printCentered(12, "OpenGD77",3);
-	UC1701_printCentered(32,(char *)FIRMWARE_VERSION_STRING,3);
-	UC1701_printCentered(48,__DATE__,3);
+	UC1701_printCentered(10, "OpenGD77",UC1701_FONT_GD77_8x16);
+	UC1701_printCentered(28, line1,UC1701_FONT_GD77_8x16);
+	UC1701_printCentered(42, line2,UC1701_FONT_GD77_8x16);
 	UC1701_render();
 	displayLightTrigger();
 }
 
-
 static void handleEvent(int buttons, int keys, int events)
 {
-/*
-if ((keys==KEY_1) || (keys==KEY_2) || (keys==KEY_3) || (keys==KEY_STAR))
-{
-	if (keys==KEY_1)
-	{
-		create_song(melody1);
-	}
-	else if (keys==KEY_2)
-	{
-		create_song(melody2);
-	}
-	else if (keys==KEY_3)
-	{
-		create_song(melody3);
-	}
-	else if (keys==KEY_STAR)
-	{
-		create_song(melody4);
-	}
-	set_melody(melody_generic);
-	key_event=EVENT_KEY_NONE;
-}
-*/
-
 	menuTimer--;
 	if (menuTimer == 0)
 	{

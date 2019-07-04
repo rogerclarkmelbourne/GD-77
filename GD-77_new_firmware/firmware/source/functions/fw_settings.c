@@ -62,37 +62,15 @@ void settingsLoadSettings()
 
 void initVFOChannel()
 {
+	codeplugVFO_A_ChannelData(&nonVolatileSettings.vfoChannel);
+
 	strcpy(nonVolatileSettings.vfoChannel.name,"VFO");
-	nonVolatileSettings.vfoChannel.rxFreq=BAND_VHF_MIN;
-	nonVolatileSettings.vfoChannel.txFreq=BAND_VHF_MIN;
-	nonVolatileSettings.vfoChannel.chMode =  RADIO_MODE_DIGITAL;
-	nonVolatileSettings.vfoChannel.rxRefFreq=0;
-	nonVolatileSettings.vfoChannel.txRefFreq=0;
-	nonVolatileSettings.vfoChannel.tot=180;
-	nonVolatileSettings.vfoChannel.totRekey=0;;
-	nonVolatileSettings.vfoChannel.admitCriteria = ADMIT_CRITERIA_ALWAYS;
-	nonVolatileSettings.vfoChannel.rssiThreshold = 45;
-	nonVolatileSettings.vfoChannel.scanList=0;
-	nonVolatileSettings.vfoChannel.rxTone=0;
-	nonVolatileSettings.vfoChannel.txTone=0;
-	nonVolatileSettings.vfoChannel.voiceEmphasis=0;
-	nonVolatileSettings.vfoChannel.txSignaling=0;
-	nonVolatileSettings.vfoChannel.unmuteRule=0;
-	nonVolatileSettings.vfoChannel.rxSignaling=0;
-	nonVolatileSettings.vfoChannel.artsInterval=0;
-	nonVolatileSettings.vfoChannel.encrypt=0;
-	nonVolatileSettings.vfoChannel.rxColor=0;
-	nonVolatileSettings.vfoChannel.rxGroupList=0;
-	nonVolatileSettings.vfoChannel.txColor=0;
-	nonVolatileSettings.vfoChannel.emgSystem=0;
-	nonVolatileSettings.vfoChannel.contact=0;
-	nonVolatileSettings.vfoChannel.flag1=0;
-	nonVolatileSettings.vfoChannel.flag2=0;
-	nonVolatileSettings.vfoChannel.flag3=0;
-	nonVolatileSettings.vfoChannel.flag4=0;
-	nonVolatileSettings.vfoChannel.reserve2=0;
-	nonVolatileSettings.vfoChannel.reserve=0;
-	nonVolatileSettings.vfoChannel.sql=45;
+	// temporary hack in case the code plug has no RxGroup selected
+	// The TG needs to come from the RxGroupList
+	if (nonVolatileSettings.vfoChannel.rxGroupList == 0)
+	{
+		nonVolatileSettings.vfoChannel.rxGroupList=1;
+	}
 }
 
 void settingsRestoreDefaultSettings()
@@ -108,4 +86,5 @@ void settingsRestoreDefaultSettings()
 	nonVolatileSettings.txPower=1000;
 	initVFOChannel();
 	currentChannelData = &nonVolatileSettings.vfoChannel;// Set the current channel data to point to the VFO data since the default screen will be the VFO
+	settingsSaveSettings();
 }

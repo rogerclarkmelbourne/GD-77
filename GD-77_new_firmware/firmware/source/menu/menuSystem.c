@@ -47,6 +47,7 @@ int menuRSSIScreen(int buttons, int keys, int events, bool isFirstRun);
 int menuLastHeard(int buttons, int keys, int events, bool isFirstRun);
 int menuDebug(int buttons, int keys, int events, bool isFirstRun);
 int menuDisplayOptions(int buttons, int keys, int events, bool isFirstRun);
+int menuCredits(int buttons, int keys, int events, bool isFirstRun);
 
 
 /*
@@ -88,7 +89,8 @@ const MenuFunctionPointer_t menuFunctions[] = { menuSplashScreen,
 												menuRSSIScreen,
 												menuLastHeard,
 												menuDebug,
-												menuDisplayOptions};
+												menuDisplayOptions,
+												menuCredits};
 
 void menuSystemPushNewMenu(int menuNumber)
 {
@@ -168,10 +170,12 @@ const char menuStringTable[32][16] = { "",//0
 										 "Last heard",//18
 										 "Debug",//19
 										 "Display options",//20
+										 "Credits",//21
 };
 
 const menuItemNew_t menuDataMainMenu[] = {
-	{7,7},// number of enties i
+	{8,8},// number of enties i
+	{ 21, MENU_CREDITS },
 	{ 6, MENU_ZONE_LIST },
 	{ 17, MENU_RSSI_SCREEN },
 	{ 15, MENU_BATTERY },

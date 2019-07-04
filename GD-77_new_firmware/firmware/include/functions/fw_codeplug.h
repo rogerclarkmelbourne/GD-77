@@ -103,4 +103,8 @@ uint32_t bcd2int(uint32_t in);
 void codeplugRxGroupGetDataForIndex(int index, struct_codeplugRxGroup_t *rxGroupBuf);
 void codeplugContactGetDataForIndex(int index, struct_codeplugContact_t *contact);
 int codeplugGetUserDMRID();
+void codeplugGetRadioName(char *buf);
+void codeplugGetBootItemTexts(char *line1, char *line2);
+void codeplugVFO_A_ChannelData(struct_codeplugChannel_t *vfoBuf);
+
 #endif

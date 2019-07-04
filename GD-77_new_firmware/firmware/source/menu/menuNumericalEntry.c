@@ -30,7 +30,7 @@ static char digits[9];
 static void updateScreen();
 static void handleEvent(int buttons, int keys, int events);
 
-static const char *menuName[2]={"Manual dial","TG entry"};
+static const char *menuName[2]={"TG entry","Manual dial"};
 
 // public interface
 int menuNumericalEntry(int buttons, int keys, int events, bool isFirstRun)

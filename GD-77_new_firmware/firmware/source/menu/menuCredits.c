@@ -27,12 +27,19 @@
 
 static void updateScreen();
 static void handleEvent(int buttons, int keys, int events);
+static void scrollDownOneLine();
 
-int menuFirmwareInfoScreen(int buttons, int keys, int events, bool isFirstRun)
+#define CREDIT_TEXT_LENGTH 33
+static const int NUM_LINES_PER_SCREEN = 7;
+static const char creditTexts[][CREDIT_TEXT_LENGTH] = {"Conceived & developed","by","Kai DG4KLU","with help from","Roger VK3KYY"};
+static int currentDisplayIndex=0;
+
+int menuCredits(int buttons, int keys, int events, bool isFirstRun)
 {
 	if (isFirstRun)
 	{
-		menuTimer = 3000;// Increased so its easier to see what version of fw is being run
+		gMenusCurrentItemIndex=5000;
+		menuTimer = 3000;
 		updateScreen();
 	}
 	else
@@ -41,26 +48,64 @@ int menuFirmwareInfoScreen(int buttons, int keys, int events, bool isFirstRun)
 		{
 			handleEvent(buttons, keys, events);
 		}
+/*
+ * Uncomment to enable auto scrolling
+		if ((gMenusCurrentItemIndex--)==0)
+		{
+			scrollDownOneLine();
+			gMenusCurrentItemIndex=1000;
+		}
+*/
 	}
 	return 0;
 }
 
 static void updateScreen()
 {
+	int numCredits = sizeof(creditTexts)/CREDIT_TEXT_LENGTH;
 	UC1701_clearBuf();
-	UC1701_printCentered(12, "OpenGD77",UC1701_FONT_GD77_8x16);
-	UC1701_printCentered(32,(char *)FIRMWARE_VERSION_STRING,UC1701_FONT_GD77_8x16);
-	UC1701_printCentered(48,__DATE__,UC1701_FONT_GD77_8x16);
+
+	UC1701_printCentered(0,	"OpenGD77",UC1701_FONT_GD77_8x16);
+
+	for(int i=0;i<6;i++)
+	{
+		if ((i+currentDisplayIndex) < numCredits)
+		{
+			UC1701_printCentered(i*8 + 16,(char *)creditTexts[i+currentDisplayIndex],0);
+		}
+	}
 	UC1701_render();
 	displayLightTrigger();
 }
 
+static void scrollDownOneLine()
+{
+	int numCredits = sizeof(creditTexts)/CREDIT_TEXT_LENGTH;
+	if (currentDisplayIndex < (numCredits - NUM_LINES_PER_SCREEN) )
+	{
+		currentDisplayIndex++;
+	}
+	updateScreen();
+}
 
 static void handleEvent(int buttons, int keys, int events)
 {
+
 	if ((keys & KEY_RED)!=0)
 	{
 		menuSystemPopPreviousMenu();
 		return;
+	}
+	else if ((keys & KEY_DOWN)!=0)
+	{
+		scrollDownOneLine();
+	}
+	else if ((keys & KEY_UP)!=0)
+	{
+		if (currentDisplayIndex>0)
+		{
+			currentDisplayIndex--;
+		}
+		updateScreen();
 	}
 }

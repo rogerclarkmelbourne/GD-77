@@ -46,8 +46,8 @@ int menuPowerOff(int buttons, int keys, int events, bool isFirstRun)
 static void updateScreen()
 {
 	UC1701_clearBuf();
-	UC1701_printCentered(8, "Power off ..",3);
-	UC1701_printCentered(32, "73 de DG4KLU",3);
+	UC1701_printCentered(12, "Power off ..",UC1701_FONT_GD77_8x16);
+	UC1701_printCentered(32, "73",UC1701_FONT_GD77_8x16);
 	UC1701_render();
 	displayLightTrigger();
 }

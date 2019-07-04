@@ -33,11 +33,11 @@
 static void updateScreen();
 static void handleEvent(int buttons, int keys, int events);
 static void loadChannelData();
-struct_codeplugZone_t currentZone;
-struct_codeplugChannel_t channelData;
-struct_codeplugRxGroup_t rxGroupData;
-struct_codeplugContact_t contactData;
-int currentIndexInTRxGroup=0;
+static struct_codeplugZone_t currentZone;
+static struct_codeplugChannel_t channelData;
+static struct_codeplugRxGroup_t rxGroupData;
+static struct_codeplugContact_t contactData;
+static int currentIndexInTRxGroup=0;
 
 int menuChannelMode(int buttons, int keys, int events, bool isFirstRun)
 {
@@ -76,7 +76,7 @@ static void loadChannelData()
 {
 	codeplugChannelGetDataForIndex(currentZone.channels[nonVolatileSettings.currentChannelIndexInZone],&channelData);
 	trxSetFrequency(channelData.rxFreq);
-	trxSetMode((channelData.chMode==0)?RADIO_MODE_ANALOG:RADIO_MODE_DIGITAL);
+	trxSetMode(channelData.chMode);
 	trxSetPower(nonVolatileSettings.txPower);
 	codeplugRxGroupGetDataForIndex(channelData.rxGroupList,&rxGroupData);
 	codeplugContactGetDataForIndex(rxGroupData.contacts[currentIndexInTRxGroup],&contactData);
@@ -98,16 +98,21 @@ static void updateScreen()
 	{
 		case QSO_DISPLAY_DEFAULT_SCREEN:
 			codeplugUtilConvertBufToString(channelData.name,nameBuf,16);
-			UC1701_printCentered(20, (char *)nameBuf,UC1701_FONT_GD77_8x16);
-			if (settingsIsTgOverride)
+			UC1701_printCentered(32, (char *)nameBuf,UC1701_FONT_GD77_8x16);
+
+			if (trxGetMode() == RADIO_MODE_DIGITAL)
 			{
-				sprintf(nameBuf,"TG %d",trxTalkGroup);
+				if (settingsIsTgOverride)
+				{
+					sprintf(nameBuf,"TG %d",trxTalkGroup);
+				}
+				else
+				{
+					codeplugUtilConvertBufToString(contactData.name,nameBuf,16);
+				}
+				UC1701_printCentered(16, (char *)nameBuf,UC1701_FONT_GD77_8x16);
 			}
-			else
-			{
-				codeplugUtilConvertBufToString(contactData.name,nameBuf,16);
-			}
-			UC1701_printCentered(40, (char *)nameBuf,UC1701_FONT_GD77_8x16);
+
 			displayLightTrigger();
 			UC1701_render();
 			break;
