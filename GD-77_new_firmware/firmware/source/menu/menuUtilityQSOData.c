@@ -167,6 +167,16 @@ void lastHeardListUpdate(uint8_t *dmrDataBuffer)
 				menuDisplayQSODataState = QSO_DISPLAY_CALLER_DATA;// flag that the display needs to update
 			}
 		}
+		else // update TG even if the DMRID did not change
+		{
+			LinkItem_t *item = findInList(id);
+
+			if (item!=NULL)
+			{
+				// Already in the list
+				item->talkGroup = talkGroup;// update the TG in case they changed TG
+			}
+		}
 	}
 	else
 	{
