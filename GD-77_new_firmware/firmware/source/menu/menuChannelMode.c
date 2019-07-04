@@ -129,6 +129,15 @@ static void updateScreen()
 
 static void handleEvent(int buttons, int keys, int events)
 {
+	if (events & 0x02)
+	{
+		if (buttons & BUTTON_ORANGE)
+		{
+			menuSystemPushNewMenu(MENU_ZONE_LIST);
+			return;
+		}
+	}
+
 	if ((keys & KEY_GREEN)!=0)
 	{
 		menuSystemPushNewMenu(MENU_MAIN_MENU);

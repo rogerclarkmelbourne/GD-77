@@ -54,6 +54,7 @@ int menuSystemGetCurrentMenuNumber();
 
 void menuSystemPopPreviousMenu();
 void menuSystemPopAllAndDisplayRootMenu();
+void menuSystemPopAllAndDisplaySpecificRootMenu(int newRootMenu);
 
 void menuSystemCallCurrentMenuTick(int buttons, int keys, int events);
 

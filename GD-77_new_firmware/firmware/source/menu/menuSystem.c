@@ -108,6 +108,16 @@ void menuSystemPopAllAndDisplayRootMenu()
 	menuControlData.stackPosition=0;
 	menuFunctions[menuControlData.stack[menuControlData.stackPosition]](0,0,0,true);
 }
+
+void menuSystemPopAllAndDisplaySpecificRootMenu(int newRootMenu)
+{
+	menuControlData.stack[0]  = newRootMenu;
+	menuControlData.stackPosition=0;
+	menuFunctions[menuControlData.stack[menuControlData.stackPosition]](0,0,0,true);
+}
+
+
+
 void menuSystemSetCurrentMenu(int menuNumber)
 {
 	menuControlData.stack[menuControlData.stackPosition]  = menuNumber;

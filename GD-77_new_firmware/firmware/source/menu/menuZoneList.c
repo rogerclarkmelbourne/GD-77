@@ -107,9 +107,7 @@ static void handleEvent(int buttons, int keys, int events)
 		nonVolatileSettings.currentZone = gMenusCurrentItemIndex;
 		nonVolatileSettings.currentChannelIndexInZone = 0;// Since we are switching zones the channel index should be reset
 
-		// Note. The Zone screen exits via the green button, back to whatever is selected as the bottom of the menu stack
-		// This is normally the VFO or Channel screen.
-		menuSystemPopAllAndDisplayRootMenu();
+		menuSystemPopAllAndDisplaySpecificRootMenu(MENU_CHANNEL_MODE);
 
 		return;
 	}
