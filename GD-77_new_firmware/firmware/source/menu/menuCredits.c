@@ -31,7 +31,7 @@ static void scrollDownOneLine();
 
 #define CREDIT_TEXT_LENGTH 33
 static const int NUM_LINES_PER_SCREEN = 7;
-static const char creditTexts[][CREDIT_TEXT_LENGTH] = {"Conceived & developed","by","Kai DG4KLU","with help from","Roger VK3KYY","....","DMR Vocoder binary","from","Radioddity's","official firmware",""};
+static const char creditTexts[][CREDIT_TEXT_LENGTH] = {"Conceived & developed","by","Kai DG4KLU","with help from","Roger VK3KYY"};
 static int currentDisplayIndex=0;
 
 int menuCredits(int buttons, int keys, int events, bool isFirstRun)
