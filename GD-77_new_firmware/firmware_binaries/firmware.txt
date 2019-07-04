@@ -2,6 +2,9 @@ Changelog
 =========
 
 V0.2.1 <work in progress>:
+- Fixed a bug where a very short TX would break RX afterwards.
+- Fixed a bug where low battery prevents power off.
+- Don't start TX while ongoing RX.
 
 V0.2:
 - Added DAC support.
