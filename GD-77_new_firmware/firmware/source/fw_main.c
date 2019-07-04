@@ -201,6 +201,12 @@ void fw_main_task()
         		if (battery_voltage<CUTOFF_VOLTAGE_LOWER_HYST)
         		{
         			show_lowbattery();
+
+                	if (GPIO_PinRead(GPIO_Power_Switch, Pin_Power_Switch)!=0)
+					{
+        				// This turns the power off to the CPU.
+        				GPIO_PinWrite(GPIO_Keep_Power_On, Pin_Keep_Power_On, 0);
+        			}
         		}
         		else
         		{
