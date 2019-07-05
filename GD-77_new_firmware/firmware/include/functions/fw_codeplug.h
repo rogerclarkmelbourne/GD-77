@@ -66,7 +66,7 @@ typedef struct struct_codeplugChannel
 	uint8_t flag1;
 	uint8_t flag2;
 	uint8_t flag3;
-	uint8_t flag4;
+	uint8_t flag4;// bits... 0x80 = Power, 0x40 = Vox, 0x20 = AutoScan, 0x10 = LoneWoker, 0x08 = AllowTalkaround, 0x04 = OnlyRx, 0x02 = Channel width, 0x01 = Squelch
 	uint16_t reserve2;
 	uint8_t reserve;
 	uint8_t sql;
