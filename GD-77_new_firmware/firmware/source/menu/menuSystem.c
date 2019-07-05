@@ -178,7 +178,7 @@ const char menuStringTable[32][16] = { "",//0
 										 "Firmware info",//16
 										 "RSSI",//17
 										 "Last heard",//18
-										 "Debug",//19
+										 "Utilities",//19
 										 "Display options",//20
 										 "Credits",//21
 };
@@ -191,7 +191,7 @@ const menuItemNew_t menuDataMainMenu[] = {
 	{ 15, MENU_BATTERY },
 	{ 18, MENU_LAST_HEARD },
 	{ 16, MENU_FIRMWARE_INFO },
-	{ 19, MENU_DEBUG },
+	{ 19, MENU_UTILITIES },
 	{ 20, MENU_DISPLAY},
 };
 const menuItemNew_t menuDataContact[] = {
