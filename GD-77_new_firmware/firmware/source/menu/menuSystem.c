@@ -45,7 +45,7 @@ int menuNumericalEntry(int buttons, int keys, int events, bool isFirstRun);
 int menuTxScreen(int buttons, int keys, int events, bool isFirstRun);
 int menuRSSIScreen(int buttons, int keys, int events, bool isFirstRun);
 int menuLastHeard(int buttons, int keys, int events, bool isFirstRun);
-int menuDebug(int buttons, int keys, int events, bool isFirstRun);
+int menuUtilities(int buttons, int keys, int events, bool isFirstRun);
 int menuDisplayOptions(int buttons, int keys, int events, bool isFirstRun);
 int menuCredits(int buttons, int keys, int events, bool isFirstRun);
 
@@ -88,7 +88,7 @@ const MenuFunctionPointer_t menuFunctions[] = { menuSplashScreen,
 												menuTxScreen,
 												menuRSSIScreen,
 												menuLastHeard,
-												menuDebug,
+												menuUtilities,
 												menuDisplayOptions,
 												menuCredits};
 
