@@ -4,6 +4,7 @@ Changelog
 V0.2.2 <work in progress>:
 - Update TG even if the DMRID did not change.
 - Bumped STORAGE_MAGIC_NUMBER to get rid of some intialization issues.
+- License: GPL v2 + non-commercial.
 - Additional stuff by Roger Clark, VK3KYY / G4KYF:
   - Fix bug where setting the Tx freq in the VFO screen, also set the currently received frequency of the hardware (AT1846S).
   - Started to implement T/Rx bandwidth control. But still need to work out how to read the bandwidth from the codeplug.
