@@ -57,5 +57,6 @@ void trx_setRX();
 void trx_setTX();
 void trxSetPower(uint32_t powerVal);
 uint16_t trxGetPower();
+void trxSetBandWidth(int bandWidthkHzx10);
 
 #endif /* _FW_TRX_H_ */

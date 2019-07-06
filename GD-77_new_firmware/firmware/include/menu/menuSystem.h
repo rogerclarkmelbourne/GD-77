@@ -54,6 +54,7 @@ int menuSystemGetCurrentMenuNumber();
 
 void menuSystemPopPreviousMenu();
 void menuSystemPopAllAndDisplayRootMenu();
+void menuSystemPopAllAndDisplaySpecificRootMenu(int newRootMenu);
 
 void menuSystemCallCurrentMenuTick(int buttons, int keys, int events);
 
@@ -77,7 +78,7 @@ enum MENU_SCREENS { MENU_SPLASH_SCREEN=0,
 					MENU_TX_SCREEN,
 					MENU_RSSI_SCREEN,
 					MENU_LAST_HEARD,
-					MENU_DEBUG,
+					MENU_UTILITIES,
 					MENU_DISPLAY,
 					MENU_CREDITS};
 

@@ -196,8 +196,9 @@ static void update_frequency(int frequency)
 	else
 	{
 		currentChannelData->rxFreq=frequency;
+		trxSetFrequency(frequency);
 	}
-	trxSetFrequency(frequency);
+
 }
 
 static void handleEvent(int buttons, int keys, int events)

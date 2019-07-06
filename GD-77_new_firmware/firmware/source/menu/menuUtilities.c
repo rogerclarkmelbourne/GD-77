@@ -24,16 +24,20 @@
  * ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 #include "menu/menuSystem.h"
+#include "fw_settings.h"
+
 
 static void updateScreen();
 static void handleEvent(int buttons, int keys, int events);
-static const int NUM_MENUS=3;
+static const int NUM_MENUS=4;
+static bool	doFactoryReset;
 
-int menuDebug(int buttons, int keys, int events, bool isFirstRun)
+int menuUtilities(int buttons, int keys, int events, bool isFirstRun)
 {
 	if (isFirstRun)
 	{
 		gMenusCurrentItemIndex=0;
+		doFactoryReset=false;
 		updateScreen();
 	}
 	else
@@ -49,9 +53,9 @@ int menuDebug(int buttons, int keys, int events, bool isFirstRun)
 static void updateScreen()
 {
 	int mNum=0;
-	char buf[16];
+	char buf[17];
 	UC1701_clearBuf();
-	UC1701_printCentered(0, "Debug options",UC1701_FONT_GD77_8x16);
+	UC1701_printCentered(0, "Utilities",UC1701_FONT_GD77_8x16);
 
 	// Can only display 3 of the options at a time menu at -1, 0 and +1
 	for(int i=-1;i<=1;i++)
@@ -65,16 +69,11 @@ static void updateScreen()
 		{
 			mNum = mNum - NUM_MENUS;
 		}
+
 		switch(mNum)
 		{
 		case 0:
 			sprintf(buf,"Power %d",trxGetPower());
-			if (gMenusCurrentItemIndex==0)
-			{
-				UC1701_fillRect(0,(i+2)*16,128,16,false);
-			}
-
-			UC1701_printCore(0,(i+2)*16,buf,UC1701_FONT_GD77_8x16,0,(gMenusCurrentItemIndex==0));
 			break;
 		case 1:
 			if (open_squelch)
@@ -85,11 +84,6 @@ static void updateScreen()
 			{
 				strcpy(buf,"SQ:ON");
 			}
-			if (gMenusCurrentItemIndex==1)
-			{
-				UC1701_fillRect(0,(i+2)*16,128,16,false);
-			}
-			UC1701_printCore(0,(i+2)*16,buf,UC1701_FONT_GD77_8x16,0,(gMenusCurrentItemIndex==1));
 			break;
 		case 2:
 			if (HR_C6000_datalogging)
@@ -100,15 +94,24 @@ static void updateScreen()
 			{
 				strcpy(buf,"LOG:OFF");
 			}
-
-			if (gMenusCurrentItemIndex==2)
+			break;
+		case 3:
+			if (doFactoryReset==true)
 			{
-				UC1701_fillRect(0,(i+2)*16,128,16,false);
+				strcpy(buf,"Fact Reset:YES");
 			}
-
-			UC1701_printCore(0,(i+2)*16,buf,UC1701_FONT_GD77_8x16,0,(gMenusCurrentItemIndex==2));
+			else
+			{
+				strcpy(buf,"Fact Reset:NO");
+			}
 			break;
 		}
+		if (gMenusCurrentItemIndex==mNum)
+		{
+			UC1701_fillRect(0,(i+2)*16,128,16,false);
+		}
+
+		UC1701_printCore(0,(i+2)*16,buf,UC1701_FONT_GD77_8x16,0,(gMenusCurrentItemIndex==mNum));
 	}
 
 	UC1701_render();
@@ -151,6 +154,9 @@ static void handleEvent(int buttons, int keys, int events)
 					trxSetPower(tmpPower);
 				}
 				break;
+			case 3:
+				doFactoryReset = true;
+				break;
 		}
 	}
 	else if ((keys & KEY_LEFT)!=0)
@@ -169,10 +175,17 @@ static void handleEvent(int buttons, int keys, int events)
 					trxSetPower(trxGetPower() - 100);
 				}
 				break;
+			case 3:
+				doFactoryReset = false;
+				break;
 		}
 	}
 	else if ((keys & KEY_GREEN)!=0)
 	{
+		if (doFactoryReset==true)
+		{
+			settingsRestoreDefaultSettings();
+		}
 		menuSystemPopPreviousMenu();
 		return;
 	}

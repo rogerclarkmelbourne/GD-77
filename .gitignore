@@ -3,3 +3,6 @@
 /GD-77_new_firmware/firmware/Release
 /GD-77_new_firmware/firmware/*.launch
 /GD-77_new_firmware/firmware/linkerdata/*.dat
+/GD-77_new_firmware/ComTool/.vs
+/GD-77_new_firmware/ComTool/ComTool/bin
+/GD-77_new_firmware/ComTool/ComTool/obj

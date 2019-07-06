@@ -45,7 +45,7 @@ int menuNumericalEntry(int buttons, int keys, int events, bool isFirstRun);
 int menuTxScreen(int buttons, int keys, int events, bool isFirstRun);
 int menuRSSIScreen(int buttons, int keys, int events, bool isFirstRun);
 int menuLastHeard(int buttons, int keys, int events, bool isFirstRun);
-int menuDebug(int buttons, int keys, int events, bool isFirstRun);
+int menuUtilities(int buttons, int keys, int events, bool isFirstRun);
 int menuDisplayOptions(int buttons, int keys, int events, bool isFirstRun);
 int menuCredits(int buttons, int keys, int events, bool isFirstRun);
 
@@ -88,7 +88,7 @@ const MenuFunctionPointer_t menuFunctions[] = { menuSplashScreen,
 												menuTxScreen,
 												menuRSSIScreen,
 												menuLastHeard,
-												menuDebug,
+												menuUtilities,
 												menuDisplayOptions,
 												menuCredits};
 
@@ -108,6 +108,16 @@ void menuSystemPopAllAndDisplayRootMenu()
 	menuControlData.stackPosition=0;
 	menuFunctions[menuControlData.stack[menuControlData.stackPosition]](0,0,0,true);
 }
+
+void menuSystemPopAllAndDisplaySpecificRootMenu(int newRootMenu)
+{
+	menuControlData.stack[0]  = newRootMenu;
+	menuControlData.stackPosition=0;
+	menuFunctions[menuControlData.stack[menuControlData.stackPosition]](0,0,0,true);
+}
+
+
+
 void menuSystemSetCurrentMenu(int menuNumber)
 {
 	menuControlData.stack[menuControlData.stackPosition]  = menuNumber;
@@ -168,7 +178,7 @@ const char menuStringTable[32][16] = { "",//0
 										 "Firmware info",//16
 										 "RSSI",//17
 										 "Last heard",//18
-										 "Debug",//19
+										 "Utilities",//19
 										 "Display options",//20
 										 "Credits",//21
 };
@@ -181,7 +191,7 @@ const menuItemNew_t menuDataMainMenu[] = {
 	{ 15, MENU_BATTERY },
 	{ 18, MENU_LAST_HEARD },
 	{ 16, MENU_FIRMWARE_INFO },
-	{ 19, MENU_DEBUG },
+	{ 19, MENU_UTILITIES },
 	{ 20, MENU_DISPLAY},
 };
 const menuItemNew_t menuDataContact[] = {
