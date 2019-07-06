@@ -4,6 +4,11 @@ Changelog
 V0.2.2 <work in progress>:
 - Update TG even if the DMRID did not change.
 - Bumped STORAGE_MAGIC_NUMBER to get rid of some intialization issues.
+- Additional stuff by Roger Clark, VK3KYY / G4KYF:
+  - Fix bug where setting the Tx freq in the VFO screen, also set the currently received frequency of the hardware (AT1846S).
+  - Started to implement T/Rx bandwidth control. But still need to work out how to read the bandwidth from the codeplug.
+  - Change Channel screen Orange button operation to be the same as VFO menu, also if a Zone is selected, the root menu is changed to the Channel screen, because Zones are only useful in Channel mode.
+  - Added Factory Reset option to the debug screen, also renamed the Debug screen to Utilities (note, I'll rename the menuDebug.c in the next commit, so the git commit history makes more sense.
 
 V0.2.1:
 - Fixed a bug where a very short TX would break RX afterwards.
