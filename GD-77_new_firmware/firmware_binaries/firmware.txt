@@ -1,6 +1,8 @@
 Changelog
 =========
 
+V0.2.3 <work in progress>:
+
 V0.2.2:
 - Update TG even if the DMRID did not change.
 - Bumped STORAGE_MAGIC_NUMBER to get rid of some intialization issues.
