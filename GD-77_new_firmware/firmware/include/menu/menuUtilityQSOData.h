@@ -19,7 +19,7 @@
 #define _MENU_UTILITY_QSO_DATA_H_                    /**< Symbol preventing repeated inclusion */
 #include "fw_common.h"
 
-#define NUM_LASTHEARD_STORED 8
+#define NUM_LASTHEARD_STORED 16
 
 typedef struct dmrIdDataStruct
 {
