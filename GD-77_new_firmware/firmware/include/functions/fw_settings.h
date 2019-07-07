@@ -41,10 +41,10 @@ typedef struct settingsStruct
 	uint8_t			displayInverseVideo;
 	uint16_t		txPower;
 	struct_codeplugChannel_t vfoChannel;
+	uint32_t		overrideTG;
 } settingsStruct_t;
 
 extern settingsStruct_t nonVolatileSettings;
-extern bool settingsIsTgOverride;
 extern struct_codeplugChannel_t *currentChannelData;
 
 void settingsSaveSettings();

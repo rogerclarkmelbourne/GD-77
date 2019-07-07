@@ -70,7 +70,7 @@ static void handleEvent(int buttons, int keys, int events)
 	else if ((keys & KEY_GREEN)!=0)
 	{
 		trxTalkGroup = atoi(digits);
-		settingsIsTgOverride=true;
+		nonVolatileSettings.overrideTG = trxTalkGroup;
 		menuSystemPopAllAndDisplayRootMenu();
 	}
 	else if ((keys & KEY_HASH)!=0)

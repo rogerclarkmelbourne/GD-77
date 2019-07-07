@@ -29,9 +29,8 @@ const int BAND_UHF_MIN 	= 4300000;
 const int BAND_UHF_MAX 	= 4500000;
 
 static const int STORAGE_BASE_ADDRESS = 0xFF00;
-static const int STORAGE_MAGIC_NUMBER = 0x4717;
+static const int STORAGE_MAGIC_NUMBER = 0x4718;
 
-bool settingsIsTgOverride=false;
 settingsStruct_t nonVolatileSettings;
 struct_codeplugChannel_t *currentChannelData;
 
@@ -76,6 +75,7 @@ void settingsRestoreDefaultSettings()
 	nonVolatileSettings.displayBacklightPercentage=100U;// 100% brightness
 	nonVolatileSettings.displayInverseVideo=0;// Not inverse video
 	nonVolatileSettings.txPower=1000;
+	nonVolatileSettings.overrideTG=0;// 0 = No override
 	initVFOChannel();
 	currentChannelData = &nonVolatileSettings.vfoChannel;// Set the current channel data to point to the VFO data since the default screen will be the VFO
 	settingsSaveSettings();
