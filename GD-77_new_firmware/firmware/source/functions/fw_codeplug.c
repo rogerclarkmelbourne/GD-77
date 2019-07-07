@@ -20,6 +20,8 @@
 #include "fw_SPI_Flash.h"
 
 const int CODEPLUG_ADDR_EX_ZONE_BASIC = 0x8000;
+const int CODEPLUG_ADDR_EX_ZONE_INUSE_PACKED_DATA =  0x8010;
+const int CODEPLUG_ADDR_EX_ZONE_INUSE_PACKED_DATA_SIZE =  32;
 const int CODEPLUG_ADDR_EX_ZONE_LIST =  0x8030;
 const int CODEPLUG_ZONE_DATA_SIZE = 48;
 const int CODEPLUG_ZONE_MAX_COUNT = 250;
@@ -75,20 +77,15 @@ void codeplugUtilConvertBufToString(char *inBuf,char *outBuf,int len)
 
 int codeplugZonesGetCount()
 {
-	struct_codeplugZone_t buf;
-	int z;
+	uint8_t buf[CODEPLUG_ADDR_EX_ZONE_INUSE_PACKED_DATA_SIZE];
+	int numZones = 0;
 
-	for(z=0;z<CODEPLUG_ZONE_MAX_COUNT;z++)
+	EEPROM_Read(CODEPLUG_ADDR_EX_ZONE_INUSE_PACKED_DATA, (uint8_t*)&buf, CODEPLUG_ADDR_EX_ZONE_INUSE_PACKED_DATA_SIZE);
+	for(int i=0;i<CODEPLUG_ADDR_EX_ZONE_INUSE_PACKED_DATA_SIZE;i++)
 	{
-		// Note. The struct contains an additional field not stored in the memory, hence why the use of CODEPLUG_ZONE_DATA_SIZE instead of
-		// sizeof(struct_codeplugZone_t)
-		EEPROM_Read(CODEPLUG_ADDR_EX_ZONE_LIST + (z * CODEPLUG_ZONE_DATA_SIZE), (uint8_t*)&buf, CODEPLUG_ZONE_DATA_SIZE);
-		if (buf.name[0] == 0xff || buf.channels[0]==0 )
-		{
-			return (z-1);
-		}
+		numZones += __builtin_popcount(buf[i]);
 	}
-	return z;
+	return numZones;
 }
 
 void codeplugZoneGetDataForIndex(int index,struct_codeplugZone_t *returnBuf)

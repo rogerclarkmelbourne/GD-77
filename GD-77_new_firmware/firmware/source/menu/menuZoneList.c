@@ -28,7 +28,7 @@ int menuZoneList(int buttons, int keys, int events, bool isFirstRun)
 	if (isFirstRun)
 	{
 		gMenusEndIndex = codeplugZonesGetCount();
-		gMenusCurrentItemIndex = nonVolatileSettings.currentZone;
+		gMenusCurrentItemIndex = 0;
 		updateScreen();
 	}
 	else
