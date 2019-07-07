@@ -21,10 +21,13 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
-
 #include "fw_i2c.h"
+
+#define AT1846_BYTES_PER_COMMAND 3
 
 void I2C_AT1846S_init();
 void I2C_AT1846_Postinit();
+void I2C_AT1846_SetBandwidth(int bandWidthkHzx10);
+
 
 #endif /* _FW_AT1846S_H_ */
