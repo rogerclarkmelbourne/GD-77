@@ -23,7 +23,7 @@ static void updateScreen();
 static void handleEvent(int buttons, int keys, int events);
 static const int NUM_MENUS=4;
 static bool	doFactoryReset;
-static const int MAX_SAFE_POWER = 2700;
+static const int MAX_SAFE_POWER = 3000;// Note 3000 gives about 5.5W on 144Mhz on one of Roger's radios.
 
 int menuUtilities(int buttons, int keys, int events, bool isFirstRun)
 {
