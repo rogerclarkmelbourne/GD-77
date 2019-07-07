@@ -124,6 +124,48 @@ const uint8_t AT1846FM25kHzSettings[][AT1846_BYTES_PER_COMMAND] = {
 		{0x30, 0x70, 0x06}, // filter_band_sel + band_mode_sel = 25kHz
 		};
 
+const uint8_t AT1846FMSettings[][AT1846_BYTES_PER_COMMAND] = {
+		// Settings from the official firmware
+		{0x30,0x40,0x06},
+		{0x05,0x87,0x63},
+		{0x30,0x40,0x26},
+		{0x0a,0x7b,0xa0},
+		{0x41,0x47,0x31},
+		{0x44,0x05,0xcc},
+		{0x59,0x09,0xd2},
+		{0x48,0x1a,0x32},
+		{0x60,0x1a,0x32},
+		{0x3f,0x29,0xd1},
+		{0x0a,0x7b,0xa0},
+		{0x33,0x44,0xa5},
+		{0x41,0x44,0x31},
+		{0x42,0x10,0xf0},
+		{0x43,0x00,0xa9},
+		{0x4a,0x34,0x80},
+		{0x4b,0x00,0x00},
+		{0x4c,0x0a,0xe3},
+		{0x4e,0x20,0x82},
+		{0x4a,0x00,0x00},
+		{0x4d,0x15,0x5e},
+		{0x4e,0x20,0x82},
+		{0x3a,0x40,0xca},
+		{0x05,0x87,0x63},
+		{0x30,0x40,0x06},
+		{0x30,0x40,0x26},
+
+		// Settings that seem to be captured incorrectly from the official firmware
+		{0x58, 0xBC, 0x7D}, // Enable some filters for FM e.g. de-emphasis / pre-emphasis
+		{0x44, 0x06, 0x80} // set internal volume to 50%
+		};
+
+const uint8_t AT1846DMRSettings[][AT1846_BYTES_PER_COMMAND] = {
+		{0x33, 0x45, 0xF5}, // agc number (recommended value)
+		{0x41, 0x47, 0x31}, // Digital voice gain, (bits 6:0) however default value is supposed to be 0x4006 hence some bits are being set outside the documented range
+		{0x42, 0x10, 0x36}, // RDA1846 lists this as Vox Shut threshold
+		{0x58, 0xBC, 0xFD}, // Disable all filters in DMR mode
+		{0x44, 0x06, 0xCC} // set internal volume to 80%
+		};
+
 void I2C_AT1846S_send_Settings(const uint8_t settings[][3],int numSettings)
 {
 	for(int i=0;i<numSettings;i++)
@@ -170,5 +212,16 @@ void I2C_AT1846_SetBandwidth(int bandWidthkHzx10)
 		case 250:			// 25 kHz settings
 			I2C_AT1846S_send_Settings(AT1846FM25kHzSettings,sizeof(AT1846FM25kHzSettings)/AT1846_BYTES_PER_COMMAND);
 			break;
+	}
+}
+void I2C_AT1846_SetMode(int theMode)
+{
+	if (theMode == RADIO_MODE_ANALOG)
+	{
+		I2C_AT1846S_send_Settings(AT1846FMSettings, sizeof(AT1846FMSettings)/AT1846_BYTES_PER_COMMAND);
+	}
+	else
+	{
+		I2C_AT1846S_send_Settings(AT1846DMRSettings, sizeof(AT1846DMRSettings)/AT1846_BYTES_PER_COMMAND);
 	}
 }

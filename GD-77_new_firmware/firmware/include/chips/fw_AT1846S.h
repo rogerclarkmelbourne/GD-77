@@ -28,6 +28,7 @@
 void I2C_AT1846S_init();
 void I2C_AT1846_Postinit();
 void I2C_AT1846_SetBandwidth(int bandWidthkHzx10);
+void I2C_AT1846_SetMode(int theMode);
 
 
 #endif /* _FW_AT1846S_H_ */

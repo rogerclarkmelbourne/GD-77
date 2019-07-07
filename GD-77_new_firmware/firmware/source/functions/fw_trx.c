@@ -53,10 +53,9 @@ void trxSetMode(int theMode)
 	{
 		currentMode=theMode;
 
+		I2C_AT1846_SetMode(currentMode);
 		if (currentMode == RADIO_MODE_ANALOG)
 		{
-			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x58, 0xBC, 0x7D); // Enable some filters for FM e.g. de-emphasis / pre-emphasis
-			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x44, 0x06, 0x80); // set internal volume to 50%
 			GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 1); // connect AT1846S audio to speaker
 			terminate_sound();
 			terminate_digital();
@@ -64,8 +63,6 @@ void trxSetMode(int theMode)
 		else
 		{
 			trxSetBandWidth(125);// DMR is always 12.5kHz
-			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x58, 0xBC, 0xFD); // Disable all filters in DMR mode
-			write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x44, 0x06, 0xCC); // set internal volume to 80%
 			GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 0); // connect AT1846S audio to HR_C6000
 			init_sound();
 			init_digital();
