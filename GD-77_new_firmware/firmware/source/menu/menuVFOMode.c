@@ -55,11 +55,29 @@ int menuVFOMode(int buttons, int keys, int events, bool isFirstRun)
 		trxSetFrequency(currentChannelData->rxFreq);
 		trxSetMode(currentChannelData->chMode);
 		trxSetPower(nonVolatileSettings.txPower);
-		codeplugRxGroupGetDataForIndex(currentChannelData->rxGroupList,&rxGroupData);
-		codeplugContactGetDataForIndex(rxGroupData.contacts[currentIndexInTRxGroup],&contactData);
+
 		if (nonVolatileSettings.overrideTG == 0)
 		{
-			trxTalkGroup = contactData.tgNumber;
+			if (currentChannelData->rxGroupList != 0)
+			{
+				codeplugRxGroupGetDataForIndex(currentChannelData->rxGroupList,&rxGroupData);
+				codeplugContactGetDataForIndex(rxGroupData.contacts[currentIndexInTRxGroup],&contactData);
+
+				// Check whether the contact data seems valid
+				if (contactData.name[0] == 0 || contactData.tgNumber ==0 || contactData.tgNumber > 9999999)
+				{
+					nonVolatileSettings.overrideTG = 9;// If the VFO does not have an Rx Group list assigned to it. We can't get a TG from the codeplug. So use TG 9.
+					trxTalkGroup = nonVolatileSettings.overrideTG;
+				}
+				else
+				{
+					trxTalkGroup = contactData.tgNumber;
+				}
+			}
+			else
+			{
+				nonVolatileSettings.overrideTG = 9;// If the VFO does not have an Rx Group list assigned to it. We can't get a TG from the codeplug. So use TG 9.
+			}
 		}
 		else
 		{
