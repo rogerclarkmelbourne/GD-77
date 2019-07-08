@@ -55,11 +55,33 @@ int menuVFOMode(int buttons, int keys, int events, bool isFirstRun)
 		trxSetFrequency(currentChannelData->rxFreq);
 		trxSetMode(currentChannelData->chMode);
 		trxSetPower(nonVolatileSettings.txPower);
-		codeplugRxGroupGetDataForIndex(currentChannelData->rxGroupList,&rxGroupData);
-		codeplugContactGetDataForIndex(rxGroupData.contacts[currentIndexInTRxGroup],&contactData);
-		if (settingsIsTgOverride==false)
+
+		if (nonVolatileSettings.overrideTG == 0)
 		{
-			trxTalkGroup = contactData.tgNumber;
+			if (currentChannelData->rxGroupList != 0)
+			{
+				codeplugRxGroupGetDataForIndex(currentChannelData->rxGroupList,&rxGroupData);
+				codeplugContactGetDataForIndex(rxGroupData.contacts[currentIndexInTRxGroup],&contactData);
+
+				// Check whether the contact data seems valid
+				if (contactData.name[0] == 0 || contactData.tgNumber ==0 || contactData.tgNumber > 9999999)
+				{
+					nonVolatileSettings.overrideTG = 9;// If the VFO does not have an Rx Group list assigned to it. We can't get a TG from the codeplug. So use TG 9.
+					trxTalkGroup = nonVolatileSettings.overrideTG;
+				}
+				else
+				{
+					trxTalkGroup = contactData.tgNumber;
+				}
+			}
+			else
+			{
+				nonVolatileSettings.overrideTG = 9;// If the VFO does not have an Rx Group list assigned to it. We can't get a TG from the codeplug. So use TG 9.
+			}
+		}
+		else
+		{
+			trxTalkGroup = nonVolatileSettings.overrideTG;
 		}
 		reset_freq_enter_digits();
 		menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
@@ -101,7 +123,7 @@ static void updateScreen()
 			if (trxGetMode() == RADIO_MODE_DIGITAL)
 			{
 
-				if (settingsIsTgOverride)
+				if (nonVolatileSettings.overrideTG != 0)
 				{
 					sprintf(buffer,"TG %d",trxTalkGroup);
 				}
@@ -269,7 +291,7 @@ static void handleEvent(int buttons, int keys, int events)
 			}
 			codeplugContactGetDataForIndex(rxGroupData.contacts[currentIndexInTRxGroup],&contactData);
 
-			settingsIsTgOverride=false;
+			nonVolatileSettings.overrideTG = 0;// setting the override TG to 0 indicates the TG is not overridden
 			trxTalkGroup = contactData.tgNumber;
 
 			menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
@@ -285,7 +307,7 @@ static void handleEvent(int buttons, int keys, int events)
 			}
 
 			codeplugContactGetDataForIndex(rxGroupData.contacts[currentIndexInTRxGroup],&contactData);
-			settingsIsTgOverride=false;
+			nonVolatileSettings.overrideTG = 0;// setting the override TG to 0 indicates the TG is not overridden
 			trxTalkGroup = contactData.tgNumber;
 
 			menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;

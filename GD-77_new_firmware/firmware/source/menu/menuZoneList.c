@@ -28,7 +28,7 @@ int menuZoneList(int buttons, int keys, int events, bool isFirstRun)
 	if (isFirstRun)
 	{
 		gMenusEndIndex = codeplugZonesGetCount();
-		gMenusCurrentItemIndex = nonVolatileSettings.currentZone;
+		gMenusCurrentItemIndex = 0;
 		updateScreen();
 	}
 	else
@@ -96,6 +96,7 @@ static void handleEvent(int buttons, int keys, int events)
 	}
 	else if ((keys & KEY_GREEN)!=0)
 	{
+		nonVolatileSettings.overrideTG = 0; // remove any TG override
 		nonVolatileSettings.currentZone = gMenusCurrentItemIndex;
 		nonVolatileSettings.currentChannelIndexInZone = 0;// Since we are switching zones the channel index should be reset
 
