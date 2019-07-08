@@ -42,6 +42,7 @@ typedef struct settingsStruct
 	uint16_t		txPower;
 	struct_codeplugChannel_t vfoChannel;
 	uint32_t		overrideTG;
+	uint8_t			useCalibration;
 } settingsStruct_t;
 
 extern settingsStruct_t nonVolatileSettings;

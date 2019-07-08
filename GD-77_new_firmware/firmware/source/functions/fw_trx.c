@@ -263,6 +263,13 @@ void trxUpdateC6000Calibration()
 {
 	int band_offset=0x00000000;
 	int freq_offset=0x00000000;
+
+	if (nonVolatileSettings.useCalibration==0)
+	{
+		return;
+	}
+
+
 	if (check_frequency_is_VHF(currentFrequency))
 	{
 		band_offset=0x00000070;
