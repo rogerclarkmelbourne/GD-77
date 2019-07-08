@@ -101,11 +101,11 @@ static void updateScreen()
 		case 4:
 			if (nonVolatileSettings.useCalibration!=0)
 			{
-				strcpy(buf,"Calibation:ON");
+				strcpy(buf,"Calibration:ON");
 			}
 			else
 			{
-				strcpy(buf,"Calibation:OFF");
+				strcpy(buf,"Calibration:OFF");
 			}
 
 			break;
