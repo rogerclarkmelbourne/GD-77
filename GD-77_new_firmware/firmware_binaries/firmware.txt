@@ -2,6 +2,13 @@ Changelog
 =========
 
 V0.2.3 <work in progress>:
+- Additional stuff by Roger Clark, VK3KYY / G4KYF:
+  - Add windows comm port driver installer.
+  - Changed maximum PA drive level so that max power is around 4.9W on 2m and 3W on 70cm + increase max allowable Tx power a little to allow testers more flexibility.
+  - Change AT1846 functions to use data tables of register settings, to make it easier to change and more compact.
+  - Save the override TG in the settings.
+  - Increase LastHeard history from 8 to 16 after a request from a tester.
+  - Fix problem with the Zone menu, where Zones deleted by the CPS still appeared in the list, also changed the Zone menu screen to fix a bug caused the first zone name to be initially shown for all Zones.
 
 V0.2.2:
 - Update TG even if the DMRID did not change.
