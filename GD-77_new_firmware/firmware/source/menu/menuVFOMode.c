@@ -26,7 +26,7 @@ enum VFO_SELECTED_FREQUENCY_INPUT  {VFO_SELECTED_FREQUENCY_INPUT_RX , VFO_SELECT
 
 static char freq_enter_digits[7] = { '-', '-', '-', '-', '-', '-', '-' };
 static int freq_enter_idx = 0;
-static int selectedFreq = VFO_SELECTED_FREQUENCY_INPUT_TX;
+static int selectedFreq = VFO_SELECTED_FREQUENCY_INPUT_RX;
 
 static struct_codeplugRxGroup_t rxGroupData;
 static struct_codeplugContact_t contactData;
@@ -137,14 +137,14 @@ static void updateScreen()
 
 			if (freq_enter_idx==0)
 			{
-				val_before_dp = currentChannelData->txFreq/10000;
-				val_after_dp = currentChannelData->txFreq - val_before_dp*10000;
-				sprintf(buffer,"%cT %d.%04d MHz", (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_TX)?'>':' ',val_before_dp, val_after_dp);
-				UC1701_printCentered(32, buffer,UC1701_FONT_GD77_8x16);
-
 				val_before_dp = currentChannelData->rxFreq/10000;
 				val_after_dp = currentChannelData->rxFreq - val_before_dp*10000;
 				sprintf(buffer,"%cR %d.%04d MHz", (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_RX)?'>':' ',val_before_dp, val_after_dp);
+				UC1701_printCentered(32, buffer,UC1701_FONT_GD77_8x16);
+
+				val_before_dp = currentChannelData->txFreq/10000;
+				val_after_dp = currentChannelData->txFreq - val_before_dp*10000;
+				sprintf(buffer,"%cT %d.%04d MHz", (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_TX)?'>':' ',val_before_dp, val_after_dp);
 				UC1701_printCentered(48, buffer,UC1701_FONT_GD77_8x16);
 			}
 			else
@@ -152,11 +152,11 @@ static void updateScreen()
 				sprintf(buffer,"%c%c%c.%c%c%c%c MHz", freq_enter_digits[0], freq_enter_digits[1], freq_enter_digits[2], freq_enter_digits[3], freq_enter_digits[4], freq_enter_digits[5], freq_enter_digits[6] );
 				if (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_TX)
 				{
-					UC1701_printCentered(32, buffer,UC1701_FONT_GD77_8x16);
+					UC1701_printCentered(48, buffer,UC1701_FONT_GD77_8x16);
 				}
 				else
 				{
-					UC1701_printCentered(48, buffer,UC1701_FONT_GD77_8x16);
+					UC1701_printCentered(32, buffer,UC1701_FONT_GD77_8x16);
 				}
 			}
 
@@ -257,7 +257,7 @@ static void handleEvent(int buttons, int keys, int events)
 		{
 			if (buttons & BUTTON_SK2 )
 			{
-				selectedFreq = VFO_SELECTED_FREQUENCY_INPUT_RX;
+				selectedFreq = VFO_SELECTED_FREQUENCY_INPUT_TX;
 			}
 			else
 			{
@@ -269,7 +269,7 @@ static void handleEvent(int buttons, int keys, int events)
 		{
 			if (buttons & BUTTON_SK2 )
 			{
-				selectedFreq = VFO_SELECTED_FREQUENCY_INPUT_TX;
+				selectedFreq = VFO_SELECTED_FREQUENCY_INPUT_RX;
 			}
 			else
 			{
