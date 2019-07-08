@@ -54,6 +54,7 @@ int menuVFOMode(int buttons, int keys, int events, bool isFirstRun)
 		currentChannelData = &nonVolatileSettings.vfoChannel;
 		trxSetFrequency(currentChannelData->rxFreq);
 		trxSetMode(currentChannelData->chMode);
+		trxSetDMRColourCode(currentChannelData->rxColor);
 		trxSetPower(nonVolatileSettings.txPower);
 
 		if (nonVolatileSettings.overrideTG == 0)
