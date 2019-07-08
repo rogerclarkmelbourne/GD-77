@@ -2,6 +2,7 @@ Changelog
 =========
 
 V0.2.3 <work in progress>:
+- Added first set of frequency and band dependent HR-C6000 calibration parameters.
 - Additional stuff by Roger Clark, VK3KYY / G4KYF:
   - Add windows comm port driver installer.
   - Changed maximum PA drive level so that max power is around 4.9W on 2m and 3W on 70cm + increase max allowable Tx power a little to allow testers more flexibility.
