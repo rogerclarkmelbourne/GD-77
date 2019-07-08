@@ -1,5 +1,6 @@
 /*
  * Copyright (C)2019 	Roger Clark, VK3KYY / G4KYF
+ * 				and 	Kai Ludwig, DG4KLU
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,3 +21,38 @@
 
 calibrationStruct_t calibrationVHF;
 calibrationStruct_t calibrationUHF;
+
+void read_val_DACDATA_shift(int offset, uint8_t* val_shift)
+{
+	uint8_t buffer[1];
+	SPI_Flash_read(EXT_DACDATA_shift+offset,buffer,1);
+
+	*val_shift=buffer[0]+1;
+	if (*val_shift>31)
+	{
+		*val_shift=31;
+	}
+	*val_shift|=0x80;
+}
+
+void read_val_twopoint_mod(int offset, uint8_t* val_0x47, uint8_t* val_0x48)
+{
+	uint8_t buffer[2];
+	SPI_Flash_read(EXT_twopoint_mod+offset,buffer,2);
+	*val_0x47=buffer[0];
+	*val_0x48=buffer[1];
+}
+
+void read_val_Q_MOD2_offset(int offset, uint8_t* val_0x04)
+{
+	uint8_t buffer[1];
+	SPI_Flash_read(EXT_Q_MOD2_offset+offset,buffer,1);
+	*val_0x04=buffer[0];
+}
+
+void read_val_phase_reduce(int offset, uint8_t* val_0x46)
+{
+	uint8_t buffer[1];
+	SPI_Flash_read(EXT_phase_reduce+offset,buffer,1);
+	*val_0x46=buffer[0];
+}

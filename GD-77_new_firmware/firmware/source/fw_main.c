@@ -85,6 +85,8 @@ void fw_main_task()
     // Init DAC
     dac_init();
 
+    SPI_Flash_init();
+
     // Init AT1846S
     I2C_AT1846S_init();
 
@@ -100,8 +102,6 @@ void fw_main_task()
 
     // Init HR-C6000 interrupts
     init_HR_C6000_interrupts();
-
-    SPI_Flash_init();
 
     // Small startup delay after initialization to stabilize system
     vTaskDelay(portTICK_PERIOD_MS * 500);

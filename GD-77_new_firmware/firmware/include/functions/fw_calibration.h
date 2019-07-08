@@ -1,5 +1,6 @@
 /*
  * Copyright (C)2019 Roger Clark. VK3KYY / G4KYF
+ * 				and  Kai Ludwig, DG4KLU
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,9 +16,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-#ifndef _FW_MENU_LEGACY_CODEPLUG_UTILS_H_
-#define _FW_MENU_LEGACY_CODEPLUG_UTILS_H_
+#ifndef _FW_CALIBRATION_H_
+#define _FW_CALIBRATION_H_
+
 #include "fw_common.h"
+#include "fw_SPI_Flash.h"
 
 typedef struct calibrationStruct
 {
@@ -27,5 +30,15 @@ typedef struct calibrationStruct
 
 extern calibrationStruct_t calibrationVHF;
 extern calibrationStruct_t calibrationUHF;
+
+#define EXT_DACDATA_shift 0x0008F05D
+#define EXT_twopoint_mod  0x0008F008
+#define EXT_Q_MOD2_offset 0x0008F00A
+#define EXT_phase_reduce  0x0008F055
+
+void read_val_DACDATA_shift(int offset, uint8_t* val_shift);
+void read_val_twopoint_mod(int offset, uint8_t* val_0x47, uint8_t* val_0x48);
+void read_val_Q_MOD2_offset(int offset, uint8_t* val_0x04);
+void read_val_phase_reduce(int offset, uint8_t* val_0x46);
 
 #endif

@@ -19,6 +19,7 @@
 #include "fw_trx.h"
 #include "fw_HR-C6000.h"
 #include "fw_settings.h"
+#include "fw_calibration.h"
 #include "fw_AT1846S.h"
 
 bool open_squelch=false;
@@ -107,6 +108,8 @@ void trxSetFrequency(int frequency)
 	if (currentFrequency!=frequency)
 	{
 		currentFrequency=frequency;
+
+		trxUpdateC6000Calibration();
 
 		if ((currentMode == RADIO_MODE_ANALOG) && (!open_squelch))
 		{
@@ -254,4 +257,100 @@ void trxSetBandWidth(int bandWidthkHzx10)
 	currentBandWidth = bandWidthkHzx10;
 
 	I2C_AT1846_SetBandwidth(bandWidthkHzx10);
+}
+
+void trxUpdateC6000Calibration()
+{
+	int band_offset=0x00000000;
+	int freq_offset=0x00000000;
+	if (check_frequency_is_VHF(currentFrequency))
+	{
+		band_offset=0x00000070;
+		if (currentFrequency<1360000)
+		{
+			freq_offset=0x00000000;
+		}
+		else if (currentFrequency<1400000)
+		{
+			freq_offset=0x00000001;
+		}
+		else if (currentFrequency<1450000)
+		{
+			freq_offset=0x00000002;
+		}
+		else if (currentFrequency<1500000)
+		{
+			freq_offset=0x00000003;
+		}
+		else if (currentFrequency<1550000)
+		{
+			freq_offset=0x00000004;
+		}
+		else if (currentFrequency<1600000)
+		{
+			freq_offset=0x00000005;
+		}
+		else if (currentFrequency<1650000)
+		{
+			freq_offset=0x00000006;
+		}
+		else
+		{
+			freq_offset=0x00000007;
+		}
+	}
+	else if (check_frequency_is_UHF(currentFrequency))
+	{
+		band_offset=0x00000000;
+		if (currentFrequency<4050000)
+		{
+			freq_offset=0x00000000;
+		}
+		else if (currentFrequency<4150000)
+		{
+			freq_offset=0x00000001;
+		}
+		else if (currentFrequency<4250000)
+		{
+			freq_offset=0x00000002;
+		}
+		else if (currentFrequency<4350000)
+		{
+			freq_offset=0x00000003;
+		}
+		else if (currentFrequency<4450000)
+		{
+			freq_offset=0x00000004;
+		}
+		else if (currentFrequency<4550000)
+		{
+			freq_offset=0x00000005;
+		}
+		else if (currentFrequency<4650000)
+		{
+			freq_offset=0x00000006;
+		}
+		else
+		{
+			freq_offset=0x00000007;
+		}
+	}
+
+	uint8_t val_shift;
+	read_val_DACDATA_shift(band_offset,&val_shift);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x37, val_shift); // DACDATA shift (LIN_VOL)
+
+	uint8_t val_0x04;
+	read_val_Q_MOD2_offset(band_offset,&val_0x04);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x04, val_0x04); // MOD2 offset
+
+	uint8_t val_0x46;
+	read_val_phase_reduce(band_offset+freq_offset,&val_0x46);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x46, val_0x46); // phase reduce
+
+	uint8_t val_0x47;
+	uint8_t val_0x48;
+	read_val_twopoint_mod(band_offset,&val_0x47, &val_0x48);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x48, val_0x48); // bit 0 to 1 = upper 2 bits of 10-bit twopoint mod
+	write_SPI_page_reg_byte_SPI0(0x04, 0x47, val_0x47); // bit 0 to 7 = lower 8 bits of 10-bit twopoint mod
 }
