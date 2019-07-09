@@ -206,12 +206,26 @@ static void update_frequency(int frequency)
 {
 	if (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_TX)
 	{
-		currentChannelData->txFreq=frequency;
+		if (check_frequency(frequency))
+		{
+			currentChannelData->txFreq = frequency;
+			set_melody(melody_ACK_beep);
+		}
 	}
 	else
 	{
-		currentChannelData->rxFreq=frequency;
-		trxSetFrequency(frequency);
+		int deltaFrequency = frequency - currentChannelData->rxFreq;
+		if (check_frequency(frequency) && check_frequency(currentChannelData->txFreq + deltaFrequency))
+		{
+			currentChannelData->rxFreq = frequency;
+			currentChannelData->txFreq = currentChannelData->txFreq + deltaFrequency;
+			trxSetFrequency(frequency);
+			set_melody(melody_ACK_beep);
+		}
+		else
+		{
+			set_melody(melody_ERROR_beep);
+		}
 	}
 
 }
@@ -384,7 +398,7 @@ static void handleEvent(int buttons, int keys, int events)
 				{
 					update_frequency(tmp_frequency);
 					reset_freq_enter_digits();
-	        	    set_melody(melody_ACK_beep);
+//	        	    set_melody(melody_ACK_beep);
 				}
 				else
 				{
@@ -400,19 +414,27 @@ static void handleEvent(int buttons, int keys, int events)
 
 static void stepFrequency(int increment)
 {
-int tmp_frequency;
+int tmp_frequencyTx;
+int tmp_frequencyRx;
 
 	if (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_TX)
 	{
-		tmp_frequency  = currentChannelData->txFreq + increment;
+		tmp_frequencyTx  = currentChannelData->txFreq + increment;
+		tmp_frequencyRx  = currentChannelData->rxFreq;// Needed later for the band limited checking
 	}
 	else
 	{
-		tmp_frequency  = currentChannelData->rxFreq + increment;
+		tmp_frequencyRx  = currentChannelData->rxFreq + increment;
+		tmp_frequencyTx  = currentChannelData->txFreq + increment;
 	}
-	if (check_frequency(tmp_frequency))
+	if (check_frequency(tmp_frequencyRx) && check_frequency(tmp_frequencyTx))
 	{
-		update_frequency(tmp_frequency);
+		currentChannelData->txFreq = tmp_frequencyTx;
+		currentChannelData->rxFreq =  tmp_frequencyRx;
+		if (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_RX)
+		{
+			trxSetFrequency(currentChannelData->rxFreq);
+		}
 	}
 	else
 	{
