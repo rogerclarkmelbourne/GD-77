@@ -411,7 +411,7 @@ void tick_HR_C6000()
 		{
 			txstartdelay++;
 		}
-		else
+		else // Start TX (first step)
 		{
 			txstopdelay=300;
 			init_codec();
@@ -428,6 +428,7 @@ void tick_HR_C6000()
 		}
 	}
 
+	// Timeout interrupt
 	if (slot_state != DMR_STATE_IDLE) //0
 	{
 		if (int_timeout<200)
@@ -451,33 +452,33 @@ void tick_HR_C6000()
 
 	if (tmp_int_ts)
 	{
-		// Transmission start/stop state machine
+		// RX/TX state machine
 		switch (slot_state)
 		{
-		case DMR_STATE_RX_1://1: // Start RX of transmission (first step)
+		case DMR_STATE_RX_1: // Start RX (first step)
 			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x00);
 			GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 1);
 		    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
 			slot_state = DMR_STATE_RX_2;
 			break;
-		case DMR_STATE_RX_2://2 : // Start RX of transmission (second step)
+		case DMR_STATE_RX_2: // Start RX (second step)
 			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x50);
 			slot_state = DMR_STATE_RX_1;
 			break;
-		case DMR_STATE_RX_END://3: // Stop RX of transmission
+		case DMR_STATE_RX_END: // Stop RX
 			init_digital_DMR_RX();
 			GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 0);
 		    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
 			slot_state = DMR_STATE_IDLE;
 			break;
-		case DMR_STATE_TX_START://11:
+		case DMR_STATE_TX_START: // Start TX (second step)
 			tick_TXsoundbuffer();
 			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x80);
 			write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x10);
 			tx_sequence=0;
 			slot_state = DMR_STATE_TX_1;
 			break;
-		case DMR_STATE_TX_1://12:
+		case DMR_STATE_TX_1: // Ongoing TX (inactive timeslot)
 			if (trxIsTransmitting==false)
 			{
 				slot_state = DMR_STATE_TX_END_1; // only exit here to ensure staying in the correct timeslot
@@ -488,7 +489,7 @@ void tick_HR_C6000()
 				slot_state = DMR_STATE_TX_2;
 			}
 			break;
-		case DMR_STATE_TX_2://13:
+		case DMR_STATE_TX_2: // Ongoing TX (active timeslot)
 			tick_TXsoundbuffer();
 			tick_codec_encode(tmp_ram);
 			write_SPI_page_reg_bytearray_SPI1(0x03, 0x00, tmp_ram, 27);
@@ -521,12 +522,12 @@ void tick_HR_C6000()
 			}
 			slot_state = DMR_STATE_TX_1;
 			break;
-		case DMR_STATE_TX_END_1://14:
+		case DMR_STATE_TX_END_1: // Stop TX (first step)
 			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x80);
 			write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x20);
 			slot_state = DMR_STATE_TX_END_2;
 			break;
-		case DMR_STATE_TX_END_2://15:
+		case DMR_STATE_TX_END_2: // Stop TX (second step)
 			write_SPI_page_reg_byte_SPI0(0x04, 0x40, 0xC3);
 
 			init_digital_DMR_RX();
@@ -535,10 +536,9 @@ void tick_HR_C6000()
 			break;
 		}
 
-#warning This code probably checks if the radio is transmitting or receiving. We may need a flag for his, as its not an ideal use of enums
+		// Timeout interrupted RX
     	if ((slot_state < DMR_STATE_TX_START) && (tick_cnt<10))
     	{
-    		// Timeout interrupted transmission
     		tick_cnt++;
             if (tick_cnt==10)
             {
@@ -582,7 +582,7 @@ void tick_HR_C6000()
 
     		if (tmp_val_0x82 & 0x10) // InterLateEntry
     		{
-    			// Late entry into ongoing transmission
+    			// Late entry into ongoing RX
                 if ((slot_state == DMR_STATE_IDLE) && (tmp_ram[0]==0))
                 {
                 	slot_state = DMR_STATE_RX_1;
@@ -610,10 +610,10 @@ void tick_HR_C6000()
 
     		if (tmp_val_0x82 & 0x08) // InterRecvData
     		{
-    			// Reset transmission timeout
+    			// Reset RX timeout
     			tick_cnt = 0;
 
-    			// Start or stop transmission
+    			// Start RX
     			int rxdt = (tmp_val_0x51 >> 4) & 0x0f;
     			int sc = (tmp_val_0x51 >> 0) & 0x03;
                 if ((slot_state == DMR_STATE_IDLE) && (sc==2) && (rxdt==1) && (tmp_ram[0]==0))
@@ -626,6 +626,7 @@ void tick_HR_C6000()
             	SEGGER_RTT_printf(0, ">>> START\r\n");
 #endif
                 }
+    			// Stop RX
                 if ((sc==2) && (rxdt==2) && (tmp_ram[0]==0))
                 {
                 	slot_state = DMR_STATE_RX_END;
