@@ -52,5 +52,6 @@ uint16_t trxGetPower();
 void trxSetBandWidth(int bandWidthkHzx10);
 void trxUpdateC6000Calibration();
 void trxSetDMRColourCode(int colourCode);
+int trxGetDMRColourCode();
 
 #endif /* _FW_TRX_H_ */

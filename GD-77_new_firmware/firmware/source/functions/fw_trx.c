@@ -40,6 +40,7 @@ const int RADIO_UHF_MAX			=	5200000;
 static int currentMode = RADIO_MODE_NONE;
 static int currentBandWidth=0;
 static int currentFrequency =1440000;
+static int currentCC =1;
 static uint8_t squelch = 0x00;
 static const uint8_t SQUELCH_SETTINGS[] = {45,45,45};
 
@@ -365,4 +366,10 @@ void trxUpdateC6000Calibration()
 void trxSetDMRColourCode(int colourCode)
 {
 	write_SPI_page_reg_byte_SPI0(0x04, 0x1F, (colourCode << 4)); // DMR Colour code in upper 4 bits.
+	currentCC = colourCode;
+}
+
+int trxGetDMRColourCode()
+{
+	return currentCC;
 }
