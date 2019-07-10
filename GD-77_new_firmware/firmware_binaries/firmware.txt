@@ -21,6 +21,7 @@ V0.2.3 <work in progress>:
   - Swap position of Tx and Rx freqs on the VFO screen.
   - Changed VFO functionality, as suggested by Colin G4EML. Changing Rx freq also changes Tx freq so offet is retained. Changing Tx freq only changes the Tx freq.
   - Improve Talker Alias display, by putting only the callsign on the first TA display line.
+  - Fix codeplug channel read issue for channel index > 256.
 
 V0.2.2:
 - Update TG even if the DMRID did not change.
