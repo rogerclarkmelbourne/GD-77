@@ -116,11 +116,11 @@ void codeplugChannelGetDataForIndex(int index, struct_codeplugChannel_t *channel
 	{
 		int flashReadPos = CODEPLUG_ADDR_CHANNEL_FLASH;
 
-		if (index>255)
-		{
-			flashReadPos+=16;// some sort of break in the blocks after the first 255. Not sure if this happens every 256 or just in the first (arrgghhh)
-		}
-		index -= 128;
+		index -= 128;// First 128 channels are in the EEPOM, so subtract 128 from the number when looking in the Flash
+
+		// Every 128 bytes there seem to be 16 bytes gaps. I don't know why,bits since 16*8 = 128 bits, its likely they are flag bytes to indicate which channel in the next block are in use
+		flashReadPos += 16 * (index/128);// we just need to skip over that these flag bits when calculating the position of the channel data in memory
+
 		SPI_Flash_read(flashReadPos + index*sizeof(struct_codeplugChannel_t),(uint8_t *)channelBuf,sizeof(struct_codeplugChannel_t));
 	}
 
