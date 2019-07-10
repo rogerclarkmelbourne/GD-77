@@ -395,7 +395,9 @@ void tick_HR_C6000()
 			spi_tx[7] = (trxDMRID >> 8) & 0xFF;
 			spi_tx[8] = (trxDMRID >> 0) & 0xFF;
 			write_SPI_page_reg_bytearray_SPI0(0x02, 0x00, spi_tx, 0x0c);
-			write_SPI_page_reg_byte_SPI0(0x04, 0x40, 0xA3);
+			write_SPI_page_reg_byte_SPI0(0x04, 0x40, 0xE3); // TX and RX enable
+			write_SPI_page_reg_byte_SPI0(0x04, 0x21, 0xA2); // reset vocoder codingbuffer
+			write_SPI_page_reg_byte_SPI0(0x04, 0x22, 0x86); // I2S master encode start
 			slot_state = DMR_STATE_TX_START_1;
 		}
 	}
@@ -467,7 +469,7 @@ void tick_HR_C6000()
 			}
 			else
 			{
-				write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x00);
+				write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x40); // RXnextslotenable
 				slot_state = DMR_STATE_TX_2;
 			}
 			break;
@@ -475,7 +477,7 @@ void tick_HR_C6000()
 			tick_TXsoundbuffer();
 			tick_codec_encode(tmp_ram);
 			write_SPI_page_reg_bytearray_SPI1(0x03, 0x00, tmp_ram, 27);
-			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x80);
+			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x80); // TXnextslotenable
 			switch (tx_sequence)
 			{
 			case 0:
