@@ -5,6 +5,9 @@ V0.2.3 <work in progress>:
 - Added first set of frequency and band dependent HR-C6000 calibration parameters.
 - License for ComTool: GPL v2 + non-commercial.
 - DMR RX colour code filtering to the currently selected CC.
+- Better comments on RX/TX sequence, cleanup, refactoring.
+- Additional startup steps in TX sequence.
+- LCSS=0 in TX sequence.
 
 - Additional stuff by Roger Clark, VK3KYY / G4KYF:
   - Add windows comm port driver installer.
