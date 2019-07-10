@@ -396,7 +396,7 @@ void tick_HR_C6000()
 			spi_tx[8] = (trxDMRID >> 0) & 0xFF;
 			write_SPI_page_reg_bytearray_SPI0(0x02, 0x00, spi_tx, 0x0c);
 			write_SPI_page_reg_byte_SPI0(0x04, 0x40, 0xA3);
-			slot_state = DMR_STATE_TX_START;
+			slot_state = DMR_STATE_TX_START_1;
 		}
 	}
 
@@ -443,7 +443,17 @@ void tick_HR_C6000()
 		    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
 			slot_state = DMR_STATE_IDLE;
 			break;
-		case DMR_STATE_TX_START: // Start TX (second step)
+		case DMR_STATE_TX_START_1: // Start TX (second step)
+			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x80);
+			write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x10);
+			slot_state = DMR_STATE_TX_START_2;
+			break;
+		case DMR_STATE_TX_START_2: // Start TX (third step)
+			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x80);
+			write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x10);
+			slot_state = DMR_STATE_TX_START_3;
+			break;
+		case DMR_STATE_TX_START_3: // Start TX (fourth step)
 			tick_TXsoundbuffer();
 			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x80);
 			write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x10);
@@ -469,22 +479,22 @@ void tick_HR_C6000()
 			switch (tx_sequence)
 			{
 			case 0:
-				write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x08);
+				write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x08); // LCSS = 0
 				break;
 			case 1:
-				write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x19);
+				write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x18); // LCSS = 0
 				break;
 			case 2:
-				write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x2B);
+				write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x28); // LCSS = 0
 				break;
 			case 3:
-				write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x3B);
+				write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x38); // LCSS = 0
 				break;
 			case 4:
-				write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x4A);
+				write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x48); // LCSS = 0
 				break;
 			case 5:
-				write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x58);
+				write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x58); // LCSS = 0
 				break;
 			}
 			tx_sequence++;
@@ -509,7 +519,7 @@ void tick_HR_C6000()
 		}
 
 		// Timeout interrupted RX
-    	if ((slot_state < DMR_STATE_TX_START) && (tick_cnt<10))
+    	if ((slot_state < DMR_STATE_TX_START_1) && (tick_cnt<10))
     	{
     		tick_cnt++;
             if (tick_cnt==10)
