@@ -263,6 +263,13 @@ void trxUpdateC6000Calibration()
 {
 	int band_offset=0x00000000;
 	int freq_offset=0x00000000;
+
+	if (nonVolatileSettings.useCalibration==0)
+	{
+		return;
+	}
+
+
 	if (check_frequency_is_VHF(currentFrequency))
 	{
 		band_offset=0x00000070;
@@ -353,4 +360,9 @@ void trxUpdateC6000Calibration()
 	read_val_twopoint_mod(band_offset,&val_0x47, &val_0x48);
 	write_SPI_page_reg_byte_SPI0(0x04, 0x48, val_0x48); // bit 0 to 1 = upper 2 bits of 10-bit twopoint mod
 	write_SPI_page_reg_byte_SPI0(0x04, 0x47, val_0x47); // bit 0 to 7 = lower 8 bits of 10-bit twopoint mod
+}
+
+void trxSetDMRColourCode(int colourCode)
+{
+	write_SPI_page_reg_byte_SPI0(0x04, 0x1F, (colourCode << 4)); // DMR Colour code in upper 4 bits.
 }

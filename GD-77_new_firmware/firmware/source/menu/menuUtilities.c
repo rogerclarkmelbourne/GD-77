@@ -21,7 +21,7 @@
 
 static void updateScreen();
 static void handleEvent(int buttons, int keys, int events);
-static const int NUM_MENUS=4;
+static const int NUM_MENUS=5;
 static bool	doFactoryReset;
 static const int MAX_SAFE_POWER = 3000;// Note 3000 gives about 5.5W on 144Mhz on one of Roger's radios.
 
@@ -98,6 +98,17 @@ static void updateScreen()
 				strcpy(buf,"Fact Reset:NO");
 			}
 			break;
+		case 4:
+			if (nonVolatileSettings.useCalibration!=0)
+			{
+				strcpy(buf,"Calibration:ON");
+			}
+			else
+			{
+				strcpy(buf,"Calibration:OFF");
+			}
+
+			break;
 		}
 		if (gMenusCurrentItemIndex==mNum)
 		{
@@ -150,6 +161,9 @@ static void handleEvent(int buttons, int keys, int events)
 			case 3:
 				doFactoryReset = true;
 				break;
+			case 4:
+				nonVolatileSettings.useCalibration=0x01;
+				break;
 		}
 	}
 	else if ((keys & KEY_LEFT)!=0)
@@ -170,6 +184,9 @@ static void handleEvent(int buttons, int keys, int events)
 				break;
 			case 3:
 				doFactoryReset = false;
+				break;
+			case 4:
+				nonVolatileSettings.useCalibration=0x00;
 				break;
 		}
 	}

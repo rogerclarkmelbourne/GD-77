@@ -92,7 +92,7 @@ void SPI_HR_C6000_init()
 	write_SPI_page_reg_byte_SPI0(0x04, 0x10, 0x6E); // (oder 0x02 oder 0x6A)
 	write_SPI_page_reg_byte_SPI0(0x04, 0x11, 0x80);
 	write_SPI_page_reg_byte_SPI0(0x04, 0x13, 0x00);
-	write_SPI_page_reg_byte_SPI0(0x04, 0x1F, 0x10); // (dynamisch 16 * byte from mem)
+	write_SPI_page_reg_byte_SPI0(0x04, 0x1F, 0x10); // DMR Colour code in upper 4 bits - defaulted to 1, and is updated elsewhere in the code
 	write_SPI_page_reg_byte_SPI0(0x04, 0x20, 0x00);
 	write_SPI_page_reg_byte_SPI0(0x04, 0x21, 0xA0);
 	write_SPI_page_reg_byte_SPI0(0x04, 0x22, 0x26);
@@ -193,7 +193,7 @@ void SPI_C6000_postinit2()
 	write_SPI_page_reg_byte_SPI0(0x04, 0x00, 0x3F);
 	write_SPI_page_reg_bytearray_SPI0(0x01, 0x04, spi_init_values_1, 0x06);
 	write_SPI_page_reg_byte_SPI0(0x04, 0x10, 0x6E);
-	write_SPI_page_reg_byte_SPI0(0x04, 0x1F, 0x10);
+	write_SPI_page_reg_byte_SPI0(0x04, 0x1F, 0x10); // DMR Colour code in upper 4 bits - defaulted to 1, and is updated elsewhere in the code
 	write_SPI_page_reg_byte_SPI0(0x04, 0x26, 0x7D);
 	write_SPI_page_reg_byte_SPI0(0x04, 0x27, 0x40);
 	write_SPI_page_reg_byte_SPI0(0x04, 0x28, 0x7D);

@@ -26,7 +26,7 @@ enum VFO_SELECTED_FREQUENCY_INPUT  {VFO_SELECTED_FREQUENCY_INPUT_RX , VFO_SELECT
 
 static char freq_enter_digits[7] = { '-', '-', '-', '-', '-', '-', '-' };
 static int freq_enter_idx = 0;
-static int selectedFreq = VFO_SELECTED_FREQUENCY_INPUT_TX;
+static int selectedFreq = VFO_SELECTED_FREQUENCY_INPUT_RX;
 
 static struct_codeplugRxGroup_t rxGroupData;
 static struct_codeplugContact_t contactData;
@@ -54,6 +54,7 @@ int menuVFOMode(int buttons, int keys, int events, bool isFirstRun)
 		currentChannelData = &nonVolatileSettings.vfoChannel;
 		trxSetFrequency(currentChannelData->rxFreq);
 		trxSetMode(currentChannelData->chMode);
+		trxSetDMRColourCode(currentChannelData->rxColor);
 		trxSetPower(nonVolatileSettings.txPower);
 
 		if (nonVolatileSettings.overrideTG == 0)
@@ -136,14 +137,14 @@ static void updateScreen()
 
 			if (freq_enter_idx==0)
 			{
-				val_before_dp = currentChannelData->txFreq/10000;
-				val_after_dp = currentChannelData->txFreq - val_before_dp*10000;
-				sprintf(buffer,"%cT %d.%04d MHz", (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_TX)?'>':' ',val_before_dp, val_after_dp);
-				UC1701_printCentered(32, buffer,UC1701_FONT_GD77_8x16);
-
 				val_before_dp = currentChannelData->rxFreq/10000;
 				val_after_dp = currentChannelData->rxFreq - val_before_dp*10000;
 				sprintf(buffer,"%cR %d.%04d MHz", (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_RX)?'>':' ',val_before_dp, val_after_dp);
+				UC1701_printCentered(32, buffer,UC1701_FONT_GD77_8x16);
+
+				val_before_dp = currentChannelData->txFreq/10000;
+				val_after_dp = currentChannelData->txFreq - val_before_dp*10000;
+				sprintf(buffer,"%cT %d.%04d MHz", (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_TX)?'>':' ',val_before_dp, val_after_dp);
 				UC1701_printCentered(48, buffer,UC1701_FONT_GD77_8x16);
 			}
 			else
@@ -151,11 +152,11 @@ static void updateScreen()
 				sprintf(buffer,"%c%c%c.%c%c%c%c MHz", freq_enter_digits[0], freq_enter_digits[1], freq_enter_digits[2], freq_enter_digits[3], freq_enter_digits[4], freq_enter_digits[5], freq_enter_digits[6] );
 				if (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_TX)
 				{
-					UC1701_printCentered(32, buffer,UC1701_FONT_GD77_8x16);
+					UC1701_printCentered(48, buffer,UC1701_FONT_GD77_8x16);
 				}
 				else
 				{
-					UC1701_printCentered(48, buffer,UC1701_FONT_GD77_8x16);
+					UC1701_printCentered(32, buffer,UC1701_FONT_GD77_8x16);
 				}
 			}
 
@@ -205,12 +206,26 @@ static void update_frequency(int frequency)
 {
 	if (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_TX)
 	{
-		currentChannelData->txFreq=frequency;
+		if (check_frequency(frequency))
+		{
+			currentChannelData->txFreq = frequency;
+			set_melody(melody_ACK_beep);
+		}
 	}
 	else
 	{
-		currentChannelData->rxFreq=frequency;
-		trxSetFrequency(frequency);
+		int deltaFrequency = frequency - currentChannelData->rxFreq;
+		if (check_frequency(frequency) && check_frequency(currentChannelData->txFreq + deltaFrequency))
+		{
+			currentChannelData->rxFreq = frequency;
+			currentChannelData->txFreq = currentChannelData->txFreq + deltaFrequency;
+			trxSetFrequency(frequency);
+			set_melody(melody_ACK_beep);
+		}
+		else
+		{
+			set_melody(melody_ERROR_beep);
+		}
 	}
 
 }
@@ -256,7 +271,7 @@ static void handleEvent(int buttons, int keys, int events)
 		{
 			if (buttons & BUTTON_SK2 )
 			{
-				selectedFreq = VFO_SELECTED_FREQUENCY_INPUT_RX;
+				selectedFreq = VFO_SELECTED_FREQUENCY_INPUT_TX;
 			}
 			else
 			{
@@ -268,7 +283,7 @@ static void handleEvent(int buttons, int keys, int events)
 		{
 			if (buttons & BUTTON_SK2 )
 			{
-				selectedFreq = VFO_SELECTED_FREQUENCY_INPUT_TX;
+				selectedFreq = VFO_SELECTED_FREQUENCY_INPUT_RX;
 			}
 			else
 			{
@@ -383,7 +398,7 @@ static void handleEvent(int buttons, int keys, int events)
 				{
 					update_frequency(tmp_frequency);
 					reset_freq_enter_digits();
-	        	    set_melody(melody_ACK_beep);
+//	        	    set_melody(melody_ACK_beep);
 				}
 				else
 				{
@@ -399,19 +414,27 @@ static void handleEvent(int buttons, int keys, int events)
 
 static void stepFrequency(int increment)
 {
-int tmp_frequency;
+int tmp_frequencyTx;
+int tmp_frequencyRx;
 
 	if (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_TX)
 	{
-		tmp_frequency  = currentChannelData->txFreq + increment;
+		tmp_frequencyTx  = currentChannelData->txFreq + increment;
+		tmp_frequencyRx  = currentChannelData->rxFreq;// Needed later for the band limited checking
 	}
 	else
 	{
-		tmp_frequency  = currentChannelData->rxFreq + increment;
+		tmp_frequencyRx  = currentChannelData->rxFreq + increment;
+		tmp_frequencyTx  = currentChannelData->txFreq + increment;
 	}
-	if (check_frequency(tmp_frequency))
+	if (check_frequency(tmp_frequencyRx) && check_frequency(tmp_frequencyTx))
 	{
-		update_frequency(tmp_frequency);
+		currentChannelData->txFreq = tmp_frequencyTx;
+		currentChannelData->rxFreq =  tmp_frequencyRx;
+		if (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_RX)
+		{
+			trxSetFrequency(currentChannelData->rxFreq);
+		}
 	}
 	else
 	{

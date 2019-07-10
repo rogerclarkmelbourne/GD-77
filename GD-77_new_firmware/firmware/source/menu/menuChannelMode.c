@@ -69,6 +69,7 @@ static void loadChannelData()
 	codeplugChannelGetDataForIndex(currentZone.channels[nonVolatileSettings.currentChannelIndexInZone],&channelData);
 	trxSetFrequency(channelData.rxFreq);
 	trxSetMode(channelData.chMode);
+	trxSetDMRColourCode(channelData.rxColor);
 	trxSetPower(nonVolatileSettings.txPower);
 	codeplugRxGroupGetDataForIndex(channelData.rxGroupList,&rxGroupData);
 	codeplugContactGetDataForIndex(rxGroupData.contacts[currentIndexInTRxGroup],&contactData);

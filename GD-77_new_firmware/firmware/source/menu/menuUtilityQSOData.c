@@ -298,14 +298,14 @@ void menuUtilityRenderQSOData()
 		// We don't have this ID, so try looking in the Talker alias data
 		if (LinkHead->talkerAlias[0] != 0x00)
 		{
-			if (strlen(LinkHead->talkerAlias)> 16)
+			if (strlen(LinkHead->talkerAlias)> 6)
 			{
 				// More than 1 line wide of text, so we need to split onto 2 lines.
-				memcpy(buffer,LinkHead->talkerAlias,16);
-				buffer[16]=0x00;
+				memcpy(buffer,LinkHead->talkerAlias,6);
+				buffer[6]=0x00;
 				UC1701_printCentered(32, buffer,UC1701_FONT_GD77_8x16);
 
-				memcpy(buffer,&LinkHead->talkerAlias[16],16);
+				memcpy(buffer,&LinkHead->talkerAlias[6],16);
 				buffer[16]=0x00;
 				UC1701_printAt(0,48,buffer,UC1701_FONT_GD77_8x16);
 			}
