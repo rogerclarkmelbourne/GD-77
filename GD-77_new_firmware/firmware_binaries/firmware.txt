@@ -8,7 +8,7 @@ V0.2.3 <work in progress>:
 - Better comments on RX/TX sequence, cleanup, refactoring.
 - Additional startup steps in TX sequence.
 - LCSS=0 in TX sequence.
-
+- Tweaked TX sequence.
 - Additional stuff by Roger Clark, VK3KYY / G4KYF:
   - Add windows comm port driver installer.
   - Changed maximum PA drive level so that max power is around 4.9W on 2m and 3W on 70cm + increase max allowable Tx power a little to allow testers more flexibility.
