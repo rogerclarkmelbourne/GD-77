@@ -71,10 +71,7 @@ enum DMR_SLOT_STATE { DMR_STATE_IDLE, DMR_STATE_RX_1, DMR_STATE_RX_2, DMR_STATE_
 					  DMR_STATE_TX_START, DMR_STATE_TX_1, DMR_STATE_TX_2, DMR_STATE_TX_END_1, DMR_STATE_TX_END_2 };
 
 void SPI_HR_C6000_init();
-void SPI_C6000_postinit1();
-void SPI_C6000_postinit2();
-void SPI_C6000_postinit3a();
-void SPI_C6000_postinit3b();
+void SPI_C6000_postinit();
 void PORTC_IRQHandler(void);
 void init_HR_C6000_interrupts();
 void init_digital_state();

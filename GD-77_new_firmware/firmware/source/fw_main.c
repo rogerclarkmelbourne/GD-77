@@ -94,10 +94,7 @@ void fw_main_task()
     SPI_HR_C6000_init();
 
     // Additional init stuff
-    SPI_C6000_postinit1();
-    SPI_C6000_postinit2();
-    SPI_C6000_postinit3a();
-    SPI_C6000_postinit3b();
+    SPI_C6000_postinit();
     I2C_AT1846_Postinit();
 
     // Init HR-C6000 interrupts

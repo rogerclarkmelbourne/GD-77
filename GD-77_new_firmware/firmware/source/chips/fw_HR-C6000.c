@@ -174,19 +174,14 @@ void SPI_HR_C6000_init()
 	// ------ end spi_more_init
 }
 
-void SPI_C6000_postinit1()
+void SPI_C6000_postinit()
 {
 	write_SPI_page_reg_byte_SPI0(0x04, 0x04, 0xE8);
 	write_SPI_page_reg_byte_SPI0(0x04, 0x46, 0x37);
 	write_SPI_page_reg_byte_SPI0(0x04, 0x48, 0x03);
 	write_SPI_page_reg_byte_SPI0(0x04, 0x47, 0xE8);
-}
-
-void SPI_C6000_postinit2()
-{
 	// GD-77 FW V3.1.1 data from 0x76010 / length 0x06
 	uint8_t spi_init_values_1[] = { 0xd5, 0xd7, 0xf7, 0x7f, 0xd7, 0x57 };
-
 	write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x20);
 	write_SPI_page_reg_byte_SPI0(0x04, 0x40, 0x03);
 	write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x00);
@@ -232,30 +227,7 @@ void SPI_C6000_postinit2()
 	write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x20);
 	write_SPI_page_reg_byte_SPI0(0x04, 0x40, 0xC3);
 	write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x40);
-}
-
-void SPI_C6000_postinit3a()
-{
-	/* sub_328D0
-	    spi_TXRX_2(0x84, 1, (int)&v7, a4);
-	    if ( sub_21E90() )
-	      spi_TX(4, 1, v7 | 0x40);
-	    else
-	      spi_TX(4, 1, v7 & 0xBF);
-	*/
-
 	write_SPI_page_reg_byte_SPI0(0x04, 0x01, 0x70);
-}
-
-void SPI_C6000_postinit3b()
-{
-	/* sub_328D0 (conditional)
-	  spi_TXRX_2(0x84, 0x10, (int)&v7, v6);
-	  spi_TX(4, 0x10, v7 & 0x7F);
-	  spi_TX(4, 0, 0x3F);
-	  spi_TX(4, 0xE4, 0x4B);
-	*/
-
 	write_SPI_page_reg_byte_SPI0(0x04, 0x10, 0x6E);
 	write_SPI_page_reg_byte_SPI0(0x04, 0x00, 0x3F);
 	write_SPI_page_reg_byte_SPI0(0x04, 0xE4, 0x4B);
