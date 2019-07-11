@@ -35,6 +35,7 @@ int menuTxScreen(int buttons, int keys, int events, bool isFirstRun)
 	    txstopdelay=0;
 		trxIsTransmitting=true;
 	    trx_setTX();
+		trxSetCTCSS(currentChannelData->txTone);// This seems to need to be set after the radio is set into transmit mode.
 	}
 	else
 	{

@@ -71,6 +71,7 @@ static void loadChannelData()
 	trxSetMode(channelData.chMode);
 	trxSetDMRColourCode(channelData.rxColor);
 	trxSetPower(nonVolatileSettings.txPower);
+	trxSetCTCSS(channelData.rxTone);
 	codeplugRxGroupGetDataForIndex(channelData.rxGroupList,&rxGroupData);
 	codeplugContactGetDataForIndex(rxGroupData.contacts[currentIndexInTRxGroup],&contactData);
 	if (nonVolatileSettings.overrideTG == 0)
