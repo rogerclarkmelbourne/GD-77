@@ -54,7 +54,7 @@ static const uint8_t AT1846InitSettings[][AT1846_BYTES_PER_COMMAND] = {
 };
 
 static const uint8_t AT1846PostinitSettings[][AT1846_BYTES_PER_COMMAND] = {
-		{0x58, 0xBC, 0xFD}, // Filters custom setting
+		{0x58, 0xBC, 0xED}, // Filters custom setting
 		{0x0A, 0x7B, 0xA0}, // AGC Table
 		{0x41, 0x47, 0x31}, // Digital voice gain, (bits 6:0) however default value is supposed to be 0x4006 hence some bits are being set outside the documented range
 		{0x44, 0x05, 0xFF}, // Rx and tx gain controls
@@ -67,7 +67,7 @@ static const uint8_t AT1846PostinitSettings[][AT1846_BYTES_PER_COMMAND] = {
 		{0x0A, 0x7B, 0xA0}, // AGC Table
 		{0x49, 0x0C, 0x96}, // setting SQ open and shut threshold
 		{0x33, 0x45, 0xF5}, // agc number (recommended value)
-		{0x41, 0x47, 0x31}, // Digital voice gain, (bits 6:0) however default value is supposed to be 0x4006 hence some bits are being set outside the documented range
+		{0x41, 0x47, 0x0F}, // Digital voice gain, (bits 6:0) however default value is supposed to be 0x4006 hence some bits are being set outside the documented range
 		{0x42, 0x10, 0x36}, // RDA1846 lists this as Vox Shut threshold
 		{0x43, 0x00, 0xBB}, // FM deviation
 		};
