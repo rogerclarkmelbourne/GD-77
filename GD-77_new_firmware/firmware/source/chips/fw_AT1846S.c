@@ -214,6 +214,7 @@ void I2C_AT1846_SetBandwidth(int bandWidthkHzx10)
 			break;
 	}
 }
+
 void I2C_AT1846_SetMode(int theMode)
 {
 	if (theMode == RADIO_MODE_ANALOG)
