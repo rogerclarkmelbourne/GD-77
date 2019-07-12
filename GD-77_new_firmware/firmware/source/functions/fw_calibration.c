@@ -56,3 +56,101 @@ void read_val_phase_reduce(int offset, uint8_t* val_0x46)
 	SPI_Flash_read(EXT_phase_reduce+offset,buffer,1);
 	*val_0x46=buffer[0];
 }
+
+void read_val_pga_gain(int offset, uint8_t* value)
+{
+	uint8_t buffer[1];
+	SPI_Flash_read(EXT_pga_gain+offset,buffer,1);
+	*value=buffer[0] & 0x1f;
+}
+
+void read_val_voice_gain_tx(int offset, uint8_t* value)
+{
+	uint8_t buffer[1];
+	SPI_Flash_read(EXT_voice_gain_tx+offset,buffer,1);
+	*value=buffer[0] & 0x7f;
+}
+
+void read_val_gain_tx(int offset, uint8_t* value)
+{
+	uint8_t buffer[1];
+	SPI_Flash_read(EXT_gain_tx+offset,buffer,1);
+	*value=buffer[0] & 0x0f;
+}
+
+void read_val_padrv_ibit(int offset, uint8_t* value)
+{
+	uint8_t buffer[1];
+	SPI_Flash_read(EXT_padrv_ibit+offset,buffer,1);
+	*value=buffer[0] & 0x0f;
+}
+
+void read_val_xmitter_dev_wideband(int offset, uint16_t* value)
+{
+	uint8_t buffer[2];
+	SPI_Flash_read(EXT_xmitter_dev_wideband+offset,buffer,2);
+	*value=buffer[0] + ((buffer[1] & 0x03) << 8);
+}
+
+void read_val_xmitter_dev_narrowband(int offset, uint16_t* value)
+{
+	uint8_t buffer[2];
+	SPI_Flash_read(EXT_xmitter_dev_narrowband+offset,buffer,2);
+	*value=buffer[0] + ((buffer[1] & 0x03) << 8);
+}
+
+void read_val_dac_vgain_analog(int offset, uint8_t* value)
+{
+	uint8_t buffer[1];
+	SPI_Flash_read(EXT_dac_vgain_analog+offset,buffer,1);
+	*value=buffer[0] & 0x0f;
+}
+
+void read_val_volume_analog(int offset, uint8_t* value)
+{
+	uint8_t buffer[1];
+	SPI_Flash_read(EXT_volume_analog+offset,buffer,1);
+	*value=buffer[0] & 0x0f;
+}
+
+void read_val_noise1_th_wideband(int offset, uint16_t* value)
+{
+	uint8_t buffer[2];
+	SPI_Flash_read(EXT_noise1_th_wideband+offset,buffer,2);
+	*value=((buffer[0] & 0x7f) << 7) + ((buffer[1] & 0x7f) << 0);
+}
+
+void read_val_noise2_th_wideband(int offset, uint16_t* value)
+{
+	uint8_t buffer[2];
+	SPI_Flash_read(EXT_noise2_th_wideband+offset,buffer,2);
+	*value=((buffer[0] & 0x7f) << 7) + ((buffer[1] & 0x7f) << 0);
+}
+
+void read_val_rssi3_th_wideband(int offset, uint16_t* value)
+{
+	uint8_t buffer[2];
+	SPI_Flash_read(EXT_rssi3_th_wideband+offset,buffer,2);
+	*value=((buffer[0] & 0x7f) << 7) + ((buffer[1] & 0x7f) << 0);
+}
+
+void read_val_noise1_th_narrowband(int offset, uint16_t* value)
+{
+	uint8_t buffer[2];
+	SPI_Flash_read(EXT_noise1_th_narrowband+offset,buffer,2);
+	*value=((buffer[0] & 0x7f) << 7) + ((buffer[1] & 0x7f) << 0);
+}
+
+void read_val_noise2_th_narrowband(int offset, uint16_t* value)
+{
+	uint8_t buffer[2];
+	SPI_Flash_read(EXT_noise2_th_narrowband+offset,buffer,2);
+	*value=((buffer[0] & 0x7f) << 7) + ((buffer[1] & 0x7f) << 0);
+}
+
+void read_val_rssi3_th_narrowband(int offset, uint16_t* value)
+{
+	uint8_t buffer[2];
+	SPI_Flash_read(EXT_rssi3_th_narrowband+offset,buffer,2);
+	*value=((buffer[0] & 0x7f) << 7) + ((buffer[1] & 0x7f) << 0);
+}

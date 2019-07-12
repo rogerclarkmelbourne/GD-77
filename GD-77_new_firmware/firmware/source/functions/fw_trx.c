@@ -56,6 +56,7 @@ void trxSetMode(int theMode)
 		currentMode=theMode;
 
 		I2C_AT1846_SetMode(currentMode);
+		trxUpdateAT1846SCalibration();
 		if (currentMode == RADIO_MODE_ANALOG)
 		{
 			GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 1); // connect AT1846S audio to speaker
@@ -111,6 +112,7 @@ void trxSetFrequency(int frequency)
 		currentFrequency=frequency;
 
 		trxUpdateC6000Calibration();
+		trxUpdateAT1846SCalibration();
 
 		if ((currentMode == RADIO_MODE_ANALOG) && (!open_squelch))
 		{
@@ -361,6 +363,75 @@ void trxUpdateC6000Calibration()
 	read_val_twopoint_mod(band_offset,&val_0x47, &val_0x48);
 	write_SPI_page_reg_byte_SPI0(0x04, 0x48, val_0x48); // bit 0 to 1 = upper 2 bits of 10-bit twopoint mod
 	write_SPI_page_reg_byte_SPI0(0x04, 0x47, val_0x47); // bit 0 to 7 = lower 8 bits of 10-bit twopoint mod
+}
+
+void I2C_AT1846_set_register_with_mask(uint8_t reg, uint16_t mask, uint16_t value, uint8_t shift)
+{
+	set_clear_I2C_reg_2byte_with_mask(reg, (mask & 0xff00) >> 8, (mask & 0x00ff) >> 0, ((value << shift) & 0xff00) >> 8, ((value << shift) & 0x00ff) >> 0);
+}
+
+void trxUpdateAT1846SCalibration()
+{
+	int band_offset=0x00000000;
+	if ((trxGetFrequency() >= RADIO_VHF_MIN) && (trxGetFrequency() < RADIO_VHF_MAX))
+	{
+		band_offset=0x00000070;
+	}
+
+	uint8_t val_pga_gain;
+	uint8_t voice_gain_tx;
+	uint8_t gain_tx;
+	uint8_t padrv_ibit;
+
+	uint16_t xmitter_dev_narrowband;
+
+	uint8_t dac_vgain_analog = 0x0C;
+	uint8_t volume_analog = 0x0C;
+
+	uint16_t noise1_th_narrowband;
+	uint16_t noise2_th_narrowband;
+	uint16_t rssi3_th_narrowband;
+
+	read_val_pga_gain(band_offset, &val_pga_gain);
+	read_val_voice_gain_tx(band_offset, &voice_gain_tx);
+	read_val_gain_tx(band_offset, &gain_tx);
+	read_val_padrv_ibit(band_offset, &padrv_ibit);
+
+	read_val_xmitter_dev_narrowband(band_offset, &xmitter_dev_narrowband);
+
+	read_val_noise1_th_narrowband(band_offset, &noise1_th_narrowband);
+	read_val_noise2_th_narrowband(band_offset, &noise2_th_narrowband);
+	read_val_rssi3_th_narrowband(band_offset, &rssi3_th_narrowband);
+
+	/*
+	SEGGER_RTT_printf(0, "val_pga_gain %02x\r\n", val_pga_gain);
+	SEGGER_RTT_printf(0, "voice_gain_tx %02x\r\n", voice_gain_tx);
+	SEGGER_RTT_printf(0, "gain_tx %02x\r\n", gain_tx);
+	SEGGER_RTT_printf(0, "padrv_ibit %02x\r\n", padrv_ibit);
+
+	SEGGER_RTT_printf(0, "xmitter_dev_narrowband %04x\r\n", xmitter_dev_narrowband);
+
+	SEGGER_RTT_printf(0, "dac_vgain_analog %02x\r\n", dac_vgain_analog);
+	SEGGER_RTT_printf(0, "volume_analog %02x\r\n", volume_analog);
+
+	SEGGER_RTT_printf(0, "noise1_th_narrowband %04x\r\n", noise1_th_narrowband);
+	SEGGER_RTT_printf(0, "noise2_th_narrowband %04x\r\n", noise2_th_narrowband);
+	SEGGER_RTT_printf(0, "rssi3_th_narrowband %04x\r\n", rssi3_th_narrowband);
+	*/
+
+	I2C_AT1846_set_register_with_mask(0x0A, 0xF83F, val_pga_gain, 6);
+	I2C_AT1846_set_register_with_mask(0x41, 0xFF80, voice_gain_tx, 0);
+	I2C_AT1846_set_register_with_mask(0x44, 0xF0FF, gain_tx, 8);
+
+	I2C_AT1846_set_register_with_mask(0x59, 0x003f, xmitter_dev_narrowband, 6);
+	I2C_AT1846_set_register_with_mask(0x44, 0xFF0F, dac_vgain_analog, 4);
+	I2C_AT1846_set_register_with_mask(0x44, 0xFFF0, volume_analog, 0);
+
+	I2C_AT1846_set_register_with_mask(0x48, 0x0000, noise1_th_narrowband, 0);
+	I2C_AT1846_set_register_with_mask(0x60, 0x0000, noise2_th_narrowband, 0);
+	I2C_AT1846_set_register_with_mask(0x3f, 0x0000, rssi3_th_narrowband, 0);
+
+	I2C_AT1846_set_register_with_mask(0x0A, 0x87FF, padrv_ibit, 11);
 }
 
 void trxSetDMRColourCode(int colourCode)

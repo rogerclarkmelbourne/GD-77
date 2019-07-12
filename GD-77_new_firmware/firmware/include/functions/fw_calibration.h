@@ -36,9 +36,45 @@ extern calibrationStruct_t calibrationUHF;
 #define EXT_Q_MOD2_offset 0x0008F00A
 #define EXT_phase_reduce  0x0008F055
 
+#define EXT_pga_gain      0x0008F065
+#define EXT_voice_gain_tx 0x0008F066
+#define EXT_gain_tx       0x0008F067
+#define EXT_padrv_ibit    0x0008F064
+
+#define EXT_xmitter_dev_wideband   0x0008F068
+#define EXT_xmitter_dev_narrowband 0x0008F06A
+
+#define EXT_dac_vgain_analog 0x0008F06C
+#define EXT_volume_analog    0x0008F06D
+
+#define EXT_noise1_th_wideband   0x0008F047
+#define EXT_noise2_th_wideband   0x0008F049
+#define EXT_rssi3_th_wideband    0x0008F04b
+#define EXT_noise1_th_narrowband 0x0008F04d
+#define EXT_noise2_th_narrowband 0x0008F04f
+#define EXT_rssi3_th_narrowband  0x0008F051
+
 void read_val_DACDATA_shift(int offset, uint8_t* val_shift);
 void read_val_twopoint_mod(int offset, uint8_t* val_0x47, uint8_t* val_0x48);
 void read_val_Q_MOD2_offset(int offset, uint8_t* val_0x04);
 void read_val_phase_reduce(int offset, uint8_t* val_0x46);
+
+void read_val_pga_gain(int offset, uint8_t* value);
+void read_val_voice_gain_tx(int offset, uint8_t* value);
+void read_val_gain_tx(int offset, uint8_t* value);
+void read_val_padrv_ibit(int offset, uint8_t* value);
+
+void read_val_xmitter_dev_wideband(int offset, uint16_t* value);
+void read_val_xmitter_dev_narrowband(int offset, uint16_t* value);
+
+void read_val_dac_vgain_analog(int offset, uint8_t* value);
+void read_val_volume_analog(int offset, uint8_t* value);
+
+void read_val_noise1_th_wideband(int offset, uint16_t* value);
+void read_val_noise2_th_wideband(int offset, uint16_t* value);
+void read_val_rssi3_th_wideband(int offset, uint16_t* value);
+void read_val_noise1_th_narrowband(int offset, uint16_t* value);
+void read_val_noise2_th_narrowband(int offset, uint16_t* value);
+void read_val_rssi3_th_narrowband(int offset, uint16_t* value);
 
 #endif
