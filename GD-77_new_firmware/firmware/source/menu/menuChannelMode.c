@@ -193,6 +193,7 @@ static void handleEvent(int buttons, int keys, int events)
 		else
 		{
 			trxSetMode(RADIO_MODE_ANALOG);
+			trxSetCTCSS(currentChannelData->rxTone);
 		}
 		menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
 		updateScreen();
