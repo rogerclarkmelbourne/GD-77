@@ -72,15 +72,21 @@ void trxSetMode(int theMode)
 	}
 }
 
-static bool check_frequency_is_VHF(int frequency)
+bool trxCheckFrequencyIsVHF(int frequency)
 {
 	return ((frequency >= RADIO_VHF_MIN) && (frequency < RADIO_VHF_MAX));
 }
 
-static bool check_frequency_is_UHF(int frequency)
+bool trxCheckFrequencyIsUHF(int frequency)
 {
 	return ((frequency >= RADIO_UHF_MIN) && (frequency < RADIO_UHF_MAX));
 }
+
+bool trxCheckFrequency(int tmp_frequency)
+{
+	return ((tmp_frequency>=BAND_VHF_MIN) && (tmp_frequency<=BAND_VHF_MAX)) || ((tmp_frequency>=BAND_UHF_MIN) && (tmp_frequency<=BAND_UHF_MAX));
+}
+
 
 void trx_check_analog_squelch()
 {
@@ -134,12 +140,12 @@ void trxSetFrequency(int frequency)
 		write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x49, 0x0C, 0x15); // setting SQ open and shut threshold
 		write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x30, 0x40, 0x26 | squelch); // RX on
 
-		if (check_frequency_is_VHF(currentFrequency))
+		if (trxCheckFrequencyIsVHF(currentFrequency))
 		{
 			GPIO_PinWrite(GPIO_VHF_RX_amp_power, Pin_VHF_RX_amp_power, 1);
 			GPIO_PinWrite(GPIO_UHF_RX_amp_power, Pin_UHF_RX_amp_power, 0);
 		}
-		else if (check_frequency_is_UHF(currentFrequency))
+		else if (trxCheckFrequencyIsUHF(currentFrequency))
 		{
 			GPIO_PinWrite(GPIO_VHF_RX_amp_power, Pin_VHF_RX_amp_power, 0);
 			GPIO_PinWrite(GPIO_UHF_RX_amp_power, Pin_UHF_RX_amp_power, 1);
@@ -177,12 +183,12 @@ void trx_setRX()
 	set_clear_I2C_reg_2byte_with_mask(0x30, 0xFF, 0x1F, 0x00, 0x20); // RX
 
 	// RX amp on
-	if (check_frequency_is_VHF(currentFrequency))
+	if (trxCheckFrequencyIsVHF(currentFrequency))
 	{
 		GPIO_PinWrite(GPIO_VHF_RX_amp_power, Pin_VHF_RX_amp_power, 1);
 		GPIO_PinWrite(GPIO_UHF_RX_amp_power, Pin_UHF_RX_amp_power, 0);
 	}
-	else if (check_frequency_is_UHF(currentFrequency))
+	else if (trxCheckFrequencyIsUHF(currentFrequency))
 	{
 		GPIO_PinWrite(GPIO_VHF_RX_amp_power, Pin_VHF_RX_amp_power, 0);
 		GPIO_PinWrite(GPIO_UHF_RX_amp_power, Pin_UHF_RX_amp_power, 1);
@@ -218,12 +224,12 @@ void trx_setTX()
 	}
 
 	// TX preamp on
-	if (check_frequency_is_VHF(currentFrequency))
+	if (trxCheckFrequencyIsVHF(currentFrequency))
 	{
 		GPIO_PinWrite(GPIO_VHF_TX_amp_power, Pin_VHF_TX_amp_power, 1);
 		GPIO_PinWrite(GPIO_UHF_TX_amp_power, Pin_UHF_TX_amp_power, 0);
 	}
-	else if (check_frequency_is_UHF(currentFrequency))
+	else if (trxCheckFrequencyIsUHF(currentFrequency))
 	{
 		GPIO_PinWrite(GPIO_VHF_TX_amp_power, Pin_VHF_TX_amp_power, 0);
 		GPIO_PinWrite(GPIO_UHF_TX_amp_power, Pin_UHF_TX_amp_power, 1);
@@ -271,7 +277,7 @@ void trxUpdateC6000Calibration()
 	}
 
 
-	if (check_frequency_is_VHF(currentFrequency))
+	if (trxCheckFrequencyIsVHF(currentFrequency))
 	{
 		band_offset=0x00000070;
 		if (currentFrequency<1360000)
@@ -307,7 +313,7 @@ void trxUpdateC6000Calibration()
 			freq_offset=0x00000007;
 		}
 	}
-	else if (check_frequency_is_UHF(currentFrequency))
+	else if (trxCheckFrequencyIsUHF(currentFrequency))
 	{
 		band_offset=0x00000000;
 		if (currentFrequency<4050000)

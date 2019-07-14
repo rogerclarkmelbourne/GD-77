@@ -62,6 +62,27 @@ void initVFOChannel()
 	{
 		nonVolatileSettings.vfoChannel.rxGroupList=1;
 	}
+
+	if (nonVolatileSettings.vfoChannel.chMode == RADIO_MODE_ANALOG)
+	{
+		// In Analog mode, some crucial DMR settings will be invalid.
+		// So we need to set them to usable defaults
+		nonVolatileSettings.vfoChannel.rxGroupList=1;
+		nonVolatileSettings.vfoChannel.rxColor = 1;
+		nonVolatileSettings.overrideTG = 9;// Set the override TG to local TG 9
+		trxTalkGroup = nonVolatileSettings.overrideTG;
+	}
+
+	if (!trxCheckFrequency(nonVolatileSettings.vfoChannel.rxFreq))
+	{
+		nonVolatileSettings.vfoChannel.rxFreq = BAND_UHF_MIN;
+	}
+
+	if (!trxCheckFrequency(nonVolatileSettings.vfoChannel.txFreq))
+	{
+		nonVolatileSettings.vfoChannel.txFreq = BAND_UHF_MIN;
+	}
+
 }
 
 void settingsRestoreDefaultSettings()

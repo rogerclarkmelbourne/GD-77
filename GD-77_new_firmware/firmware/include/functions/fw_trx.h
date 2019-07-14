@@ -53,5 +53,8 @@ void trxSetBandWidth(int bandWidthkHzx10);
 void trxUpdateC6000Calibration();
 void trxSetDMRColourCode(int colourCode);
 int trxGetDMRColourCode();
+bool trxCheckFrequencyIsVHF(int frequency);
+bool trxCheckFrequencyIsUHF(int frequency);
+bool trxCheckFrequency(int tmp_frequency);
 
 #endif /* _FW_TRX_H_ */
