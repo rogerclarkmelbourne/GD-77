@@ -30,6 +30,7 @@ extern const int RADIO_UHF_MAX;
 enum RADIO_MODE { RADIO_MODE_NONE,RADIO_MODE_ANALOG,RADIO_MODE_DIGITAL};
 enum DMR_ADMIT_CRITERIA { ADMIT_CRITERIA_ALWAYS,ADMIT_CRITERIA_CHANNEL_FREE,ADMIT_CRITERIA_COLOR_CODE};
 
+
 extern bool open_squelch;
 extern bool HR_C6000_datalogging;
 
@@ -49,7 +50,7 @@ void trx_setRX();
 void trx_setTX();
 void trxSetPower(uint32_t powerVal);
 uint16_t trxGetPower();
-void trxSetBandWidth(int bandWidthkHzx10);
+void trxSetBandWidth(bool bandWidthis25kHz);
 void trxUpdateC6000Calibration();
 void trxSetDMRColourCode(int colourCode);
 int trxGetDMRColourCode();

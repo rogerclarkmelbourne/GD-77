@@ -53,6 +53,10 @@ int menuVFOMode(int buttons, int keys, int events, bool isFirstRun)
 		currentChannelData = &nonVolatileSettings.vfoChannel;
 
 		trxSetMode(currentChannelData->chMode);
+		if (currentChannelData->chMode == RADIO_MODE_ANALOG)
+		{
+			trxSetBandWidth((currentChannelData->flag4 & 0x02)  == 0x02);// set the bandwidth after the mode, because mode probably sets it back to 12.5kHz (note this needs to be tidied up ;-) )
+		}
 
 		trxSetTxCTCSS(currentChannelData->txTone);
 		trxSetFrequency(currentChannelData->rxFreq);
