@@ -21,6 +21,7 @@
 #include "fw_settings.h"
 #include "fw_calibration.h"
 #include "fw_AT1846S.h"
+#include "menu/menuSystem.h"
 
 bool open_squelch=false;
 bool HR_C6000_datalogging=false;
@@ -100,10 +101,13 @@ void trx_check_analog_squelch()
 		if ((RX_noise < SQUELCH_SETTINGS[0]) || (open_squelch))
 		{
 			GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 1); // speaker on
+			GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
+			displayLightTrigger();
 		}
 		else
 		{
 			GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 0); // speaker off
+			GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
 		}
 
     	trx_measure_count=0;
