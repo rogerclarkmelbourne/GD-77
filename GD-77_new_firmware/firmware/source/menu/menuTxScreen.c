@@ -34,6 +34,7 @@ int menuTxScreen(int buttons, int keys, int events, bool isFirstRun)
 	    txstartdelay=0;
 	    txstopdelay=0;
 		trxIsTransmitting=true;
+
 	    trx_setTX();
 	}
 	else

@@ -128,6 +128,14 @@ void codeplugChannelGetDataForIndex(int index, struct_codeplugChannel_t *channel
 	// Convert the the legacy codeplug tx and rx freq values into normal integers
 	channelBuf->txFreq = bcd2int(channelBuf->txFreq)/10;
 	channelBuf->rxFreq = bcd2int(channelBuf->rxFreq)/10;
+	if (channelBuf->rxTone != 0xffff)
+	{
+		channelBuf->rxTone = bcd2int(channelBuf->rxTone);
+	}
+	if (channelBuf->txTone != 0xffff)
+	{
+		channelBuf->txTone = bcd2int(channelBuf->txTone);
+	}
 }
 
 

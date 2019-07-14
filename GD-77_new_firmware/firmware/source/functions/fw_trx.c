@@ -199,6 +199,7 @@ void trx_setTX()
 {
 	// MUX for TX
 	trxSetMode(currentMode);
+
 	if (currentMode == RADIO_MODE_ANALOG)
 	{
 		GPIO_PinWrite(GPIO_TX_audio_mux, Pin_TX_audio_mux, 0);
@@ -378,4 +379,20 @@ void trxSetDMRColourCode(int colourCode)
 int trxGetDMRColourCode()
 {
 	return currentCC;
+}
+
+void trxSetTxCTCSS(int toneFreqX10)
+{
+	if (toneFreqX10 == 0xFFFF)
+	{
+		// tone value of 0xffff in the codeplug seem to be a flag that no tone has been selected
+        write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x4a, 0x00,0x00); //Zero the CTCSS1 Register
+        write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x4e,0x20,0x82); //disable the transmit CTCSS
+	}
+	else
+	{
+		toneFreqX10 = toneFreqX10*10;// value that is stored is 100 time the tone freq but its stored in the codeplug as freq times 10
+		write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT,	0x4a, (toneFreqX10 >> 8) & 0xff,	(toneFreqX10 & 0xff));
+		write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x4e,0x26,0x82); //enable the transmit CTCSS
+	}
 }

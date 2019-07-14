@@ -56,5 +56,6 @@ int trxGetDMRColourCode();
 bool trxCheckFrequencyIsVHF(int frequency);
 bool trxCheckFrequencyIsUHF(int frequency);
 bool trxCheckFrequency(int tmp_frequency);
+void trxSetCTCSS(int toneFreqX10);
 
 #endif /* _FW_TRX_H_ */
