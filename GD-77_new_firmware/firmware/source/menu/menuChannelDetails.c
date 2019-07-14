@@ -23,14 +23,19 @@
 
 static void updateScreen();
 static void handleEvent(int buttons, int keys, int events);
+static const int CTCSS_TONE_NONE = 65535;
+static char digits[69];// For CTCSS entry
 static int NUM_MENUS=3;
-static struct_codeplugChannel_t tmpChannel;
+static struct_codeplugChannel_t tmpChannel;// update a temporary copy of the channel and only write back if green menu is pressed
+static enum {DISPLAY_MODE_NORMAL,CTCSS_NUMBER_INPUT} displayMode;
 
 int menuChannelDetails(int buttons, int keys, int events, bool isFirstRun)
 {
 	if (isFirstRun)
 	{
 		memcpy(&tmpChannel,currentChannelData,sizeof(struct_codeplugChannel_t));
+		digits[0]=0x00;// clear CTCSS input digits string
+		displayMode=DISPLAY_MODE_NORMAL;
 		gMenusCurrentItemIndex=0;
 		updateScreen();
 	}
@@ -51,143 +56,226 @@ static void updateScreen()
 	UC1701_clearBuf();
 	UC1701_printCentered(0, "Channel info",UC1701_FONT_GD77_8x16);
 
-	// Can only display 3 of the options at a time menu at -1, 0 and +1
-	for(int i=-1;i<=1;i++)
+	switch (displayMode)
 	{
-		mNum = gMenusCurrentItemIndex+i;
-		if (mNum<0)
+		case CTCSS_NUMBER_INPUT:
+			UC1701_printCentered(16, "CTCSS freq",UC1701_FONT_GD77_8x16);
+			UC1701_printCentered(48, (char *)digits,UC1701_FONT_GD77_8x16);
+			break;
+		default:
+		// Can only display 3 of the options at a time menu at -1, 0 and +1
+		for(int i=-1;i<=1;i++)
 		{
-			mNum = NUM_MENUS + mNum;
-		}
-		if (mNum >= NUM_MENUS)
-		{
-			mNum = mNum - NUM_MENUS;
-		}
+			mNum = gMenusCurrentItemIndex+i;
+			if (mNum<0)
+			{
+				mNum = NUM_MENUS + mNum;
+			}
+			if (mNum >= NUM_MENUS)
+			{
+				mNum = mNum - NUM_MENUS;
+			}
 
-		switch(mNum)
-		{
-		case 0:
-			if (trxGetMode()==RADIO_MODE_ANALOG)
+			switch(mNum)
 			{
-				strcpy(buf,"Color Code:N/A");
-			}
-			else
-			{
-				sprintf(buf,"Color Code:%d",tmpChannel.rxColor);
-			}
-			break;
-		case 1:
-			if (trxGetMode()==RADIO_MODE_ANALOG)
-			{
-				strcpy(buf,"Timeslot:N/A");
-			}
-			else
-			{
-				sprintf(buf,"Timeslot:%d",((tmpChannel.flag2 & 0x40) >> 6) + 1);
-			}
-			break;
-		case 2:
-			if (trxGetMode()==RADIO_MODE_ANALOG)
-			{
-				if (tmpChannel.txTone==65535)
+			case 0:
+				if (trxGetMode()==RADIO_MODE_ANALOG)
 				{
-					strcpy(buf,"CTCSS:None");
+					strcpy(buf,"Color Code:N/A");
 				}
 				else
 				{
-					sprintf(buf,"CTCSS:%d.%dHz",tmpChannel.txTone/10 ,tmpChannel.txTone%10 );
+					sprintf(buf,"Color Code:%d",tmpChannel.rxColor);
 				}
+				break;
+			case 1:
+				if (trxGetMode()==RADIO_MODE_ANALOG)
+				{
+					strcpy(buf,"Timeslot:N/A");
+				}
+				else
+				{
+					sprintf(buf,"Timeslot:%d",((tmpChannel.flag2 & 0x40) >> 6) + 1);
+				}
+				break;
+			case 2:
+				if (trxGetMode()==RADIO_MODE_ANALOG)
+				{
+					if (tmpChannel.txTone==CTCSS_TONE_NONE)
+					{
+						strcpy(buf,"CTCSS:None");
+					}
+					else
+					{
+						sprintf(buf,"CTCSS:%d.%dHz",tmpChannel.txTone/10 ,tmpChannel.txTone%10 );
+					}
+				}
+				else
+				{
+					strcpy(buf,"CTCSS:N/A");
+				}
+				break;
 			}
-			else
+
+			if (gMenusCurrentItemIndex==mNum)
 			{
-				strcpy(buf,"CTCSS:N/A");
+				UC1701_fillRect(0,(i+2)*16,128,16,false);
 			}
 
-			break;
+			UC1701_printCore(0,(i+2)*16,buf,UC1701_FONT_GD77_8x16,0,(gMenusCurrentItemIndex==mNum));
 		}
-
-		if (gMenusCurrentItemIndex==mNum)
-		{
-			UC1701_fillRect(0,(i+2)*16,128,16,false);
-		}
-
-		UC1701_printCore(0,(i+2)*16,buf,UC1701_FONT_GD77_8x16,0,(gMenusCurrentItemIndex==mNum));
+		break;
 	}
-
 	UC1701_render();
 	displayLightTrigger();
 }
 
 static void handleEvent(int buttons, int keys, int events)
 {
-	if ((keys & KEY_DOWN)!=0 && gMenusEndIndex!=0)
+	switch (displayMode)
 	{
-		gMenusCurrentItemIndex++;
-		if (gMenusCurrentItemIndex>=NUM_MENUS)
-		{
-			gMenusCurrentItemIndex=0;
-		}
-	}
-	else if ((keys & KEY_UP)!=0)
-	{
-		gMenusCurrentItemIndex--;
-		if (gMenusCurrentItemIndex<0)
-		{
-			gMenusCurrentItemIndex=NUM_MENUS-1;
-		}
-	}
-	else if ((keys & KEY_RIGHT)!=0)
-	{
-		switch(gMenusCurrentItemIndex)
-		{
-			case 0:
-				if (tmpChannel.rxColor<15)
+		case CTCSS_NUMBER_INPUT:
+			if (strlen(digits)<7)
+			{
+				char c[2]={0,0};
+				if ((keys & KEY_0)!=0)
 				{
-					tmpChannel.rxColor++;
+					c[0]='0';
 				}
-				break;
-			case 1:
-				tmpChannel.flag2 |= 0x40;
-				break;
-			case 2:
-				if (tmpChannel.txTone>0)
+				else if ((keys & KEY_1)!=0)
 				{
-					tmpChannel.txTone--;
+					c[0]='1';
 				}
-				break;
-		}
-	}
-	else if ((keys & KEY_LEFT)!=0)
-	{
-		switch(gMenusCurrentItemIndex)
-		{
-			case 0:
-				if (tmpChannel.rxColor>0)
+				else if ((keys & KEY_2)!=0)
 				{
-					tmpChannel.rxColor--;
+					c[0]='2';
 				}
-				break;
-			case 1:
-				tmpChannel.flag2 &= 0xBF;
-				break;
-			case 2:
-				if (tmpChannel.txTone>0)
+				else if ((keys & KEY_3)!=0)
 				{
-					tmpChannel.txTone--;
+					c[0]='3';
 				}
-				break;
-		}
-	}
-	else if ((keys & KEY_GREEN)!=0)
-	{
-		memcpy(currentChannelData,&tmpChannel,sizeof(struct_codeplugChannel_t));
-		menuSystemPopPreviousMenu();
-		return;
-	}
-	else if ((keys & KEY_RED)!=0)
-	{
-		menuSystemPopPreviousMenu();
-		return;
+				else if ((keys & KEY_4)!=0)
+				{
+					c[0]='4';
+				}
+				else if ((keys & KEY_5)!=0)
+				{
+					c[0]='5';
+				}
+				else if ((keys & KEY_6)!=0)
+				{
+					c[0]='6';
+				}
+				else if ((keys & KEY_7)!=0)
+				{
+					c[0]='7';
+				}
+				else if ((keys & KEY_8)!=0)
+				{
+					c[0]='8';
+				}
+				else if ((keys & KEY_9)!=0)
+				{
+					c[0]='9';
+				}
+				else if ((keys & KEY_HASH)!=0)
+				{
+					c[0]='.';
+				}
+				else if ((keys & KEY_LEFT)!=0 && strlen(digits)>0)
+				{
+					digits[strlen(digits)-1]=0;
+				}
+				if (c[0]!=0)
+				{
+					strcat(digits,c);
+				}
+			}
+
+			if ((keys & KEY_GREEN)!=0)
+			{
+				tmpChannel.txTone=atof(digits)*10;
+				digits[0]=0x00;
+				displayMode = DISPLAY_MODE_NORMAL;
+			}
+			else if ((keys & KEY_RED)!=0)
+			{
+				digits[0]=0x00;
+				displayMode = DISPLAY_MODE_NORMAL;
+			}
+			break;
+		default:
+			if ((keys & KEY_DOWN)!=0 && gMenusEndIndex!=0)
+			{
+				gMenusCurrentItemIndex++;
+				if (gMenusCurrentItemIndex>=NUM_MENUS)
+				{
+					gMenusCurrentItemIndex=0;
+				}
+			}
+			else if ((keys & KEY_UP)!=0)
+			{
+				gMenusCurrentItemIndex--;
+				if (gMenusCurrentItemIndex<0)
+				{
+					gMenusCurrentItemIndex=NUM_MENUS-1;
+				}
+			}
+			else if ((keys & KEY_RIGHT)!=0)
+			{
+				switch(gMenusCurrentItemIndex)
+				{
+					case 0:
+						if (tmpChannel.rxColor<15)
+						{
+							tmpChannel.rxColor++;
+						}
+						break;
+					case 1:
+						tmpChannel.flag2 |= 0x40;// set TS 2 bit
+						break;
+					case 2:
+						if (trxGetMode()==RADIO_MODE_ANALOG)
+						{
+							displayMode = CTCSS_NUMBER_INPUT;
+						}
+						break;
+				}
+			}
+			else if ((keys & KEY_LEFT)!=0)
+			{
+				switch(gMenusCurrentItemIndex)
+				{
+					case 0:
+						if (tmpChannel.rxColor>0)
+						{
+							tmpChannel.rxColor--;
+						}
+						break;
+					case 1:
+						tmpChannel.flag2 &= 0xBF;// Clear TS 2 bit
+						break;
+					case 2:
+						if (trxGetMode()==RADIO_MODE_ANALOG)
+						{
+							tmpChannel.txTone=CTCSS_TONE_NONE;// Set CTCSS to none
+						}
+						break;
+				}
+			}
+			else if ((keys & KEY_GREEN)!=0)
+			{
+				memcpy(currentChannelData,&tmpChannel,sizeof(struct_codeplugChannel_t));
+				menuSystemPopPreviousMenu();
+				return;
+			}
+			else if ((keys & KEY_RED)!=0)
+			{
+				menuSystemPopPreviousMenu();
+				return;
+			}
+			break;
 	}
 	updateScreen();
 }
+
