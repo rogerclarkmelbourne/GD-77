@@ -33,6 +33,7 @@ static const int STORAGE_MAGIC_NUMBER = 0x4719;
 
 settingsStruct_t nonVolatileSettings;
 struct_codeplugChannel_t *currentChannelData;
+struct_codeplugChannel_t channelScreenChannelData={.rxFreq=0};
 
 void settingsSaveSettings()
 {
