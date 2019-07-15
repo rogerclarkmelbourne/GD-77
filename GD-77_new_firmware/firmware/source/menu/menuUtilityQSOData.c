@@ -21,6 +21,7 @@
 #include "fw_trx.h"
 #include "fw_EEPROM.h"
 #include "fw_SPI_Flash.h"
+#include "fw_settings.h"
 
 void updateLastHeardList(int id,int talkGroup);
 
@@ -325,8 +326,21 @@ void menuUtilityRenderQSOData()
 
 void menuUtilityRenderHeader()
 {
-	char buffer[16];
+	char buffer[24];
 
-	sprintf(buffer,"%s", trxGetMode() == RADIO_MODE_ANALOG?"FM":"DMR");
+	switch(trxGetMode())
+	{
+		case RADIO_MODE_ANALOG:
+			strcpy(buffer, "FM");
+			if (currentChannelData->txTone!=65535)
+			{
+				strcat(buffer," CT");
+			}
+			break;
+		case RADIO_MODE_DIGITAL:
+			strcpy(buffer, "DMR");
+			break;
+	}
+
 	UC1701_printAt(0,8, buffer,UC1701_FONT_6X8);
 }
