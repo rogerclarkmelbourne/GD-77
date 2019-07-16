@@ -451,11 +451,19 @@ void tick_HR_C6000()
 			slot_state = DMR_STATE_TX_START_2;
 			break;
 		case DMR_STATE_TX_START_2: // Start TX (third step)
-			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x80);
-			write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x10);
+			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x40); // RXnextslotenable
 			slot_state = DMR_STATE_TX_START_3;
 			break;
 		case DMR_STATE_TX_START_3: // Start TX (fourth step)
+			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x80);
+			write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x10);
+			slot_state = DMR_STATE_TX_START_4;
+			break;
+		case DMR_STATE_TX_START_4: // Start TX (fifth step)
+			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x40); // RXnextslotenable
+			slot_state = DMR_STATE_TX_START_5;
+			break;
+		case DMR_STATE_TX_START_5: // Start TX (sixth step)
 			tick_TXsoundbuffer();
 			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x80);
 			write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x10);
@@ -463,7 +471,7 @@ void tick_HR_C6000()
 			slot_state = DMR_STATE_TX_1;
 			break;
 		case DMR_STATE_TX_1: // Ongoing TX (inactive timeslot)
-			if (trxIsTransmitting==false)
+			if ((trxIsTransmitting==false) && (tx_sequence==0))
 			{
 				slot_state = DMR_STATE_TX_END_1; // only exit here to ensure staying in the correct timeslot
 			}
@@ -474,6 +482,7 @@ void tick_HR_C6000()
 			}
 			break;
 		case DMR_STATE_TX_2: // Ongoing TX (active timeslot)
+			txstopdelay=300;
 			tick_TXsoundbuffer();
 			tick_codec_encode(tmp_ram);
 			write_SPI_page_reg_bytearray_SPI1(0x03, 0x00, tmp_ram, 27);
@@ -513,9 +522,7 @@ void tick_HR_C6000()
 			break;
 		case DMR_STATE_TX_END_2: // Stop TX (second step)
 			write_SPI_page_reg_byte_SPI0(0x04, 0x40, 0xC3);
-
 			init_digital_DMR_RX();
-
 			slot_state = DMR_STATE_IDLE;
 			break;
 		}
