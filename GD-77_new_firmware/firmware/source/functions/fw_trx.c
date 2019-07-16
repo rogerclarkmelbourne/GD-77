@@ -262,6 +262,82 @@ void trxSetBandWidth(int bandWidthkHzx10)
 	I2C_AT1846_SetBandwidth(bandWidthkHzx10);
 }
 
+void trxCalcBandAndFrequencyOffset(int *band_offset, int *freq_offset)
+{
+	if (check_frequency_is_VHF(currentFrequency))
+	{
+		*band_offset=0x00000070;
+		if (currentFrequency<1380000)
+		{
+			*freq_offset=0x00000000;
+		}
+		else if (currentFrequency<1425000)
+		{
+			*freq_offset=0x00000001;
+		}
+		else if (currentFrequency<1475000)
+		{
+			*freq_offset=0x00000002;
+		}
+		else if (currentFrequency<1525000)
+		{
+			*freq_offset=0x00000003;
+		}
+		else if (currentFrequency<1575000)
+		{
+			*freq_offset=0x00000004;
+		}
+		else if (currentFrequency<1625000)
+		{
+			*freq_offset=0x00000005;
+		}
+		else if (currentFrequency<1685000)
+		{
+			*freq_offset=0x00000006;
+		}
+		else
+		{
+			*freq_offset=0x00000007;
+		}
+	}
+	else if (check_frequency_is_UHF(currentFrequency))
+	{
+		*band_offset=0x00000000;
+		if (currentFrequency<4100000)
+		{
+			*freq_offset=0x00000000;
+		}
+		else if (currentFrequency<4200000)
+		{
+			*freq_offset=0x00000001;
+		}
+		else if (currentFrequency<4300000)
+		{
+			*freq_offset=0x00000002;
+		}
+		else if (currentFrequency<4400000)
+		{
+			*freq_offset=0x00000003;
+		}
+		else if (currentFrequency<4500000)
+		{
+			*freq_offset=0x00000004;
+		}
+		else if (currentFrequency<4600000)
+		{
+			*freq_offset=0x00000005;
+		}
+		else if (currentFrequency<4700000)
+		{
+			*freq_offset=0x00000006;
+		}
+		else
+		{
+			*freq_offset=0x00000007;
+		}
+	}
+}
+
 void trxUpdateC6000Calibration()
 {
 	int band_offset=0x00000000;
@@ -272,79 +348,7 @@ void trxUpdateC6000Calibration()
 		return;
 	}
 
-
-	if (check_frequency_is_VHF(currentFrequency))
-	{
-		band_offset=0x00000070;
-		if (currentFrequency<1380000)
-		{
-			freq_offset=0x00000000;
-		}
-		else if (currentFrequency<1425000)
-		{
-			freq_offset=0x00000001;
-		}
-		else if (currentFrequency<1475000)
-		{
-			freq_offset=0x00000002;
-		}
-		else if (currentFrequency<1525000)
-		{
-			freq_offset=0x00000003;
-		}
-		else if (currentFrequency<1575000)
-		{
-			freq_offset=0x00000004;
-		}
-		else if (currentFrequency<1625000)
-		{
-			freq_offset=0x00000005;
-		}
-		else if (currentFrequency<1685000)
-		{
-			freq_offset=0x00000006;
-		}
-		else
-		{
-			freq_offset=0x00000007;
-		}
-	}
-	else if (check_frequency_is_UHF(currentFrequency))
-	{
-		band_offset=0x00000000;
-		if (currentFrequency<4100000)
-		{
-			freq_offset=0x00000000;
-		}
-		else if (currentFrequency<4200000)
-		{
-			freq_offset=0x00000001;
-		}
-		else if (currentFrequency<4300000)
-		{
-			freq_offset=0x00000002;
-		}
-		else if (currentFrequency<4400000)
-		{
-			freq_offset=0x00000003;
-		}
-		else if (currentFrequency<4500000)
-		{
-			freq_offset=0x00000004;
-		}
-		else if (currentFrequency<4600000)
-		{
-			freq_offset=0x00000005;
-		}
-		else if (currentFrequency<4700000)
-		{
-			freq_offset=0x00000006;
-		}
-		else
-		{
-			freq_offset=0x00000007;
-		}
-	}
+	trxCalcBandAndFrequencyOffset(&band_offset, &freq_offset);
 
 	uint8_t val_shift;
 	read_val_DACDATA_shift(band_offset,&val_shift);
@@ -373,10 +377,14 @@ void I2C_AT1846_set_register_with_mask(uint8_t reg, uint16_t mask, uint16_t valu
 void trxUpdateAT1846SCalibration()
 {
 	int band_offset=0x00000000;
-	if ((trxGetFrequency() >= RADIO_VHF_MIN) && (trxGetFrequency() < RADIO_VHF_MAX))
+	int freq_offset=0x00000000;
+
+	if (nonVolatileSettings.useCalibration==0)
 	{
-		band_offset=0x00000070;
+		return;
 	}
+
+	trxCalcBandAndFrequencyOffset(&band_offset, &freq_offset);
 
 	uint8_t val_pga_gain;
 	uint8_t voice_gain_tx;
