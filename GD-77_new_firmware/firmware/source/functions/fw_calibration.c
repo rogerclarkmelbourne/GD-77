@@ -154,3 +154,17 @@ void read_val_rssi3_th_narrowband(int offset, uint16_t* value)
 	SPI_Flash_read(EXT_rssi3_th_narrowband+offset,buffer,2);
 	*value=((buffer[0] & 0x7f) << 7) + ((buffer[1] & 0x7f) << 0);
 }
+
+void read_val_squelch_th(int offset, uint16_t* value)
+{
+	uint8_t buffer[1];
+	SPI_Flash_read(EXT_squelch_th+offset,buffer,1);
+	uint8_t v1 = buffer[0]-3;
+	uint8_t v2 = buffer[0]-6;
+	if ( v1 >= 127 || v2 >= 127 || v1 < v2 )
+	{
+	  v1 = 24;
+	  v2 = 21;
+	}
+	*value=(v1 << 7) + (v2 << 0);
+}

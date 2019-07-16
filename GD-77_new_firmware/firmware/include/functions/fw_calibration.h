@@ -54,6 +54,8 @@ extern calibrationStruct_t calibrationUHF;
 #define EXT_noise2_th_narrowband 0x0008F04f
 #define EXT_rssi3_th_narrowband  0x0008F051
 
+#define EXT_squelch_th 0x0008F03f
+
 void read_val_DACDATA_shift(int offset, uint8_t* val_shift);
 void read_val_twopoint_mod(int offset, uint8_t* val_0x47, uint8_t* val_0x48);
 void read_val_Q_MOD2_offset(int offset, uint8_t* val_0x04);
@@ -76,5 +78,7 @@ void read_val_rssi3_th_wideband(int offset, uint16_t* value);
 void read_val_noise1_th_narrowband(int offset, uint16_t* value);
 void read_val_noise2_th_narrowband(int offset, uint16_t* value);
 void read_val_rssi3_th_narrowband(int offset, uint16_t* value);
+
+void read_val_squelch_th(int offset, uint16_t* value);
 
 #endif
