@@ -276,31 +276,31 @@ void trxUpdateC6000Calibration()
 	if (check_frequency_is_VHF(currentFrequency))
 	{
 		band_offset=0x00000070;
-		if (currentFrequency<1360000)
+		if (currentFrequency<1380000)
 		{
 			freq_offset=0x00000000;
 		}
-		else if (currentFrequency<1400000)
+		else if (currentFrequency<1425000)
 		{
 			freq_offset=0x00000001;
 		}
-		else if (currentFrequency<1450000)
+		else if (currentFrequency<1475000)
 		{
 			freq_offset=0x00000002;
 		}
-		else if (currentFrequency<1500000)
+		else if (currentFrequency<1525000)
 		{
 			freq_offset=0x00000003;
 		}
-		else if (currentFrequency<1550000)
+		else if (currentFrequency<1575000)
 		{
 			freq_offset=0x00000004;
 		}
-		else if (currentFrequency<1600000)
+		else if (currentFrequency<1625000)
 		{
 			freq_offset=0x00000005;
 		}
-		else if (currentFrequency<1650000)
+		else if (currentFrequency<1685000)
 		{
 			freq_offset=0x00000006;
 		}
@@ -312,31 +312,31 @@ void trxUpdateC6000Calibration()
 	else if (check_frequency_is_UHF(currentFrequency))
 	{
 		band_offset=0x00000000;
-		if (currentFrequency<4050000)
+		if (currentFrequency<4100000)
 		{
 			freq_offset=0x00000000;
 		}
-		else if (currentFrequency<4150000)
+		else if (currentFrequency<4200000)
 		{
 			freq_offset=0x00000001;
 		}
-		else if (currentFrequency<4250000)
+		else if (currentFrequency<4300000)
 		{
 			freq_offset=0x00000002;
 		}
-		else if (currentFrequency<4350000)
+		else if (currentFrequency<4400000)
 		{
 			freq_offset=0x00000003;
 		}
-		else if (currentFrequency<4450000)
+		else if (currentFrequency<4500000)
 		{
 			freq_offset=0x00000004;
 		}
-		else if (currentFrequency<4550000)
+		else if (currentFrequency<4600000)
 		{
 			freq_offset=0x00000005;
 		}
-		else if (currentFrequency<4650000)
+		else if (currentFrequency<4700000)
 		{
 			freq_offset=0x00000006;
 		}
