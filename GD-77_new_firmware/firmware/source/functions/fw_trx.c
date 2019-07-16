@@ -155,16 +155,9 @@ int trxGetFrequency()
 	return currentFrequency;
 }
 
-void trxSetFrequencyAndMode(int frequency,int mode)
-{
-	trxSetMode(mode);
-	trxSetFrequency(frequency);
-}
-
 void trx_setRX()
 {
 	// MUX for RX
-	trxSetMode(currentMode);
 	GPIO_PinWrite(GPIO_TX_audio_mux, Pin_TX_audio_mux, 0);
 
 	// RX Antenna + PA power off
@@ -195,7 +188,6 @@ void trx_setRX()
 void trx_setTX()
 {
 	// MUX for TX
-	trxSetMode(currentMode);
 	if (currentMode == RADIO_MODE_ANALOG)
 	{
 		GPIO_PinWrite(GPIO_TX_audio_mux, Pin_TX_audio_mux, 0);
