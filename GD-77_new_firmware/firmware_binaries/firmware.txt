@@ -1,7 +1,7 @@
 Changelog
 =========
 
-V0.2.3 <work in progress>:
+V0.2.3:
 - Added frequency and band dependent HR-C6000 calibration parameters.
 - License for ComTool: GPL v2 + non-commercial.
 - DMR RX colour code filtering to the currently selected CC.
