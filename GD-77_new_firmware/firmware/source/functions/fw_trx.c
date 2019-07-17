@@ -229,6 +229,34 @@ void trx_setTX()
     DAC_SetBufferValue(DAC0, 0U, nonVolatileSettings.txPower);
 }
 
+void trx_deactivateTX()
+{
+	// RX Antenna + PA power off
+    DAC_SetBufferValue(DAC0, 0U, 0U);
+
+	// TX preamp off
+	GPIO_PinWrite(GPIO_VHF_TX_amp_power, Pin_VHF_TX_amp_power, 0);
+	GPIO_PinWrite(GPIO_UHF_TX_amp_power, Pin_UHF_TX_amp_power, 0);
+}
+
+void trx_activateTX()
+{
+	// TX preamp on
+	if (check_frequency_is_VHF(currentFrequency))
+	{
+		GPIO_PinWrite(GPIO_VHF_TX_amp_power, Pin_VHF_TX_amp_power, 1);
+		GPIO_PinWrite(GPIO_UHF_TX_amp_power, Pin_UHF_TX_amp_power, 0);
+	}
+	else if (check_frequency_is_UHF(currentFrequency))
+	{
+		GPIO_PinWrite(GPIO_VHF_TX_amp_power, Pin_VHF_TX_amp_power, 0);
+		GPIO_PinWrite(GPIO_UHF_TX_amp_power, Pin_UHF_TX_amp_power, 1);
+	}
+
+	// TX Antenna + PA power off
+    DAC_SetBufferValue(DAC0, 0U, nonVolatileSettings.txPower);
+}
+
 void trxSetPower(uint32_t powerVal)
 {
 	if (powerVal<4096)

@@ -47,6 +47,8 @@ void trxSetMode(int mode);
 void trxSetFrequency(int frequency);
 void trx_setRX();
 void trx_setTX();
+void trx_deactivateTX();
+void trx_activateTX();
 void trxSetPower(uint32_t powerVal);
 uint16_t trxGetPower();
 void trxSetBandWidth(int bandWidthkHzx10);
