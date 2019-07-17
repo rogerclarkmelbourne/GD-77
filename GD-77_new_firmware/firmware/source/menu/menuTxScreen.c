@@ -35,6 +35,7 @@ int menuTxScreen(int buttons, int keys, int events, bool isFirstRun)
 	    txstopdelay=0;
 		trxIsTransmitting=true;
 	    trx_setTX();
+	    trx_activateTX();
 	}
 	else
 	{
@@ -77,6 +78,7 @@ static void handleEvent(int buttons, int keys, int events)
 		else
 		{
 			GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 0);
+			trx_deactivateTX();
 			trx_setRX();
 			menuSystemPopPreviousMenu();
 		}

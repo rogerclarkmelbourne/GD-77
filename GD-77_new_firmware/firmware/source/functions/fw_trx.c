@@ -160,13 +160,8 @@ void trx_setRX()
 	// MUX for RX
 	GPIO_PinWrite(GPIO_TX_audio_mux, Pin_TX_audio_mux, 0);
 
-	// RX Antenna + PA power off
-    DAC_SetBufferValue(DAC0, 0U, 0U);
+	// RX Antenna
     GPIO_PinWrite(GPIO_RF_ant_switch, Pin_RF_ant_switch, 0);
-
-	// TX preamp off
-	GPIO_PinWrite(GPIO_VHF_TX_amp_power, Pin_VHF_TX_amp_power, 0);
-	GPIO_PinWrite(GPIO_UHF_TX_amp_power, Pin_UHF_TX_amp_power, 0);
 
 	// AT1846 RX + unmute
 	set_clear_I2C_reg_2byte_with_mask(0x30, 0xFF, 0x1F, 0x00, 0x00);
@@ -212,26 +207,13 @@ void trx_setTX()
 		set_clear_I2C_reg_2byte_with_mask(0x30, 0xFF, 0x1F, 0x00, 0xC0); // digital TX
 	}
 
-	// TX preamp on
-	if (check_frequency_is_VHF(currentFrequency))
-	{
-		GPIO_PinWrite(GPIO_VHF_TX_amp_power, Pin_VHF_TX_amp_power, 1);
-		GPIO_PinWrite(GPIO_UHF_TX_amp_power, Pin_UHF_TX_amp_power, 0);
-	}
-	else if (check_frequency_is_UHF(currentFrequency))
-	{
-		GPIO_PinWrite(GPIO_VHF_TX_amp_power, Pin_VHF_TX_amp_power, 0);
-		GPIO_PinWrite(GPIO_UHF_TX_amp_power, Pin_UHF_TX_amp_power, 1);
-	}
-
-	// TX Antenna + PA power off
+	// TX Antenna
     GPIO_PinWrite(GPIO_RF_ant_switch, Pin_RF_ant_switch, 1);
-    DAC_SetBufferValue(DAC0, 0U, nonVolatileSettings.txPower);
 }
 
 void trx_deactivateTX()
 {
-	// RX Antenna + PA power off
+	// PA power off
     DAC_SetBufferValue(DAC0, 0U, 0U);
 
 	// TX preamp off
@@ -253,7 +235,7 @@ void trx_activateTX()
 		GPIO_PinWrite(GPIO_UHF_TX_amp_power, Pin_UHF_TX_amp_power, 1);
 	}
 
-	// TX Antenna + PA power off
+	// PA power off
     DAC_SetBufferValue(DAC0, 0U, nonVolatileSettings.txPower);
 }
 
