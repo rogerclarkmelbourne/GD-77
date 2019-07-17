@@ -38,6 +38,7 @@ int menuTxScreen(int buttons, int keys, int events, bool isFirstRun)
 	    trxSetFrequency(currentChannelData->txFreq);
 	    txstopdelay=0;
 		trxIsTransmitting=true;
+
 	    trx_setTX();
 		if (trxGetMode() == RADIO_MODE_ANALOG)
 		{
