@@ -154,8 +154,8 @@ const uint8_t AT1846FMSettings[][AT1846_BYTES_PER_COMMAND] = {
 		{0x30,0x40,0x26},
 
 		// Settings that seem to be captured incorrectly from the official firmware
-		{0x58, 0xBC, 0x7D}, // Enable some filters for FM e.g. de-emphasis / pre-emphasis
-		{0x44, 0x06, 0x80} // set internal volume to 50%
+		{0x58, 0xBC, 0x05},// Enable some filters for FM e.g. de-emphasis / pre-emphasis / High and Low Pass Filters
+		{0x44, 0x06, 0xFF} // set internal volume to 100% . Details from Colin G4EML
 		};
 
 const uint8_t AT1846DMRSettings[][AT1846_BYTES_PER_COMMAND] = {
