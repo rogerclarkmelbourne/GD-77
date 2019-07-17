@@ -555,7 +555,7 @@ void tick_HR_C6000()
 		int rcrc = (tmp_val_0x51 >> 2) & 0x01;
 		int rpi = (tmp_val_0x51 >> 3) & 0x01;
 		int cc = (tmp_val_0x52 >> 4) & 0x0f;
-        if ((rcrc==0) && (rpi==0) && (cc == trxGetDMRColourCode()))
+        if ((rcrc==0) && (rpi==0) && (cc == trxGetDMRColourCode()) && (slot_state < DMR_STATE_TX_START_1))
         {
     		if (tmp_val_0x82 & 0x20) // InterSendStop
     		{
@@ -667,6 +667,15 @@ void tick_HR_C6000()
 
     			write_SPI_page_reg_byte_SPI0(0x04, 0x83, 0xC6);
     		}
+        }
+        else if (slot_state >= DMR_STATE_TX_START_1)
+        {
+        	uint8_t tmp_val_0x42;
+			read_SPI_page_reg_byte_SPI0(0x04, 0x42, &tmp_val_0x42);
+#if defined(USE_SEGGER_RTT) && defined(DEBUG_DMR_DATA)
+            	SEGGER_RTT_printf(0, "TXTX %02x [%02x %02x] %02x\r\n", slot_state, tmp_val_0x82, tmp_val_0x86, tmp_val_0x42);
+#endif
+    		write_SPI_page_reg_byte_SPI0(0x04, 0x83, 0xFF);
         }
         else
         {
