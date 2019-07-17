@@ -1,8 +1,8 @@
 Changelog
 =========
 
-V0.2.4 <work in progress>:
-- Bump STORAGE_MAGIC_NUMBER because it went down inbetween.
+V0.2.4 (OpenGD77 Phase 1 - Release Candidate 1):
+- Bumped STORAGE_MAGIC_NUMBER because it went down inbetween.
 - Additional stuff by Roger Clark, VK3KYY / G4KYF:
   - Added FontConverter source and binary, to convert RaysFontEditor 8x16 bitmap fonts, for use with the UC1701 display. Note: The converter needs to be improved to handle other font sizes.
   - Increase FM audio volume, as suggested by Colin G4EML.
