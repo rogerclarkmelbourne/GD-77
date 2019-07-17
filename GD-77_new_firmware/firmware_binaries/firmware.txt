@@ -2,6 +2,24 @@ Changelog
 =========
 
 V0.2.4 <work in progress>:
+- Bump STORAGE_MAGIC_NUMBER because it went down inbetween.
+- Additional stuff by Roger Clark, VK3KYY / G4KYF:
+  - Added FontConverter source and binary, to convert RaysFontEditor 8x16 bitmap fonts, for use with the UC1701 display. Note: The converter needs to be improved to handle other font sizes.
+  - Increase FM audio volume, as suggested by Colin G4EML.
+  - Improved FM Rx filter settings from Colin G4EML.
+  - Add Colin G4EML to the credits screen.
+  - Fix problem if when the firmware is initially run, VFO A is set to FM Analog and may have invalid DMR setting, also fixed a related problem to initial freq being set to 400Mhz as this is the CPS VFO default.
+  - Add support for FM Rx/TxCTCSS, from Colin G4EML.
+  - Use PIT on Tx Screen to fix time keeping, and also change counter to count up instead of down.
+  - Add support for 25 or 12.5kHz bandwidth on analogue / FM.
+  - Fix warning about implicit declaration of trxSetTxCTCSS().
+  - In Analog mode, turn on the green LED and also the backlight when there is a signal is received.
+  - Add Channel details (view only) screen.
+  - Change battery screen to update once per second.
+  - Added CTCSS number entry into the Channel Details screen.
+  - Added CTCSS tone indication onto screen header next to FM when CTCSS is enabled , by displaying the text 'CT' to the right of the 'FM' text.
+  - Fixed bug found by Colin G4EML, where changes to the channel data in Channel mode were being overwritten when the Channel screen reloaded.
+  - Move nonVolatileSettings storage location from 0xFF00 to 0x6000 as 0x6000 seems to be a hole in the memory map which the CPS does not upload to, even with the worst case / maximal codeplug.
 
 V0.2.3:
 - Added frequency and band dependent HR-C6000 calibration parameters.
