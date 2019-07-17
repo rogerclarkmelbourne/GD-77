@@ -47,6 +47,7 @@ typedef struct settingsStruct
 
 extern settingsStruct_t nonVolatileSettings;
 extern struct_codeplugChannel_t *currentChannelData;
+extern struct_codeplugChannel_t channelScreenChannelData;
 
 void settingsSaveSettings();
 void settingsLoadSettings();

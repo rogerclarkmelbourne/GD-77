@@ -28,11 +28,13 @@ const int BAND_VHF_MAX 	= 1480000;
 const int BAND_UHF_MIN 	= 4300000;
 const int BAND_UHF_MAX 	= 4500000;
 
-static const int STORAGE_BASE_ADDRESS = 0xFF00;
-static const int STORAGE_MAGIC_NUMBER = 0x471A;
+static const int STORAGE_BASE_ADDRESS 		= 0x6000;
+static const int STORAGE_BASE_ADDRESS_OLD 	= 0xFF00;
+static const int STORAGE_MAGIC_NUMBER 		= 0x4719;
 
 settingsStruct_t nonVolatileSettings;
 struct_codeplugChannel_t *currentChannelData;
+struct_codeplugChannel_t channelScreenChannelData={.rxFreq=0};
 
 void settingsSaveSettings()
 {
@@ -45,8 +47,18 @@ void settingsLoadSettings()
 	EEPROM_Read(STORAGE_BASE_ADDRESS, (uint8_t*)&nonVolatileSettings, sizeof(settingsStruct_t));
 	if (nonVolatileSettings.magicNumber != STORAGE_MAGIC_NUMBER)
 	{
-    	settingsRestoreDefaultSettings();
-    	settingsSaveSettings();
+		// Try loading from the old address and moving it
+		EEPROM_Read(STORAGE_BASE_ADDRESS_OLD, (uint8_t*)&nonVolatileSettings, sizeof(settingsStruct_t));
+		if (nonVolatileSettings.magicNumber == STORAGE_MAGIC_NUMBER)
+		{
+			// Found data in the old location
+			settingsSaveSettings();	// save to the new location for next time
+		}
+		else
+		{
+			settingsRestoreDefaultSettings();
+			settingsSaveSettings();
+		}
 	}
 	trxDMRID = codeplugGetUserDMRID();
 }
