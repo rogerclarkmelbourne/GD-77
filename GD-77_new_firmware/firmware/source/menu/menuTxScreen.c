@@ -77,7 +77,7 @@ static void handleEvent(int buttons, int keys, int events)
 		{
 			txstopdelay--;
 		}
-		else
+		if ((slot_state < DMR_STATE_TX_START_1) && (txstopdelay==0))
 		{
 			GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 0);
 			trx_deactivateTX();

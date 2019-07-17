@@ -391,7 +391,6 @@ void tick_HR_C6000()
 
 	if (trxIsTransmitting==true && (slot_state == DMR_STATE_IDLE)) // Start TX (first step)
 	{
-		txstopdelay=300;
 		init_codec();
 		uint8_t spi_tx[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 		spi_tx[3] = (trxTalkGroup >> 16) & 0xFF;
@@ -487,7 +486,6 @@ void tick_HR_C6000()
 			}
 			break;
 		case DMR_STATE_TX_2: // Ongoing TX (active timeslot)
-			txstopdelay=300;
 			tick_TXsoundbuffer();
 			tick_codec_encode(tmp_ram);
 			write_SPI_page_reg_bytearray_SPI1(0x03, 0x00, tmp_ram, 27);
@@ -528,6 +526,7 @@ void tick_HR_C6000()
 		case DMR_STATE_TX_END_2: // Stop TX (second step)
 			write_SPI_page_reg_byte_SPI0(0x04, 0x40, 0xC3);
 			init_digital_DMR_RX();
+			txstopdelay=30;
 			slot_state = DMR_STATE_IDLE;
 			break;
 		}
