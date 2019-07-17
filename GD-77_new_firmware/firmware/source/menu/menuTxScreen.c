@@ -31,11 +31,13 @@ int menuTxScreen(int buttons, int keys, int events, bool isFirstRun)
 	    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
 	    GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 1);
 	    trxSetFrequency(currentChannelData->txFreq);
-	    txstartdelay=0;
 	    txstopdelay=0;
 		trxIsTransmitting=true;
 	    trx_setTX();
-	    trx_activateTX();
+		if (trxGetMode() == RADIO_MODE_ANALOG)
+		{
+		    trx_activateTX();
+		}
 	}
 	else
 	{

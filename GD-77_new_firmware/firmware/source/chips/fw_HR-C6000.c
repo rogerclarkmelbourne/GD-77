@@ -389,29 +389,22 @@ void tick_HR_C6000()
 	}
 	taskEXIT_CRITICAL();
 
-	if (trxIsTransmitting==true && (slot_state == DMR_STATE_IDLE))
+	if (trxIsTransmitting==true && (slot_state == DMR_STATE_IDLE)) // Start TX (first step)
 	{
-		if (txstartdelay<300)
-		{
-			txstartdelay++;
-		}
-		else // Start TX (first step)
-		{
-			txstopdelay=300;
-			init_codec();
-			uint8_t spi_tx[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-			spi_tx[3] = (trxTalkGroup >> 16) & 0xFF;
-			spi_tx[4] = (trxTalkGroup >> 8) & 0xFF;
-			spi_tx[5] = (trxTalkGroup >> 0) & 0xFF;
-			spi_tx[6] = (trxDMRID >> 16) & 0xFF;
-			spi_tx[7] = (trxDMRID >> 8) & 0xFF;
-			spi_tx[8] = (trxDMRID >> 0) & 0xFF;
-			write_SPI_page_reg_bytearray_SPI0(0x02, 0x00, spi_tx, 0x0c);
-			write_SPI_page_reg_byte_SPI0(0x04, 0x40, 0xE3); // TX and RX enable
-			write_SPI_page_reg_byte_SPI0(0x04, 0x21, 0xA2); // reset vocoder codingbuffer
-			write_SPI_page_reg_byte_SPI0(0x04, 0x22, 0x86); // I2S master encode start
-			slot_state = DMR_STATE_TX_START_1;
-		}
+		txstopdelay=300;
+		init_codec();
+		uint8_t spi_tx[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+		spi_tx[3] = (trxTalkGroup >> 16) & 0xFF;
+		spi_tx[4] = (trxTalkGroup >> 8) & 0xFF;
+		spi_tx[5] = (trxTalkGroup >> 0) & 0xFF;
+		spi_tx[6] = (trxDMRID >> 16) & 0xFF;
+		spi_tx[7] = (trxDMRID >> 8) & 0xFF;
+		spi_tx[8] = (trxDMRID >> 0) & 0xFF;
+		write_SPI_page_reg_bytearray_SPI0(0x02, 0x00, spi_tx, 0x0c);
+		write_SPI_page_reg_byte_SPI0(0x04, 0x40, 0xE3); // TX and RX enable
+		write_SPI_page_reg_byte_SPI0(0x04, 0x21, 0xA2); // reset vocoder codingbuffer
+		write_SPI_page_reg_byte_SPI0(0x04, 0x22, 0x86); // I2S master encode start
+		slot_state = DMR_STATE_TX_START_1;
 	}
 
 	// Timeout interrupt
