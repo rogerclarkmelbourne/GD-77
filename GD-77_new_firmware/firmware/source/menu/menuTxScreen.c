@@ -22,14 +22,15 @@
 static void updateScreen();
 static void handleEvent(int buttons, int keys, int events);
 
-static const int TX_LOOP_COUNTER_RELOAD = 1000;;
+static const int PIT_COUNTS_PER_SECOND = 10000;
 static int timeInSeconds;
-static int loopCounter;
+static uint32_t nextSecondPIT;
 
 int menuTxScreen(int buttons, int keys, int events, bool isFirstRun)
 {
 	if (isFirstRun)
 	{
+		nextSecondPIT = PITCounter + PIT_COUNTS_PER_SECOND;
 		timeInSeconds=0;
 		updateScreen();
 	    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
@@ -39,16 +40,15 @@ int menuTxScreen(int buttons, int keys, int events, bool isFirstRun)
 	    txstopdelay=0;
 		trxIsTransmitting=true;
 
-		loopCounter=TX_LOOP_COUNTER_RELOAD;
 	    trx_setTX();
 	}
 	else
 	{
-		if (--loopCounter == 0)
+		if (PITCounter >= nextSecondPIT )
 		{
 			timeInSeconds++;
 			updateScreen();
-			loopCounter = TX_LOOP_COUNTER_RELOAD;
+			nextSecondPIT = PITCounter + PIT_COUNTS_PER_SECOND;
 		}
 
 		handleEvent(buttons, keys, events);
