@@ -415,7 +415,7 @@ void tick_HR_C6000()
 	}
 
 	// Timeout interrupt
-	if (slot_state != DMR_STATE_IDLE) //0
+	if (slot_state != DMR_STATE_IDLE)
 	{
 		if (int_timeout<200)
 		{
