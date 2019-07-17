@@ -43,6 +43,7 @@ static int currentFrequency =1440000;
 static int currentCC =1;
 static uint8_t squelch = 0x00;
 static const uint8_t SQUELCH_SETTINGS[] = {45,45,45};
+static bool rxCTCSSactive = false;
 
 int	trxGetMode()
 {
@@ -101,9 +102,12 @@ void trx_check_analog_squelch()
 
 		if ((RX_noise < SQUELCH_SETTINGS[0]) || (open_squelch))
 		{
-			GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 1); // speaker on
 			GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
-			displayLightTrigger();
+			if(!rxCTCSSactive || (rxCTCSSactive & trxCheckCTCSSFlag())|| open_squelch)
+			{
+				GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 1); // speaker on
+				displayLightTrigger();
+			}
 		}
 		else
 		{
@@ -470,3 +474,34 @@ void trxSetTxCTCSS(int toneFreqX10)
 		set_clear_I2C_reg_2byte_with_mask(0x4e,0xF9,0xFF,0x06,0x00);    //enable the transmit CTCSS
 	}
 }
+
+void trxSetRxCTCSS(int toneFreqX10)
+{
+	if (toneFreqX10 == 0xFFFF)
+	{
+		// tone value of 0xffff in the codeplug seem to be a flag that no tone has been selected
+        write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x4d, 0x00,0x00); //Zero the CTCSS2 Register
+        rxCTCSSactive=false;
+	}
+	else
+	{
+		int threshold=(2500-toneFreqX10)/100;   //adjust threshold value to match tone frequency.
+		toneFreqX10 = toneFreqX10*10;// value that is stored is 100 time the tone freq but its stored in the codeplug as freq times 10
+		write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT,	0x4d, (toneFreqX10 >> 8) & 0xff,	(toneFreqX10 & 0xff));
+		write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x5b,(threshold & 0xFF),(threshold & 0xFF)); //set the detection thresholds
+		set_clear_I2C_reg_2byte_with_mask(0x3a,0xFF,0xE0,0x00,0x08);    //set detection to CTCSS2
+		rxCTCSSactive=true;
+	}
+}
+
+bool trxCheckCTCSSFlag()
+{
+	uint8_t FlagsH;
+	uint8_t FlagsL;
+
+	read_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x1c,&FlagsH,&FlagsL);
+
+	return (FlagsH & 0x01);
+
+}
+
