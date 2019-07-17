@@ -22,11 +22,16 @@
 static void updateScreen();
 static void handleEvent(int buttons, int keys, int events);
 
+static const int PIT_COUNTS_PER_SECOND = 10000;
+static int timeInSeconds;
+static uint32_t nextSecondPIT;
+
 int menuTxScreen(int buttons, int keys, int events, bool isFirstRun)
 {
 	if (isFirstRun)
 	{
-		gMenusCurrentItemIndex=180000;
+		nextSecondPIT = PITCounter + PIT_COUNTS_PER_SECOND;
+		timeInSeconds=0;
 		updateScreen();
 	    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
 	    GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 1);
@@ -41,14 +46,11 @@ int menuTxScreen(int buttons, int keys, int events, bool isFirstRun)
 	}
 	else
 	{
-		if ((gMenusCurrentItemIndex%1000)==0)
+		if (PITCounter >= nextSecondPIT )
 		{
+			timeInSeconds++;
 			updateScreen();
-		}
-		gMenusCurrentItemIndex--;
-		if (gMenusCurrentItemIndex<0)
-		{
-			gMenusCurrentItemIndex=0;
+			nextSecondPIT = PITCounter + PIT_COUNTS_PER_SECOND;
 		}
 
 		handleEvent(buttons, keys, events);
@@ -60,7 +62,7 @@ static void updateScreen()
 {
 	char buf[8];
 	UC1701_clearBuf();
-	sprintf(buf,"%d",gMenusCurrentItemIndex/1000);
+	sprintf(buf,"%d",timeInSeconds);
 	UC1701_printCentered(20, buf,UC1701_FONT_16x32);
 
 	UC1701_render();

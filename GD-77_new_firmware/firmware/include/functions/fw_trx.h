@@ -50,7 +50,7 @@ void trx_deactivateTX();
 void trx_activateTX();
 void trxSetPower(uint32_t powerVal);
 uint16_t trxGetPower();
-void trxSetBandWidth(int bandWidthkHzx10);
+void trxSetBandWidth(bool bandWidthis25kHz);
 void trxUpdateC6000Calibration();
 void trxUpdateAT1846SCalibration();
 void trxSetDMRColourCode(int colourCode);

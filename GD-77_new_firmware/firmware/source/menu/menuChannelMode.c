@@ -69,6 +69,10 @@ static void loadChannelData()
 	codeplugChannelGetDataForIndex(currentZone.channels[nonVolatileSettings.currentChannelIndexInZone],&channelData);
 	trxSetFrequency(channelData.rxFreq);
 	trxSetMode(channelData.chMode);
+	if (channelData.chMode == RADIO_MODE_ANALOG)
+	{
+		trxSetBandWidth((channelData.flag4 & 0x02)  == 0x02);// set the bandwidth after the mode, because mode probably sets it back to 12.5kHz (note this needs to be tidied up ;-) )
+	}
 	trxSetDMRColourCode(channelData.rxColor);
 	trxSetPower(nonVolatileSettings.txPower);
 	trxSetTxCTCSS(channelScreenChannelData.txTone);

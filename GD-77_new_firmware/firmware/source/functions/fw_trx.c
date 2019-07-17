@@ -21,6 +21,7 @@
 #include "fw_settings.h"
 #include "fw_calibration.h"
 #include "fw_AT1846S.h"
+#include "menu/menuSystem.h"
 
 bool open_squelch=false;
 bool HR_C6000_datalogging=false;
@@ -37,7 +38,7 @@ const int RADIO_UHF_MIN			=	4000000;
 const int RADIO_UHF_MAX			=	5200000;
 
 static int currentMode = RADIO_MODE_NONE;
-static int currentBandWidth=0;
+static bool currentBandWidth = BANDWIDTH_12P5KHZ;
 static int currentFrequency =1440000;
 static int currentCC =1;
 static uint8_t squelch = 0x00;
@@ -65,7 +66,7 @@ void trxSetMode(int theMode)
 		}
 		else
 		{
-			trxSetBandWidth(125);// DMR is always 12.5kHz
+			trxSetBandWidth(0);// DMR is always 12.5kHz
 			GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 0); // connect AT1846S audio to HR_C6000
 			init_sound();
 			init_digital();
@@ -101,10 +102,13 @@ void trx_check_analog_squelch()
 		if ((RX_noise < SQUELCH_SETTINGS[0]) || (open_squelch))
 		{
 			GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 1); // speaker on
+			GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
+			displayLightTrigger();
 		}
 		else
 		{
 			GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 0); // speaker off
+			GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
 		}
 
     	trx_measure_count=0;
@@ -258,16 +262,16 @@ uint16_t trxGetPower()
 }
 
 // Use 125 for 12.5kHz, or 250 for 25kHz
-void trxSetBandWidth(int bandWidthkHzx10)
+void trxSetBandWidth(bool bandWidthis25kHz)
 {
 
-	if (currentBandWidth==bandWidthkHzx10)
+	if (currentBandWidth==bandWidthis25kHz)
 	{
 		return;
 	}
-	currentBandWidth = bandWidthkHzx10;
+	currentBandWidth = bandWidthis25kHz;
 
-	I2C_AT1846_SetBandwidth(bandWidthkHzx10);
+	I2C_AT1846_SetBandwidth(bandWidthis25kHz);
 }
 
 void trxCalcBandAndFrequencyOffset(int *band_offset, int *freq_offset)

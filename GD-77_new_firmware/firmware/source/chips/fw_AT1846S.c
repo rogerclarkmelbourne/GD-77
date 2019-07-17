@@ -202,16 +202,17 @@ void I2C_AT1846_Postinit()
 	I2C_AT1846S_send_Settings(AT1846PostinitSettings,sizeof(AT1846PostinitSettings)/AT1846_BYTES_PER_COMMAND);
 }
 
-void I2C_AT1846_SetBandwidth(int bandWidthkHzx10)
+void I2C_AT1846_SetBandwidth(bool bandWidthIs25kHz)
 {
-	switch(bandWidthkHzx10)
+	if (bandWidthIs25kHz)
 	{
-		case 125:			// 12.5 kHz settings
-			I2C_AT1846S_send_Settings(AT1846FM12P5kHzSettings, sizeof(AT1846FM12P5kHzSettings)/AT1846_BYTES_PER_COMMAND);
-			break;
-		case 250:			// 25 kHz settings
-			I2C_AT1846S_send_Settings(AT1846FM25kHzSettings,sizeof(AT1846FM25kHzSettings)/AT1846_BYTES_PER_COMMAND);
-			break;
+		// 25 kHz settings
+		I2C_AT1846S_send_Settings(AT1846FM25kHzSettings,sizeof(AT1846FM25kHzSettings)/AT1846_BYTES_PER_COMMAND);
+	}
+	else
+	{
+		// 12.5 kHz settings
+		I2C_AT1846S_send_Settings(AT1846FM12P5kHzSettings, sizeof(AT1846FM12P5kHzSettings)/AT1846_BYTES_PER_COMMAND);
 	}
 }
 
