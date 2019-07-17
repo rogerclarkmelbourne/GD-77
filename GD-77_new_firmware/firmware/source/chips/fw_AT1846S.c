@@ -95,7 +95,7 @@ const uint8_t AT1846FM12P5kHzSettings[][AT1846_BYTES_PER_COMMAND] = {
 		{0x0F, 0x3F, 0x44}, // AGC Table (recommended value for 12.5kHz bandwidth operation)
 		{0x12, 0xE0, 0xEB}, // AGC Table (recommended value for 12.5kHz bandwidth operation)
 		{0x7F, 0x00, 0x00}, // Go back to page 0 registers
-		{0x30, 0x40, 0x06}, // filter_band_sel + band_mode_sel = 12.5KHz
+		{0x30, 0x40, 0x26}, // filter_band_sel + band_mode_sel = 12.5KHz
 		};
 
 const uint8_t AT1846FM25kHzSettings[][AT1846_BYTES_PER_COMMAND] = {
@@ -121,7 +121,7 @@ const uint8_t AT1846FM25kHzSettings[][AT1846_BYTES_PER_COMMAND] = {
 		{0x0F, 0x3F, 0x84}, // AGC Table (recommended value for 25kHz bandwidth operation)
 		{0x12, 0xE0, 0xEB}, // AGC Table (recommended value for 25kHz bandwidth operation)
 		{0x7F, 0x00, 0x00}, // Go back to page 0 registers
-		{0x30, 0x70, 0x06}, // filter_band_sel + band_mode_sel = 25kHz
+		{0x30, 0x70, 0x26}, // filter_band_sel + band_mode_sel = 25kHz
 		};
 
 const uint8_t AT1846FMSettings[][AT1846_BYTES_PER_COMMAND] = {
@@ -154,8 +154,8 @@ const uint8_t AT1846FMSettings[][AT1846_BYTES_PER_COMMAND] = {
 		{0x30,0x40,0x26},
 
 		// Settings that seem to be captured incorrectly from the official firmware
-		{0x58, 0xBC, 0x7D}, // Enable some filters for FM e.g. de-emphasis / pre-emphasis
-		{0x44, 0x06, 0x80} // set internal volume to 50%
+		{0x58, 0xBC, 0x05},// Enable some filters for FM e.g. de-emphasis / pre-emphasis / High and Low Pass Filters
+		{0x44, 0x06, 0xFF} // set internal volume to 100% . Details from Colin G4EML
 		};
 
 const uint8_t AT1846DMRSettings[][AT1846_BYTES_PER_COMMAND] = {
@@ -202,16 +202,17 @@ void I2C_AT1846_Postinit()
 	I2C_AT1846S_send_Settings(AT1846PostinitSettings,sizeof(AT1846PostinitSettings)/AT1846_BYTES_PER_COMMAND);
 }
 
-void I2C_AT1846_SetBandwidth(int bandWidthkHzx10)
+void I2C_AT1846_SetBandwidth(bool bandWidthIs25kHz)
 {
-	switch(bandWidthkHzx10)
+	if (bandWidthIs25kHz)
 	{
-		case 125:			// 12.5 kHz settings
-			I2C_AT1846S_send_Settings(AT1846FM12P5kHzSettings, sizeof(AT1846FM12P5kHzSettings)/AT1846_BYTES_PER_COMMAND);
-			break;
-		case 250:			// 25 kHz settings
-			I2C_AT1846S_send_Settings(AT1846FM25kHzSettings,sizeof(AT1846FM25kHzSettings)/AT1846_BYTES_PER_COMMAND);
-			break;
+		// 25 kHz settings
+		I2C_AT1846S_send_Settings(AT1846FM25kHzSettings,sizeof(AT1846FM25kHzSettings)/AT1846_BYTES_PER_COMMAND);
+	}
+	else
+	{
+		// 12.5 kHz settings
+		I2C_AT1846S_send_Settings(AT1846FM12P5kHzSettings, sizeof(AT1846FM12P5kHzSettings)/AT1846_BYTES_PER_COMMAND);
 	}
 }
 

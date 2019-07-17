@@ -19,15 +19,22 @@
 
 static void updateScreen();
 static void handleEvent(int buttons, int keys, int events);
+static int updateCounter;
 
 int menuBattery(int buttons, int keys, int events, bool isFirstRun)
 {
 	if (isFirstRun)
 	{
+		updateCounter=0;
 		updateScreen();
 	}
 	else
 	{
+		if (++updateCounter > 10000)
+		{
+			updateCounter=0;
+			updateScreen();// update the screen once per second to show any changes to the battery voltage
+		}
 		if (events!=0 && keys!=0)
 		{
 			handleEvent(buttons, keys, events);

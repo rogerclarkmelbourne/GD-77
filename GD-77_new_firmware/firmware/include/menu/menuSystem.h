@@ -72,7 +72,9 @@ enum MENU_SCREENS { MENU_SPLASH_SCREEN=0,
 					MENU_LAST_HEARD,
 					MENU_UTILITIES,
 					MENU_DISPLAY,
-					MENU_CREDITS};
+					MENU_CREDITS,
+					MENU_CHANNEL_DETAILS,
+};
 
 extern int gMenusCurrentItemIndex;
 extern int gMenusStartIndex;

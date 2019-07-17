@@ -40,6 +40,7 @@ int menuLastHeard(int buttons, int keys, int events, bool isFirstRun);
 int menuUtilities(int buttons, int keys, int events, bool isFirstRun);
 int menuDisplayOptions(int buttons, int keys, int events, bool isFirstRun);
 int menuCredits(int buttons, int keys, int events, bool isFirstRun);
+int menuChannelDetails(int buttons, int keys, int events, bool isFirstRun);
 
 
 /*
@@ -82,7 +83,8 @@ const MenuFunctionPointer_t menuFunctions[] = { menuSplashScreen,
 												menuLastHeard,
 												menuUtilities,
 												menuDisplayOptions,
-												menuCredits};
+												menuCredits,
+												menuChannelDetails};
 
 void menuSystemPushNewMenu(int menuNumber)
 {
@@ -173,10 +175,12 @@ const char menuStringTable[32][16] = { "",//0
 										 "Utilities",//19
 										 "Display options",//20
 										 "Credits",//21
+										 "Channel details",//22
 };
 
+
 const menuItemNew_t menuDataMainMenu[] = {
-	{8,8},// number of enties i
+	{9,9},// number of menus
 	{ 21, MENU_CREDITS },
 	{ 6, MENU_ZONE_LIST },
 	{ 17, MENU_RSSI_SCREEN },
@@ -185,6 +189,7 @@ const menuItemNew_t menuDataMainMenu[] = {
 	{ 16, MENU_FIRMWARE_INFO },
 	{ 19, MENU_UTILITIES },
 	{ 20, MENU_DISPLAY},
+	{ 22, MENU_CHANNEL_DETAILS},
 };
 const menuItemNew_t menuDataContact[] = {
 	{ 3, 3 } ,// length

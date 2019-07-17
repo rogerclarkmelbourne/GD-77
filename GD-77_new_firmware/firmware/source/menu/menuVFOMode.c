@@ -40,7 +40,6 @@ static void handleEvent(int buttons, int keys, int events);
 
 static void reset_freq_enter_digits();
 static int read_freq_enter_digits();
-static bool check_frequency(int tmp_frequency);
 static void update_frequency(int tmp_frequency);
 static void stepFrequency(int increment);
 
@@ -52,8 +51,16 @@ int menuVFOMode(int buttons, int keys, int events, bool isFirstRun)
 	{
 		nonVolatileSettings.initialMenuNumber=MENU_VFO_MODE;
 		currentChannelData = &nonVolatileSettings.vfoChannel;
-		trxSetFrequency(currentChannelData->rxFreq);
+
 		trxSetMode(currentChannelData->chMode);
+		if (currentChannelData->chMode == RADIO_MODE_ANALOG)
+		{
+			trxSetBandWidth((currentChannelData->flag4 & 0x02)  == 0x02);// set the bandwidth after the mode, because mode probably sets it back to 12.5kHz (note this needs to be tidied up ;-) )
+		}
+
+		trxSetTxCTCSS(currentChannelData->txTone);
+		trxSetRxCTCSS(currentChannelData->rxTone);
+		trxSetFrequency(currentChannelData->rxFreq);
 		trxSetDMRColourCode(currentChannelData->rxColor);
 		trxSetPower(nonVolatileSettings.txPower);
 
@@ -197,16 +204,11 @@ static int read_freq_enter_digits()
 	return result;
 }
 
-static bool check_frequency(int tmp_frequency)
-{
-	return ((tmp_frequency>=BAND_VHF_MIN) && (tmp_frequency<=BAND_VHF_MAX)) || ((tmp_frequency>=BAND_UHF_MIN) && (tmp_frequency<=BAND_UHF_MAX));
-}
-
 static void update_frequency(int frequency)
 {
 	if (selectedFreq == VFO_SELECTED_FREQUENCY_INPUT_TX)
 	{
-		if (check_frequency(frequency))
+		if (trxCheckFrequency(frequency))
 		{
 			currentChannelData->txFreq = frequency;
 			set_melody(melody_ACK_beep);
@@ -215,7 +217,7 @@ static void update_frequency(int frequency)
 	else
 	{
 		int deltaFrequency = frequency - currentChannelData->rxFreq;
-		if (check_frequency(frequency) && check_frequency(currentChannelData->txFreq + deltaFrequency))
+		if (trxCheckFrequency(frequency) && trxCheckFrequency(currentChannelData->txFreq + deltaFrequency))
 		{
 			currentChannelData->rxFreq = frequency;
 			currentChannelData->txFreq = currentChannelData->txFreq + deltaFrequency;
@@ -243,7 +245,14 @@ static void handleEvent(int buttons, int keys, int events)
 
 	if ((keys & KEY_GREEN)!=0)
 	{
-		menuSystemPushNewMenu(MENU_MAIN_MENU);
+		if (buttons & BUTTON_SK2 )
+		{
+			menuSystemPushNewMenu(MENU_CHANNEL_DETAILS);
+		}
+		else
+		{
+			menuSystemPushNewMenu(MENU_MAIN_MENU);
+		}
 		return;
 	}
 	else if ((keys & KEY_HASH)!=0)
@@ -263,6 +272,7 @@ static void handleEvent(int buttons, int keys, int events)
 			else
 			{
 				trxSetMode(RADIO_MODE_ANALOG);
+				trxSetTxCTCSS(currentChannelData->rxTone);
 			}
 			currentChannelData->chMode = trxGetMode();
 			menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
@@ -394,7 +404,7 @@ static void handleEvent(int buttons, int keys, int events)
 			if (freq_enter_idx==7)
 			{
 				int tmp_frequency=read_freq_enter_digits();
-				if (check_frequency(tmp_frequency))
+				if (trxCheckFrequency(tmp_frequency))
 				{
 					update_frequency(tmp_frequency);
 					reset_freq_enter_digits();
@@ -427,7 +437,7 @@ int tmp_frequencyRx;
 		tmp_frequencyRx  = currentChannelData->rxFreq + increment;
 		tmp_frequencyTx  = currentChannelData->txFreq + increment;
 	}
-	if (check_frequency(tmp_frequencyRx) && check_frequency(tmp_frequencyTx))
+	if (trxCheckFrequency(tmp_frequencyRx) && trxCheckFrequency(tmp_frequencyTx))
 	{
 		currentChannelData->txFreq = tmp_frequencyTx;
 		currentChannelData->rxFreq =  tmp_frequencyRx;

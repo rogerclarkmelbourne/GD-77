@@ -21,6 +21,7 @@
 #include "fw_settings.h"
 #include "fw_calibration.h"
 #include "fw_AT1846S.h"
+#include "menu/menuSystem.h"
 
 bool open_squelch=false;
 bool HR_C6000_datalogging=false;
@@ -38,11 +39,12 @@ const int RADIO_UHF_MIN			=	4000000;
 const int RADIO_UHF_MAX			=	5200000;
 
 static int currentMode = RADIO_MODE_NONE;
-static int currentBandWidth=0;
+static bool currentBandWidth = BANDWIDTH_12P5KHZ;
 static int currentFrequency =1440000;
 static int currentCC =1;
 static uint8_t squelch = 0x00;
 static const uint8_t SQUELCH_SETTINGS[] = {45,45,45};
+static bool rxCTCSSactive = false;
 
 int	trxGetMode()
 {
@@ -65,7 +67,7 @@ void trxSetMode(int theMode)
 		}
 		else
 		{
-			trxSetBandWidth(125);// DMR is always 12.5kHz
+			trxSetBandWidth(0);// DMR is always 12.5kHz
 			GPIO_PinWrite(GPIO_RX_audio_mux, Pin_RX_audio_mux, 0); // connect AT1846S audio to HR_C6000
 			init_sound();
 			init_digital();
@@ -73,15 +75,21 @@ void trxSetMode(int theMode)
 	}
 }
 
-static bool check_frequency_is_VHF(int frequency)
+bool trxCheckFrequencyIsVHF(int frequency)
 {
 	return ((frequency >= RADIO_VHF_MIN) && (frequency < RADIO_VHF_MAX));
 }
 
-static bool check_frequency_is_UHF(int frequency)
+bool trxCheckFrequencyIsUHF(int frequency)
 {
 	return ((frequency >= RADIO_UHF_MIN) && (frequency < RADIO_UHF_MAX));
 }
+
+bool trxCheckFrequency(int tmp_frequency)
+{
+	return ((tmp_frequency>=BAND_VHF_MIN) && (tmp_frequency<=BAND_VHF_MAX)) || ((tmp_frequency>=BAND_UHF_MIN) && (tmp_frequency<=BAND_UHF_MAX));
+}
+
 
 void trx_check_analog_squelch()
 {
@@ -94,11 +102,17 @@ void trx_check_analog_squelch()
 
 		if ((RX_noise < SQUELCH_SETTINGS[0]) || (open_squelch))
 		{
-			GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 1); // speaker on
+			GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 1);
+			if(!rxCTCSSactive || (rxCTCSSactive & trxCheckCTCSSFlag())|| open_squelch)
+			{
+				GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 1); // speaker on
+				displayLightTrigger();
+			}
 		}
 		else
 		{
 			GPIO_PinWrite(GPIO_speaker_mute, Pin_speaker_mute, 0); // speaker off
+			GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
 		}
 
     	trx_measure_count=0;
@@ -136,12 +150,12 @@ void trxSetFrequency(int frequency)
 		write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x49, 0x0C, 0x15); // setting SQ open and shut threshold
 		write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x30, 0x40, 0x26 | squelch); // RX on
 
-		if (check_frequency_is_VHF(currentFrequency))
+		if (trxCheckFrequencyIsVHF(currentFrequency))
 		{
 			GPIO_PinWrite(GPIO_VHF_RX_amp_power, Pin_VHF_RX_amp_power, 1);
 			GPIO_PinWrite(GPIO_UHF_RX_amp_power, Pin_UHF_RX_amp_power, 0);
 		}
-		else if (check_frequency_is_UHF(currentFrequency))
+		else if (trxCheckFrequencyIsUHF(currentFrequency))
 		{
 			GPIO_PinWrite(GPIO_VHF_RX_amp_power, Pin_VHF_RX_amp_power, 0);
 			GPIO_PinWrite(GPIO_UHF_RX_amp_power, Pin_UHF_RX_amp_power, 1);
@@ -179,12 +193,12 @@ void trx_setRX()
 	set_clear_I2C_reg_2byte_with_mask(0x30, 0xFF, 0x1F, 0x00, 0x20); // RX
 
 	// RX amp on
-	if (check_frequency_is_VHF(currentFrequency))
+	if (trxCheckFrequencyIsVHF(currentFrequency))
 	{
 		GPIO_PinWrite(GPIO_VHF_RX_amp_power, Pin_VHF_RX_amp_power, 1);
 		GPIO_PinWrite(GPIO_UHF_RX_amp_power, Pin_UHF_RX_amp_power, 0);
 	}
-	else if (check_frequency_is_UHF(currentFrequency))
+	else if (trxCheckFrequencyIsUHF(currentFrequency))
 	{
 		GPIO_PinWrite(GPIO_VHF_RX_amp_power, Pin_VHF_RX_amp_power, 0);
 		GPIO_PinWrite(GPIO_UHF_RX_amp_power, Pin_UHF_RX_amp_power, 1);
@@ -195,6 +209,7 @@ void trx_setTX()
 {
 	// MUX for TX
 	trxSetMode(currentMode);
+
 	if (currentMode == RADIO_MODE_ANALOG)
 	{
 		GPIO_PinWrite(GPIO_TX_audio_mux, Pin_TX_audio_mux, 0);
@@ -220,12 +235,12 @@ void trx_setTX()
 	}
 
 	// TX preamp on
-	if (check_frequency_is_VHF(currentFrequency))
+	if (trxCheckFrequencyIsVHF(currentFrequency))
 	{
 		GPIO_PinWrite(GPIO_VHF_TX_amp_power, Pin_VHF_TX_amp_power, 1);
 		GPIO_PinWrite(GPIO_UHF_TX_amp_power, Pin_UHF_TX_amp_power, 0);
 	}
-	else if (check_frequency_is_UHF(currentFrequency))
+	else if (trxCheckFrequencyIsUHF(currentFrequency))
 	{
 		GPIO_PinWrite(GPIO_VHF_TX_amp_power, Pin_VHF_TX_amp_power, 0);
 		GPIO_PinWrite(GPIO_UHF_TX_amp_power, Pin_UHF_TX_amp_power, 1);
@@ -250,16 +265,16 @@ uint16_t trxGetPower()
 }
 
 // Use 125 for 12.5kHz, or 250 for 25kHz
-void trxSetBandWidth(int bandWidthkHzx10)
+void trxSetBandWidth(bool bandWidthis25kHz)
 {
 
-	if (currentBandWidth==bandWidthkHzx10)
+	if (currentBandWidth==bandWidthis25kHz)
 	{
 		return;
 	}
-	currentBandWidth = bandWidthkHzx10;
+	currentBandWidth = bandWidthis25kHz;
 
-	I2C_AT1846_SetBandwidth(bandWidthkHzx10);
+	I2C_AT1846_SetBandwidth(bandWidthis25kHz);
 }
 
 void trxUpdateC6000Calibration()
@@ -273,7 +288,7 @@ void trxUpdateC6000Calibration()
 	}
 
 
-	if (check_frequency_is_VHF(currentFrequency))
+	if (trxCheckFrequencyIsVHF(currentFrequency))
 	{
 		band_offset=0x00000070;
 		if (currentFrequency<1360000)
@@ -309,7 +324,7 @@ void trxUpdateC6000Calibration()
 			freq_offset=0x00000007;
 		}
 	}
-	else if (check_frequency_is_UHF(currentFrequency))
+	else if (trxCheckFrequencyIsUHF(currentFrequency))
 	{
 		band_offset=0x00000000;
 		if (currentFrequency<4050000)
@@ -444,3 +459,50 @@ int trxGetDMRColourCode()
 {
 	return currentCC;
 }
+
+void trxSetTxCTCSS(int toneFreqX10)
+{
+	if (toneFreqX10 == 0xFFFF)
+	{
+		// tone value of 0xffff in the codeplug seem to be a flag that no tone has been selected
+        write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x4a, 0x00,0x00); //Zero the CTCSS1 Register
+		set_clear_I2C_reg_2byte_with_mask(0x4e,0xF9,0xFF,0x00,0x00);    //disable the transmit CTCSS
+	}
+	else
+	{
+		toneFreqX10 = toneFreqX10*10;// value that is stored is 100 time the tone freq but its stored in the codeplug as freq times 10
+		write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT,	0x4a, (toneFreqX10 >> 8) & 0xff,	(toneFreqX10 & 0xff));
+		set_clear_I2C_reg_2byte_with_mask(0x4e,0xF9,0xFF,0x06,0x00);    //enable the transmit CTCSS
+	}
+}
+
+void trxSetRxCTCSS(int toneFreqX10)
+{
+	if (toneFreqX10 == 0xFFFF)
+	{
+		// tone value of 0xffff in the codeplug seem to be a flag that no tone has been selected
+        write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x4d, 0x00,0x00); //Zero the CTCSS2 Register
+        rxCTCSSactive=false;
+	}
+	else
+	{
+		int threshold=(2500-toneFreqX10)/100;   //adjust threshold value to match tone frequency.
+		toneFreqX10 = toneFreqX10*10;// value that is stored is 100 time the tone freq but its stored in the codeplug as freq times 10
+		write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT,	0x4d, (toneFreqX10 >> 8) & 0xff,	(toneFreqX10 & 0xff));
+		write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x5b,(threshold & 0xFF),(threshold & 0xFF)); //set the detection thresholds
+		set_clear_I2C_reg_2byte_with_mask(0x3a,0xFF,0xE0,0x00,0x08);    //set detection to CTCSS2
+		rxCTCSSactive=true;
+	}
+}
+
+bool trxCheckCTCSSFlag()
+{
+	uint8_t FlagsH;
+	uint8_t FlagsL;
+
+	read_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x1c,&FlagsH,&FlagsL);
+
+	return (FlagsH & 0x01);
+
+}
+
