@@ -242,7 +242,14 @@ static void handleEvent(int buttons, int keys, int events)
 
 	if ((keys & KEY_GREEN)!=0)
 	{
-		menuSystemPushNewMenu(MENU_MAIN_MENU);
+		if (buttons & BUTTON_SK2 )
+		{
+			menuSystemPushNewMenu(MENU_CHANNEL_DETAILS);
+		}
+		else
+		{
+			menuSystemPushNewMenu(MENU_MAIN_MENU);
+		}
 		return;
 	}
 	else if ((keys & KEY_HASH)!=0)
