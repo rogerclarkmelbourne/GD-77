@@ -30,7 +30,6 @@ int trx_measure_count = 0;
 bool trxIsTransmitting = false;
 uint32_t trxTalkGroup=9;// Set to local TG just in case there is some problem with it not being loaded
 uint32_t trxDMRID = 0;// Set ID to 0. Not sure if its valid. This value needs to be loaded from the codeplug.
-int txstartdelay = 0;
 int txstopdelay = 0;
 
 const int RADIO_VHF_MIN			=	1340000;
@@ -58,6 +57,7 @@ void trxSetMode(int theMode)
 		currentMode=theMode;
 
 		I2C_AT1846_SetMode(currentMode);
+		trxUpdateAT1846SCalibration();
 		trxUpdateAT1846SCalibration();
 		if (currentMode == RADIO_MODE_ANALOG)
 		{
@@ -125,9 +125,6 @@ void trxSetFrequency(int frequency)
 	{
 		currentFrequency=frequency;
 
-		trxUpdateC6000Calibration();
-		trxUpdateAT1846SCalibration();
-
 		if ((currentMode == RADIO_MODE_ANALOG) && (!open_squelch))
 		{
 			squelch = 0x08;
@@ -150,6 +147,9 @@ void trxSetFrequency(int frequency)
 		write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x49, 0x0C, 0x15); // setting SQ open and shut threshold
 		write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x30, 0x40, 0x26 | squelch); // RX on
 
+		trxUpdateC6000Calibration();
+		trxUpdateAT1846SCalibration();
+
 		if (trxCheckFrequencyIsVHF(currentFrequency))
 		{
 			GPIO_PinWrite(GPIO_VHF_RX_amp_power, Pin_VHF_RX_amp_power, 1);
@@ -168,25 +168,13 @@ int trxGetFrequency()
 	return currentFrequency;
 }
 
-void trxSetFrequencyAndMode(int frequency,int mode)
-{
-	trxSetMode(mode);
-	trxSetFrequency(frequency);
-}
-
 void trx_setRX()
 {
 	// MUX for RX
-	trxSetMode(currentMode);
 	GPIO_PinWrite(GPIO_TX_audio_mux, Pin_TX_audio_mux, 0);
 
-	// RX Antenna + PA power off
-    DAC_SetBufferValue(DAC0, 0U, 0U);
+	// RX Antenna
     GPIO_PinWrite(GPIO_RF_ant_switch, Pin_RF_ant_switch, 0);
-
-	// TX preamp off
-	GPIO_PinWrite(GPIO_VHF_TX_amp_power, Pin_VHF_TX_amp_power, 0);
-	GPIO_PinWrite(GPIO_UHF_TX_amp_power, Pin_UHF_TX_amp_power, 0);
 
 	// AT1846 RX + unmute
 	set_clear_I2C_reg_2byte_with_mask(0x30, 0xFF, 0x1F, 0x00, 0x00);
@@ -208,8 +196,6 @@ void trx_setRX()
 void trx_setTX()
 {
 	// MUX for TX
-	trxSetMode(currentMode);
-
 	if (currentMode == RADIO_MODE_ANALOG)
 	{
 		GPIO_PinWrite(GPIO_TX_audio_mux, Pin_TX_audio_mux, 0);
@@ -234,6 +220,22 @@ void trx_setTX()
 		set_clear_I2C_reg_2byte_with_mask(0x30, 0xFF, 0x1F, 0x00, 0xC0); // digital TX
 	}
 
+	// TX Antenna
+    GPIO_PinWrite(GPIO_RF_ant_switch, Pin_RF_ant_switch, 1);
+}
+
+void trx_deactivateTX()
+{
+	// PA power off
+    DAC_SetBufferValue(DAC0, 0U, 0U);
+
+	// TX preamp off
+	GPIO_PinWrite(GPIO_VHF_TX_amp_power, Pin_VHF_TX_amp_power, 0);
+	GPIO_PinWrite(GPIO_UHF_TX_amp_power, Pin_UHF_TX_amp_power, 0);
+}
+
+void trx_activateTX()
+{
 	// TX preamp on
 	if (trxCheckFrequencyIsVHF(currentFrequency))
 	{
@@ -246,8 +248,7 @@ void trx_setTX()
 		GPIO_PinWrite(GPIO_UHF_TX_amp_power, Pin_UHF_TX_amp_power, 1);
 	}
 
-	// TX Antenna + PA power off
-    GPIO_PinWrite(GPIO_RF_ant_switch, Pin_RF_ant_switch, 1);
+	// PA power off
     DAC_SetBufferValue(DAC0, 0U, nonVolatileSettings.txPower);
 }
 
@@ -277,6 +278,82 @@ void trxSetBandWidth(bool bandWidthis25kHz)
 	I2C_AT1846_SetBandwidth(bandWidthis25kHz);
 }
 
+void trxCalcBandAndFrequencyOffset(int *band_offset, int *freq_offset)
+{
+	if (trxCheckFrequencyIsVHF(currentFrequency))
+	{
+		*band_offset=0x00000070;
+		if (currentFrequency<1380000)
+		{
+			*freq_offset=0x00000000;
+		}
+		else if (currentFrequency<1425000)
+		{
+			*freq_offset=0x00000001;
+		}
+		else if (currentFrequency<1475000)
+		{
+			*freq_offset=0x00000002;
+		}
+		else if (currentFrequency<1525000)
+		{
+			*freq_offset=0x00000003;
+		}
+		else if (currentFrequency<1575000)
+		{
+			*freq_offset=0x00000004;
+		}
+		else if (currentFrequency<1625000)
+		{
+			*freq_offset=0x00000005;
+		}
+		else if (currentFrequency<1685000)
+		{
+			*freq_offset=0x00000006;
+		}
+		else
+		{
+			*freq_offset=0x00000007;
+		}
+	}
+	else if (trxCheckFrequencyIsUHF(currentFrequency))
+	{
+		*band_offset=0x00000000;
+		if (currentFrequency<4100000)
+		{
+			*freq_offset=0x00000000;
+		}
+		else if (currentFrequency<4200000)
+		{
+			*freq_offset=0x00000001;
+		}
+		else if (currentFrequency<4300000)
+		{
+			*freq_offset=0x00000002;
+		}
+		else if (currentFrequency<4400000)
+		{
+			*freq_offset=0x00000003;
+		}
+		else if (currentFrequency<4500000)
+		{
+			*freq_offset=0x00000004;
+		}
+		else if (currentFrequency<4600000)
+		{
+			*freq_offset=0x00000005;
+		}
+		else if (currentFrequency<4700000)
+		{
+			*freq_offset=0x00000006;
+		}
+		else
+		{
+			*freq_offset=0x00000007;
+		}
+	}
+}
+
 void trxUpdateC6000Calibration()
 {
 	int band_offset=0x00000000;
@@ -287,79 +364,7 @@ void trxUpdateC6000Calibration()
 		return;
 	}
 
-
-	if (trxCheckFrequencyIsVHF(currentFrequency))
-	{
-		band_offset=0x00000070;
-		if (currentFrequency<1360000)
-		{
-			freq_offset=0x00000000;
-		}
-		else if (currentFrequency<1400000)
-		{
-			freq_offset=0x00000001;
-		}
-		else if (currentFrequency<1450000)
-		{
-			freq_offset=0x00000002;
-		}
-		else if (currentFrequency<1500000)
-		{
-			freq_offset=0x00000003;
-		}
-		else if (currentFrequency<1550000)
-		{
-			freq_offset=0x00000004;
-		}
-		else if (currentFrequency<1600000)
-		{
-			freq_offset=0x00000005;
-		}
-		else if (currentFrequency<1650000)
-		{
-			freq_offset=0x00000006;
-		}
-		else
-		{
-			freq_offset=0x00000007;
-		}
-	}
-	else if (trxCheckFrequencyIsUHF(currentFrequency))
-	{
-		band_offset=0x00000000;
-		if (currentFrequency<4050000)
-		{
-			freq_offset=0x00000000;
-		}
-		else if (currentFrequency<4150000)
-		{
-			freq_offset=0x00000001;
-		}
-		else if (currentFrequency<4250000)
-		{
-			freq_offset=0x00000002;
-		}
-		else if (currentFrequency<4350000)
-		{
-			freq_offset=0x00000003;
-		}
-		else if (currentFrequency<4450000)
-		{
-			freq_offset=0x00000004;
-		}
-		else if (currentFrequency<4550000)
-		{
-			freq_offset=0x00000005;
-		}
-		else if (currentFrequency<4650000)
-		{
-			freq_offset=0x00000006;
-		}
-		else
-		{
-			freq_offset=0x00000007;
-		}
-	}
+	trxCalcBandAndFrequencyOffset(&band_offset, &freq_offset);
 
 	uint8_t val_shift;
 	read_val_DACDATA_shift(band_offset,&val_shift);
@@ -388,10 +393,14 @@ void I2C_AT1846_set_register_with_mask(uint8_t reg, uint16_t mask, uint16_t valu
 void trxUpdateAT1846SCalibration()
 {
 	int band_offset=0x00000000;
-	if ((trxGetFrequency() >= RADIO_VHF_MIN) && (trxGetFrequency() < RADIO_VHF_MAX))
+	int freq_offset=0x00000000;
+
+	if (nonVolatileSettings.useCalibration==0)
 	{
-		band_offset=0x00000070;
+		return;
 	}
+
+	trxCalcBandAndFrequencyOffset(&band_offset, &freq_offset);
 
 	uint8_t val_pga_gain;
 	uint8_t voice_gain_tx;
@@ -407,6 +416,8 @@ void trxUpdateAT1846SCalibration()
 	uint16_t noise2_th_narrowband;
 	uint16_t rssi3_th_narrowband;
 
+	uint16_t squelch_th;
+
 	read_val_pga_gain(band_offset, &val_pga_gain);
 	read_val_voice_gain_tx(band_offset, &voice_gain_tx);
 	read_val_gain_tx(band_offset, &gain_tx);
@@ -418,21 +429,7 @@ void trxUpdateAT1846SCalibration()
 	read_val_noise2_th_narrowband(band_offset, &noise2_th_narrowband);
 	read_val_rssi3_th_narrowband(band_offset, &rssi3_th_narrowband);
 
-	/*
-	SEGGER_RTT_printf(0, "val_pga_gain %02x\r\n", val_pga_gain);
-	SEGGER_RTT_printf(0, "voice_gain_tx %02x\r\n", voice_gain_tx);
-	SEGGER_RTT_printf(0, "gain_tx %02x\r\n", gain_tx);
-	SEGGER_RTT_printf(0, "padrv_ibit %02x\r\n", padrv_ibit);
-
-	SEGGER_RTT_printf(0, "xmitter_dev_narrowband %04x\r\n", xmitter_dev_narrowband);
-
-	SEGGER_RTT_printf(0, "dac_vgain_analog %02x\r\n", dac_vgain_analog);
-	SEGGER_RTT_printf(0, "volume_analog %02x\r\n", volume_analog);
-
-	SEGGER_RTT_printf(0, "noise1_th_narrowband %04x\r\n", noise1_th_narrowband);
-	SEGGER_RTT_printf(0, "noise2_th_narrowband %04x\r\n", noise2_th_narrowband);
-	SEGGER_RTT_printf(0, "rssi3_th_narrowband %04x\r\n", rssi3_th_narrowband);
-	*/
+	read_val_squelch_th(band_offset+freq_offset, &squelch_th);
 
 	I2C_AT1846_set_register_with_mask(0x0A, 0xF83F, val_pga_gain, 6);
 	I2C_AT1846_set_register_with_mask(0x41, 0xFF80, voice_gain_tx, 0);
@@ -447,6 +444,8 @@ void trxUpdateAT1846SCalibration()
 	I2C_AT1846_set_register_with_mask(0x3f, 0x0000, rssi3_th_narrowband, 0);
 
 	I2C_AT1846_set_register_with_mask(0x0A, 0x87FF, padrv_ibit, 11);
+
+	I2C_AT1846_set_register_with_mask(0x49, 0x0000, squelch_th, 0);
 }
 
 void trxSetDMRColourCode(int colourCode)

@@ -1,8 +1,10 @@
 Changelog
 =========
 
-V0.2.3 <work in progress>:
-- Added first set of frequency and band dependent HR-C6000 calibration parameters.
+V0.2.4 <work in progress>:
+
+V0.2.3:
+- Added frequency and band dependent HR-C6000 calibration parameters.
 - License for ComTool: GPL v2 + non-commercial.
 - DMR RX colour code filtering to the currently selected CC.
 - Better comments on RX/TX sequence, cleanup, refactoring.
@@ -10,7 +12,17 @@ V0.2.3 <work in progress>:
 - LCSS=0 in TX sequence.
 - Tweaked TX sequence.
 - Gone back to original firmware values for better consistency. We'll update them later on (DMR mode / analog mode) anyway.
-- Added first set of frequency and band dependent AT1846S calibration parameters (DMR mode).
+- Added frequency and band dependent AT1846S calibration parameters.
+- Fixed the calibration frequency ranges.
+- Refactored calculation of calibration frequency ranges.
+- Added missing condition to support turning calibration off in trxUpdateAT1846SCalibration too.
+- Added missing AT1846S calibration parameter for squelch_th.
+- txPower now intialized to about original firmware LOW.
+- More optimization of the TX sequence.
+- Explicitly handle TX interrupts.
+- TX with pulsed PA.
+- Seperate activate/deactivate TX.
+- Optimized TX start/stop timing for DMR and analog.
 - Additional stuff by Roger Clark, VK3KYY / G4KYF:
   - Add windows comm port driver installer.
   - Changed maximum PA drive level so that max power is around 4.9W on 2m and 3W on 70cm + increase max allowable Tx power a little to allow testers more flexibility.

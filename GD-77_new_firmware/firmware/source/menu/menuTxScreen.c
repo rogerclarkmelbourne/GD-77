@@ -36,11 +36,14 @@ int menuTxScreen(int buttons, int keys, int events, bool isFirstRun)
 	    GPIO_PinWrite(GPIO_LEDgreen, Pin_LEDgreen, 0);
 	    GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 1);
 	    trxSetFrequency(currentChannelData->txFreq);
-	    txstartdelay=0;
 	    txstopdelay=0;
 		trxIsTransmitting=true;
 
 	    trx_setTX();
+		if (trxGetMode() == RADIO_MODE_ANALOG)
+		{
+		    trx_activateTX();
+		}
 	}
 	else
 	{
@@ -77,9 +80,10 @@ static void handleEvent(int buttons, int keys, int events)
 		{
 			txstopdelay--;
 		}
-		else
+		if ((slot_state < DMR_STATE_TX_START_1) && (txstopdelay==0))
 		{
 			GPIO_PinWrite(GPIO_LEDred, Pin_LEDred, 0);
+			trx_deactivateTX();
 			trx_setRX();
 			menuSystemPopPreviousMenu();
 		}

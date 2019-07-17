@@ -245,6 +245,16 @@ void PORTC_IRQHandler(void)
     	int_ts=true;
         PORT_ClearPinsInterruptFlags(Port_INT_C6000_TS, (1U << Pin_INT_C6000_TS));
     }
+    if ((1U << Pin_INT_C6000_RF_RX) & PORT_GetPinsInterruptFlags(Port_INT_C6000_RF_RX))
+    {
+    	trx_deactivateTX();
+        PORT_ClearPinsInterruptFlags(Port_INT_C6000_RF_RX, (1U << Pin_INT_C6000_RF_RX));
+    }
+    if ((1U << Pin_INT_C6000_RF_TX) & PORT_GetPinsInterruptFlags(Port_INT_C6000_RF_TX))
+    {
+    	trx_activateTX();
+        PORT_ClearPinsInterruptFlags(Port_INT_C6000_RF_TX, (1U << Pin_INT_C6000_RF_TX));
+    }
 
     int_timeout=0;
 
@@ -259,6 +269,8 @@ void init_HR_C6000_interrupts()
 
     PORT_SetPinInterruptConfig(Port_INT_C6000_SYS, Pin_INT_C6000_SYS, kPORT_InterruptEitherEdge);
     PORT_SetPinInterruptConfig(Port_INT_C6000_TS, Pin_INT_C6000_TS, kPORT_InterruptEitherEdge);
+    PORT_SetPinInterruptConfig(Port_INT_C6000_RF_RX, Pin_INT_C6000_RF_RX, kPORT_InterruptEitherEdge);
+    PORT_SetPinInterruptConfig(Port_INT_C6000_RF_TX, Pin_INT_C6000_RF_TX, kPORT_InterruptEitherEdge);
 
     NVIC_SetPriority(PORTC_IRQn, 3);
 }
@@ -377,33 +389,25 @@ void tick_HR_C6000()
 	}
 	taskEXIT_CRITICAL();
 
-	if (trxIsTransmitting==true && (slot_state == DMR_STATE_IDLE))
+	if (trxIsTransmitting==true && (slot_state == DMR_STATE_IDLE)) // Start TX (first step)
 	{
-		if (txstartdelay<300)
-		{
-			txstartdelay++;
-		}
-		else // Start TX (first step)
-		{
-			txstopdelay=300;
-			init_codec();
-			uint8_t spi_tx[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-			spi_tx[3] = (trxTalkGroup >> 16) & 0xFF;
-			spi_tx[4] = (trxTalkGroup >> 8) & 0xFF;
-			spi_tx[5] = (trxTalkGroup >> 0) & 0xFF;
-			spi_tx[6] = (trxDMRID >> 16) & 0xFF;
-			spi_tx[7] = (trxDMRID >> 8) & 0xFF;
-			spi_tx[8] = (trxDMRID >> 0) & 0xFF;
-			write_SPI_page_reg_bytearray_SPI0(0x02, 0x00, spi_tx, 0x0c);
-			write_SPI_page_reg_byte_SPI0(0x04, 0x40, 0xE3); // TX and RX enable
-			write_SPI_page_reg_byte_SPI0(0x04, 0x21, 0xA2); // reset vocoder codingbuffer
-			write_SPI_page_reg_byte_SPI0(0x04, 0x22, 0x86); // I2S master encode start
-			slot_state = DMR_STATE_TX_START_1;
-		}
+		init_codec();
+		uint8_t spi_tx[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+		spi_tx[3] = (trxTalkGroup >> 16) & 0xFF;
+		spi_tx[4] = (trxTalkGroup >> 8) & 0xFF;
+		spi_tx[5] = (trxTalkGroup >> 0) & 0xFF;
+		spi_tx[6] = (trxDMRID >> 16) & 0xFF;
+		spi_tx[7] = (trxDMRID >> 8) & 0xFF;
+		spi_tx[8] = (trxDMRID >> 0) & 0xFF;
+		write_SPI_page_reg_bytearray_SPI0(0x02, 0x00, spi_tx, 0x0c);
+		write_SPI_page_reg_byte_SPI0(0x04, 0x40, 0xE3); // TX and RX enable
+		write_SPI_page_reg_byte_SPI0(0x04, 0x21, 0xA2); // reset vocoder codingbuffer
+		write_SPI_page_reg_byte_SPI0(0x04, 0x22, 0x86); // I2S master encode start
+		slot_state = DMR_STATE_TX_START_1;
 	}
 
 	// Timeout interrupt
-	if (slot_state != DMR_STATE_IDLE) //0
+	if (slot_state != DMR_STATE_IDLE)
 	{
 		if (int_timeout<200)
 		{
@@ -451,11 +455,19 @@ void tick_HR_C6000()
 			slot_state = DMR_STATE_TX_START_2;
 			break;
 		case DMR_STATE_TX_START_2: // Start TX (third step)
-			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x80);
-			write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x10);
+			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x40); // RXnextslotenable
 			slot_state = DMR_STATE_TX_START_3;
 			break;
 		case DMR_STATE_TX_START_3: // Start TX (fourth step)
+			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x80);
+			write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x10);
+			slot_state = DMR_STATE_TX_START_4;
+			break;
+		case DMR_STATE_TX_START_4: // Start TX (fifth step)
+			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x40); // RXnextslotenable
+			slot_state = DMR_STATE_TX_START_5;
+			break;
+		case DMR_STATE_TX_START_5: // Start TX (sixth step)
 			tick_TXsoundbuffer();
 			write_SPI_page_reg_byte_SPI0(0x04, 0x41, 0x80);
 			write_SPI_page_reg_byte_SPI0(0x04, 0x50, 0x10);
@@ -463,7 +475,7 @@ void tick_HR_C6000()
 			slot_state = DMR_STATE_TX_1;
 			break;
 		case DMR_STATE_TX_1: // Ongoing TX (inactive timeslot)
-			if (trxIsTransmitting==false)
+			if ((trxIsTransmitting==false) && (tx_sequence==0))
 			{
 				slot_state = DMR_STATE_TX_END_1; // only exit here to ensure staying in the correct timeslot
 			}
@@ -513,9 +525,8 @@ void tick_HR_C6000()
 			break;
 		case DMR_STATE_TX_END_2: // Stop TX (second step)
 			write_SPI_page_reg_byte_SPI0(0x04, 0x40, 0xC3);
-
 			init_digital_DMR_RX();
-
+			txstopdelay=30;
 			slot_state = DMR_STATE_IDLE;
 			break;
 		}
@@ -548,7 +559,7 @@ void tick_HR_C6000()
 		int rcrc = (tmp_val_0x51 >> 2) & 0x01;
 		int rpi = (tmp_val_0x51 >> 3) & 0x01;
 		int cc = (tmp_val_0x52 >> 4) & 0x0f;
-        if ((rcrc==0) && (rpi==0) && (cc == trxGetDMRColourCode()))
+        if ((rcrc==0) && (rpi==0) && (cc == trxGetDMRColourCode()) && (slot_state < DMR_STATE_TX_START_1))
         {
     		if (tmp_val_0x82 & 0x20) // InterSendStop
     		{
@@ -660,6 +671,15 @@ void tick_HR_C6000()
 
     			write_SPI_page_reg_byte_SPI0(0x04, 0x83, 0xC6);
     		}
+        }
+        else if (slot_state >= DMR_STATE_TX_START_1)
+        {
+        	uint8_t tmp_val_0x42;
+			read_SPI_page_reg_byte_SPI0(0x04, 0x42, &tmp_val_0x42);
+#if defined(USE_SEGGER_RTT) && defined(DEBUG_DMR_DATA)
+            	SEGGER_RTT_printf(0, "TXTX %02x [%02x %02x] %02x\r\n", slot_state, tmp_val_0x82, tmp_val_0x86, tmp_val_0x42);
+#endif
+    		write_SPI_page_reg_byte_SPI0(0x04, 0x83, 0xFF);
         }
         else
         {

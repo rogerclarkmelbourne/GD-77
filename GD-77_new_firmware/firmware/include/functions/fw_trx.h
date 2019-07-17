@@ -38,7 +38,6 @@ extern bool trxIsTransmitting;
 extern uint32_t trxTalkGroup;
 extern uint32_t trxDMRID;
 extern int trx_measure_count;
-extern int txstartdelay;
 extern int txstopdelay;
 
 void trx_check_analog_squelch();
@@ -48,6 +47,8 @@ void trxSetMode(int mode);
 void trxSetFrequency(int frequency);
 void trx_setRX();
 void trx_setTX();
+void trx_deactivateTX();
+void trx_activateTX();
 void trxSetPower(uint32_t powerVal);
 uint16_t trxGetPower();
 void trxSetBandWidth(bool bandWidthis25kHz);
