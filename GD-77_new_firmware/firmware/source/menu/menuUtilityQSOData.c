@@ -332,9 +332,17 @@ void menuUtilityRenderHeader()
 	{
 		case RADIO_MODE_ANALOG:
 			strcpy(buffer, "FM");
+			if ((currentChannelData->txTone!=65535)||(currentChannelData->rxTone!=65535))
+			{
+				strcat(buffer," C");
+			}
 			if (currentChannelData->txTone!=65535)
 			{
-				strcat(buffer," CT");
+				strcat(buffer,"T");
+			}
+			if (currentChannelData->rxTone!=65535)
+			{
+				strcat(buffer,"R");
 			}
 			break;
 		case RADIO_MODE_DIGITAL:

@@ -25,7 +25,7 @@ static void updateScreen();
 static void handleEvent(int buttons, int keys, int events);
 static const int CTCSS_TONE_NONE = 65535;
 static char digits[69];// For CTCSS entry
-static int NUM_MENUS=3;
+static int NUM_MENUS=4;
 static struct_codeplugChannel_t tmpChannel;// update a temporary copy of the channel and only write back if green menu is pressed
 static enum {DISPLAY_MODE_NORMAL,CTCSS_NUMBER_INPUT} displayMode;
 
@@ -59,7 +59,14 @@ static void updateScreen()
 	switch (displayMode)
 	{
 		case CTCSS_NUMBER_INPUT:
-			UC1701_printCentered(16, "CTCSS freq",UC1701_FONT_GD77_8x16);
+			if(gMenusCurrentItemIndex==2)
+			{
+			UC1701_printCentered(16, "Tx CTCSS freq",UC1701_FONT_GD77_8x16);
+			}
+			else
+			{
+			UC1701_printCentered(16, "Rx CTCSS freq",UC1701_FONT_GD77_8x16);
+			}
 			UC1701_printCentered(48, (char *)digits,UC1701_FONT_GD77_8x16);
 			break;
 		default:
@@ -103,16 +110,33 @@ static void updateScreen()
 				{
 					if (tmpChannel.txTone==CTCSS_TONE_NONE)
 					{
-						strcpy(buf,"CTCSS:None");
+						strcpy(buf,"Tx CTCSS:None");
 					}
 					else
 					{
-						sprintf(buf,"CTCSS:%d.%dHz",tmpChannel.txTone/10 ,tmpChannel.txTone%10 );
+						sprintf(buf,"Tx CTCSS:%d.%dHz",tmpChannel.txTone/10 ,tmpChannel.txTone%10 );
 					}
 				}
 				else
 				{
-					strcpy(buf,"CTCSS:N/A");
+					strcpy(buf,"Tx CTCSS:N/A");
+				}
+				break;
+			case 3:
+				if (trxGetMode()==RADIO_MODE_ANALOG)
+				{
+					if (tmpChannel.rxTone==CTCSS_TONE_NONE)
+					{
+						strcpy(buf,"Rx CTCSS:None");
+					}
+					else
+					{
+						sprintf(buf,"Rx CTCSS:%d.%dHz",tmpChannel.rxTone/10 ,tmpChannel.rxTone%10 );
+					}
+				}
+				else
+				{
+					strcpy(buf,"Rx CTCSS:N/A");
 				}
 				break;
 			}
@@ -194,7 +218,16 @@ static void handleEvent(int buttons, int keys, int events)
 
 			if ((keys & KEY_GREEN)!=0)
 			{
-				tmpChannel.txTone=atof(digits)*10;
+				if(gMenusCurrentItemIndex==2)
+				{
+					tmpChannel.txTone=atof(digits)*10;
+					trxSetTxCTCSS(tmpChannel.txTone);
+				}
+				else
+				{
+					tmpChannel.rxTone=atof(digits)*10;
+					trxSetRxCTCSS(tmpChannel.rxTone);
+				}
 				digits[0]=0x00;
 				displayMode = DISPLAY_MODE_NORMAL;
 			}
@@ -205,7 +238,7 @@ static void handleEvent(int buttons, int keys, int events)
 			}
 			break;
 		default:
-			if ((keys & KEY_DOWN)!=0 && gMenusEndIndex!=0)
+			if ((keys & KEY_DOWN)!=0)
 			{
 				gMenusCurrentItemIndex++;
 				if (gMenusCurrentItemIndex>=NUM_MENUS)
@@ -235,6 +268,7 @@ static void handleEvent(int buttons, int keys, int events)
 						tmpChannel.flag2 |= 0x40;// set TS 2 bit
 						break;
 					case 2:
+					case 3:
 						if (trxGetMode()==RADIO_MODE_ANALOG)
 						{
 							displayMode = CTCSS_NUMBER_INPUT;
@@ -250,6 +284,7 @@ static void handleEvent(int buttons, int keys, int events)
 						if (tmpChannel.rxColor>0)
 						{
 							tmpChannel.rxColor--;
+							trxSetDMRColourCode(tmpChannel.rxColor);
 						}
 						break;
 					case 1:
@@ -259,6 +294,14 @@ static void handleEvent(int buttons, int keys, int events)
 						if (trxGetMode()==RADIO_MODE_ANALOG)
 						{
 							tmpChannel.txTone=CTCSS_TONE_NONE;// Set CTCSS to none
+							trxSetTxCTCSS(tmpChannel.txTone);
+						}
+						break;
+					case 3:
+						if (trxGetMode()==RADIO_MODE_ANALOG)
+						{
+							tmpChannel.rxTone=CTCSS_TONE_NONE;// Set Rx CTCSS to none
+							trxSetRxCTCSS(tmpChannel.rxTone);
 						}
 						break;
 				}

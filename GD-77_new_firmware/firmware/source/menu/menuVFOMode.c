@@ -59,6 +59,7 @@ int menuVFOMode(int buttons, int keys, int events, bool isFirstRun)
 		}
 
 		trxSetTxCTCSS(currentChannelData->txTone);
+		trxSetRxCTCSS(currentChannelData->rxTone);
 		trxSetFrequency(currentChannelData->rxFreq);
 		trxSetDMRColourCode(currentChannelData->rxColor);
 		trxSetPower(nonVolatileSettings.txPower);
