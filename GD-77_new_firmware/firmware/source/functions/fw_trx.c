@@ -450,3 +450,19 @@ int trxGetDMRColourCode()
 {
 	return currentCC;
 }
+
+void trxSetTxCTCSS(int toneFreqX10)
+{
+	if (toneFreqX10 == 0xFFFF)
+	{
+		// tone value of 0xffff in the codeplug seem to be a flag that no tone has been selected
+        write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT, 0x4a, 0x00,0x00); //Zero the CTCSS1 Register
+		set_clear_I2C_reg_2byte_with_mask(0x4e,0xF9,0xFF,0x00,0x00);    //disable the transmit CTCSS
+	}
+	else
+	{
+		toneFreqX10 = toneFreqX10*10;// value that is stored is 100 time the tone freq but its stored in the codeplug as freq times 10
+		write_I2C_reg_2byte(I2C_MASTER_SLAVE_ADDR_7BIT,	0x4a, (toneFreqX10 >> 8) & 0xff,	(toneFreqX10 & 0xff));
+		set_clear_I2C_reg_2byte_with_mask(0x4e,0xF9,0xFF,0x06,0x00);    //enable the transmit CTCSS
+	}
+}

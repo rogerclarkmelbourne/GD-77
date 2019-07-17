@@ -71,6 +71,7 @@ static void loadChannelData()
 	trxSetMode(channelData.chMode);
 	trxSetDMRColourCode(channelData.rxColor);
 	trxSetPower(nonVolatileSettings.txPower);
+	trxSetTxCTCSS(channelScreenChannelData.txTone);
 	codeplugRxGroupGetDataForIndex(channelData.rxGroupList,&rxGroupData);
 	codeplugContactGetDataForIndex(rxGroupData.contacts[currentIndexInTRxGroup],&contactData);
 	if (nonVolatileSettings.overrideTG == 0)
@@ -192,6 +193,7 @@ static void handleEvent(int buttons, int keys, int events)
 		else
 		{
 			trxSetMode(RADIO_MODE_ANALOG);
+			trxSetTxCTCSS(currentChannelData->rxTone);
 		}
 		menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
 		updateScreen();

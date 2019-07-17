@@ -51,8 +51,9 @@ int menuVFOMode(int buttons, int keys, int events, bool isFirstRun)
 	{
 		nonVolatileSettings.initialMenuNumber=MENU_VFO_MODE;
 		currentChannelData = &nonVolatileSettings.vfoChannel;
-		trxSetFrequency(currentChannelData->rxFreq);
 		trxSetMode(currentChannelData->chMode);
+		trxSetTxCTCSS(currentChannelData->txTone);
+		trxSetFrequency(currentChannelData->rxFreq);
 		trxSetDMRColourCode(currentChannelData->rxColor);
 		trxSetPower(nonVolatileSettings.txPower);
 
@@ -257,6 +258,7 @@ static void handleEvent(int buttons, int keys, int events)
 			else
 			{
 				trxSetMode(RADIO_MODE_ANALOG);
+				trxSetTxCTCSS(currentChannelData->rxTone);
 			}
 			currentChannelData->chMode = trxGetMode();
 			menuDisplayQSODataState = QSO_DISPLAY_DEFAULT_SCREEN;
