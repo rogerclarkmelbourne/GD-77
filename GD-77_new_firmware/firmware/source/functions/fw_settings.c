@@ -30,7 +30,7 @@ const int BAND_UHF_MAX 	= 4500000;
 
 static const int STORAGE_BASE_ADDRESS 		= 0x6000;
 static const int STORAGE_BASE_ADDRESS_OLD 	= 0xFF00;
-static const int STORAGE_MAGIC_NUMBER 		= 0x4719;
+static const int STORAGE_MAGIC_NUMBER 		= 0x471B;
 
 settingsStruct_t nonVolatileSettings;
 struct_codeplugChannel_t *currentChannelData;
